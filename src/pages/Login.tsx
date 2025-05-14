@@ -23,13 +23,8 @@ const Login = () => {
     
     try {
       await login(email, password);
-      // Check if the user is an admin and redirect accordingly
-      const savedUser = JSON.parse(localStorage.getItem('nuevaGen_user') || '{}');
-      if (savedUser.isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      // The redirect is now handled by the AuthContext after successful login
+      // No redirection needed here
     } catch (err) {
       toast({
         title: "Login Failed",
@@ -46,7 +41,7 @@ const Login = () => {
   };
 
   const fillAdminCredentials = () => {
-    setEmail('admin@nuevagen.org');
+    setEmail('admin@ng.org.pa');
     setPassword('admin123');
   };
 
@@ -121,7 +116,7 @@ const Login = () => {
                 Admin Demo Access
               </p>
               <p className="text-xs text-gray-600 mt-1">
-                Use email: <span className="font-mono">admin@nuevagen.org</span> <br/>
+                Use email: <span className="font-mono">admin@ng.org.pa</span> <br/>
                 Password: <span className="font-mono">admin123</span> 
               </p>
               <Button 

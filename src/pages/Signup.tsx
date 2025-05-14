@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Shield } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Switch } from '@/components/ui/switch';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -20,6 +21,8 @@ const Signup = () => {
   const [phone, setPhone] = useState('');
   const [birthdate, setBirthdate] = useState('');
   const [accountType, setAccountType] = useState<'individual' | 'organization'>('individual');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminKey, setAdminKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signup, error } = useAuth();
@@ -37,6 +40,15 @@ const Signup = () => {
       });
       return;
     }
+
+    if (isAdmin && adminKey !== "admin2024") {
+      toast({
+        title: "Invalid Admin Key",
+        description: "The admin key you entered is not valid",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsLoading(true);
     
@@ -45,8 +57,9 @@ const Signup = () => {
         ? `${firstName} ${lastName}` 
         : orgName;
         
-      await signup(email, password, name, accountType);
-      navigate('/dashboard');
+      const finalAccountType = isAdmin ? 'admin' : accountType;
+      await signup(email, password, name, finalAccountType as any);
+      // Navigation is now handled in AuthContext
     } catch (err) {
       toast({
         title: "Signup Failed",
@@ -83,30 +96,71 @@ const Signup = () => {
           <ToggleGroup
             type="single"
             value={accountType}
-            onValueChange={(value) => value && setAccountType(value as 'individual' | 'organization')}
+            onValueChange={(value) => {
+              if (value && !isAdmin) {
+                setAccountType(value as 'individual' | 'organization');
+              }
+            }}
             className="w-full"
+            disabled={isAdmin}
           >
             <ToggleGroupItem 
               value="individual"
               className={`flex-1 py-3 text-center transition-colors rounded-none ${
-                accountType === 'individual' 
+                accountType === 'individual' && !isAdmin
                   ? 'text-white font-bold' 
                   : 'bg-white/80 text-gray-600 hover:bg-white/70'
-              }`}
+              } ${isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Individual
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="organization"
               className={`flex-1 py-3 text-center transition-colors rounded-none ${
-                accountType === 'organization' 
+                accountType === 'organization' && !isAdmin
                   ? 'text-white font-bold' 
                   : 'bg-white/80 text-gray-600 hover:bg-white/70'
-              }`}
+              } ${isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Organization
             </ToggleGroupItem>
           </ToggleGroup>
+        </div>
+
+        <div className="mb-6 p-4 border border-gray-100 rounded-lg bg-gray-50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Shield size={18} className={isAdmin ? "text-purple-600" : "text-gray-400"} />
+              <Label htmlFor="admin-mode" className="font-medium text-sm">
+                Admin Account
+              </Label>
+            </div>
+            <Switch 
+              id="admin-mode" 
+              checked={isAdmin} 
+              onCheckedChange={setIsAdmin}
+            />
+          </div>
+          
+          {isAdmin && (
+            <div className="mt-4">
+              <Label htmlFor="admin-key" className="text-xs text-gray-500 mb-1 block">
+                Admin Authorization Key
+              </Label>
+              <Input
+                id="admin-key"
+                type="password"
+                value={adminKey}
+                onChange={(e) => setAdminKey(e.target.value)}
+                required={isAdmin}
+                placeholder="Enter admin key"
+                className="text-sm h-8"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                For demo use: "admin2024"
+              </p>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -151,7 +205,7 @@ const Signup = () => {
             </div>
           </div>
 
-          {accountType === 'individual' ? (
+          {!isAdmin && accountType === 'individual' ? (
             <>
               <div>
                 <Input
@@ -159,7 +213,7 @@ const Signup = () => {
                   placeholder="First Name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  required
+                  required={!isAdmin && accountType === 'individual'}
                   className="w-full h-12 text-base"
                 />
               </div>
@@ -170,7 +224,7 @@ const Signup = () => {
                   placeholder="Last Name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  required
+                  required={!isAdmin && accountType === 'individual'}
                   className="w-full h-12 text-base"
                 />
               </div>
@@ -185,14 +239,25 @@ const Signup = () => {
                 />
               </div>
             </>
-          ) : (
+          ) : !isAdmin && accountType === 'organization' ? (
             <div>
               <Input
                 type="text"
                 placeholder="Organization Name"
                 value={orgName}
                 onChange={(e) => setOrgName(e.target.value)}
-                required
+                required={!isAdmin && accountType === 'organization'}
+                className="w-full h-12 text-base"
+              />
+            </div>
+          ) : (
+            <div>
+              <Input
+                type="text"
+                placeholder="Admin Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required={isAdmin}
                 className="w-full h-12 text-base"
               />
             </div>
@@ -211,7 +276,7 @@ const Signup = () => {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-12 bg-nuevagen-blue hover:bg-opacity-90 text-white font-medium rounded-lg"
+            className={`w-full h-12 ${isAdmin ? 'bg-purple-600 hover:bg-purple-700' : 'bg-nuevagen-blue hover:bg-opacity-90'} text-white font-medium rounded-lg`}
           >
             {isLoading ? "Creating Account..." : "Sign Up"}
           </Button>
