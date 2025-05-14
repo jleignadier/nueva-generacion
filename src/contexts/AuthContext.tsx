@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -39,18 +38,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  // Prevent automatic redirection based on path
+  // Only redirect from root path, nowhere else
   useEffect(() => {
-    if (!isLoading && user) {
-      const path = location.pathname;
-      
-      // Only redirect if we're at root or on the wrong section
-      if (path === '/') {
-        if (user.isAdmin) {
-          navigate('/admin');
-        } else {
-          navigate('/dashboard');
-        }
+    if (!isLoading && user && location.pathname === '/') {
+      console.log('Redirecting from root path based on user role:', user.isAdmin ? 'admin' : 'user');
+      if (user.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
       }
     }
   }, [isLoading, user, location.pathname, navigate]);

@@ -8,8 +8,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
 import AdminLayout from "./layouts/AdminLayout";
+import UserLayout from "./layouts/UserLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminDonations from "./pages/admin/AdminDonations";
@@ -35,15 +35,15 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             
-            {/* User Routes */}
-            <Route path="/dashboard" element={<Dashboard />}>
+            {/* User Routes with UserLayout */}
+            <Route path="/dashboard" element={<UserLayout />}>
               <Route index element={<HomeTab />} />
               <Route path="donations" element={<DonationsTab />} />
               <Route path="leaderboard" element={<LeaderboardTab />} />
               <Route path="profile" element={<ProfileTab />} />
             </Route>
             
-            {/* Admin Routes - Completely separated with own layout */}
+            {/* Admin Routes with AdminLayout */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="events" element={<AdminEvents />} />
@@ -52,7 +52,7 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             
-            {/* Root redirect based on auth state handled by AuthProvider */}
+            {/* Root redirect - send to login by default */}
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
