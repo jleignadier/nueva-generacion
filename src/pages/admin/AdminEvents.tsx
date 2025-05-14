@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useEventsStore } from '@/store/eventsStore';
@@ -78,7 +78,7 @@ const AdminEvents = () => {
               value="all" 
               className={filter === 'all' 
                 ? "bg-zinc-700 text-white" 
-                : "border-zinc-600 text-black hover:bg-zinc-700 hover:text-white"}
+                : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
             >
               All Events
             </ToggleGroupItem>
@@ -86,7 +86,7 @@ const AdminEvents = () => {
               value="upcoming" 
               className={filter === 'upcoming' 
                 ? "bg-zinc-700 text-white" 
-                : "border-zinc-600 text-black hover:bg-zinc-700 hover:text-white"}
+                : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
             >
               Upcoming
             </ToggleGroupItem>
@@ -94,7 +94,7 @@ const AdminEvents = () => {
               value="completed" 
               className={filter === 'completed' 
                 ? "bg-zinc-700 text-white" 
-                : "border-zinc-600 text-black hover:bg-zinc-700 hover:text-white"}
+                : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
             >
               Completed
             </ToggleGroupItem>
@@ -143,7 +143,7 @@ const AdminEvents = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="border-zinc-600 text-black hover:bg-zinc-700 hover:text-white"
+                      className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"
                       onClick={() => navigate(`/admin/events/edit/${event.id}`)}
                     >
                       <Edit size={14} className="mr-1" />

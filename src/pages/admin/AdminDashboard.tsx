@@ -25,27 +25,29 @@ const AdminDashboard = () => {
   useEffect(() => {
     // Load all donations to calculate total
     const userDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
+    const mockDonations = JSON.parse(localStorage.getItem('mockDonations') || '[]');
+    const allDonations = [...userDonations, ...mockDonations];
     
     // Calculate total donations amount
-    let total = 24500; // Base amount from mock data
+    let total = 0;
     
-    userDonations.forEach((donation: any) => {
-      const amount = parseFloat(donation.amount);
-      if (!isNaN(amount)) {
-        total += amount;
+    allDonations.forEach((donation: any) => {
+      if (donation.amount) {
+        // Handle formatted strings like '$1,000'
+        const numAmount = typeof donation.amount === 'string' && donation.amount.startsWith('$') 
+          ? parseFloat(donation.amount.replace(/[$,]/g, ''))
+          : parseFloat(donation.amount);
+          
+        if (!isNaN(numAmount)) {
+          total += numAmount;
+        }
       }
     });
     
     setTotalDonations(total);
     
-    // Generate recent activities
-    const activities: Activity[] = [
-      {
-        type: 'donation',
-        title: 'New Donation: $500',
-        person: 'John Doe',
-        timeAgo: '2 hours ago'
-      },
+    // Generate base recent activities
+    const baseActivities: Activity[] = [
       {
         type: 'user',
         title: 'New User Registered',
@@ -60,21 +62,33 @@ const AdminDashboard = () => {
       }
     ];
     
-    // Add recent user donations to activities
-    const recentDonations = userDonations
+    // Add recent verified and completed donations to activities
+    const recentDonations = allDonations
+      .filter((donation: any) => donation.status === 'Verified' || donation.status === 'Completed')
       .sort((a: any, b: any) => new Date(b.date || Date.now()).getTime() - new Date(a.date || Date.now()).getTime())
-      .slice(0, 3); // Get only the 3 most recent
+      .slice(0, 4); // Get only the 4 most recent
     
-    recentDonations.forEach((donation: any) => {
-      activities.unshift({
-        type: 'donation',
-        title: `New Donation: $${donation.amount}`,
-        person: donation.name || 'Anonymous',
-        timeAgo: getTimeAgo(new Date(donation.date || Date.now()))
-      });
-    });
+    const donationActivities = recentDonations.map((donation: any) => ({
+      type: 'donation' as const,
+      title: `Donation Verified: ${donation.amount}`,
+      person: donation.name || 'Anonymous',
+      timeAgo: getTimeAgo(new Date(donation.date || Date.now()))
+    }));
     
-    setRecentActivities(activities.slice(0, 6)); // Limit to 6 activities
+    // Add newly submitted donations (pending) to activities
+    const pendingDonations = allDonations
+      .filter((donation: any) => donation.status === 'Pending')
+      .sort((a: any, b: any) => new Date(b.date || Date.now()).getTime() - new Date(a.date || Date.now()).getTime())
+      .slice(0, 2); // Show max 2 pending donations
+      
+    const pendingActivities = pendingDonations.map((donation: any) => ({
+      type: 'donation' as const,
+      title: `New Donation Submitted: ${donation.amount}`,
+      person: donation.name || 'Anonymous',
+      timeAgo: getTimeAgo(new Date(donation.date || Date.now()))
+    }));
+    
+    setRecentActivities([...donationActivities, ...pendingActivities, ...baseActivities].slice(0, 6)); // Limit to 6 activities
   }, []);
   
   // Helper function to format time ago

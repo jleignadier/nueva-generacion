@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -62,7 +61,7 @@ const AdminDonations = () => {
     setDonations([...formattedUserDonations, ...mockDonations]);
   };
 
-  const handleStatusUpdate = (donationId: string, newStatus: 'Verified' | 'Rejected' | 'Completed') => {
+  const handleStatusUpdate = (donationId: string, newStatus: 'Completed' | 'Rejected') => {
     // Update in state
     setDonations(prev => 
       prev.map(donation => 
@@ -105,7 +104,7 @@ const AdminDonations = () => {
       case 'Completed':
         return <Badge className="bg-green-600 hover:bg-green-700">Completed</Badge>;
       case 'Verified':
-        return <Badge className="bg-blue-600 hover:bg-blue-700">Verified</Badge>;
+        return <Badge className="bg-green-600 hover:bg-green-700">Completed</Badge>;
       case 'Rejected':
         return <Badge className="bg-red-600 hover:bg-red-700">Rejected</Badge>;
       case 'Pending':
@@ -145,7 +144,7 @@ const AdminDonations = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="text-black hover:text-black"
+                        className="text-white hover:text-white"
                         onClick={() => {
                           toast({
                             title: "Donation details",
@@ -164,7 +163,7 @@ const AdminDonations = () => {
                             variant="outline" 
                             size="sm" 
                             className="text-green-400 hover:text-green-300 hover:border-green-400"
-                            onClick={() => handleStatusUpdate(donation.id, 'Verified')}
+                            onClick={() => handleStatusUpdate(donation.id, 'Completed')}
                           >
                             Verify
                           </Button>
@@ -177,17 +176,6 @@ const AdminDonations = () => {
                             Reject
                           </Button>
                         </>
-                      )}
-
-                      {donation.status === 'Verified' && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="text-blue-400 hover:text-blue-300 hover:border-blue-400"
-                          onClick={() => handleStatusUpdate(donation.id, 'Completed')}
-                        >
-                          Mark Completed
-                        </Button>
                       )}
                     </div>
                   </TableCell>
