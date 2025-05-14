@@ -64,4 +64,4 @@ export const AdminTabBar: React.FC = () => {
       </div>
     </div>
   );
-});
+};
