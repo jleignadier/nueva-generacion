@@ -1,12 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { QrCode, Copy, CalendarCheck } from 'lucide-react';
+import { QrCode, Copy, CalendarCheck, DollarSign } from 'lucide-react';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 const DonationsTab = () => {
   const [amount, setAmount] = useState('');
@@ -17,6 +18,8 @@ const DonationsTab = () => {
   const { toast } = useToast();
   
   const venmoHandle = '@NuevaGeneracion';
+  
+  const presetAmounts = [10, 25, 50, 100];
   
   const handleCopyVenmoHandle = () => {
     navigator.clipboard.writeText(venmoHandle);
@@ -31,6 +34,15 @@ const DonationsTab = () => {
       setReceiptFile(e.target.files[0]);
     }
   };
+  
+  const handlePresetAmount = (value: string) => {
+    setAmount(value);
+  };
+  
+  const pointsEarned = useMemo(() => {
+    const numAmount = Number(amount);
+    return !isNaN(numAmount) ? numAmount : 0;
+  }, [amount]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +91,7 @@ const DonationsTab = () => {
                 onClick={() => setDonationMethod('qrcode')}
                 className={`flex-1 py-2 text-center transition-colors ${
                   donationMethod === 'qrcode' 
-                    ? 'bg-nuevagen-blue text-white font-medium rounded-l-lg' 
+                    ? 'bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white font-medium rounded-l-lg' 
                     : 'bg-gray-100 text-gray-600 rounded-l-lg'
                 }`}
               >
@@ -91,7 +103,7 @@ const DonationsTab = () => {
                 onClick={() => setDonationMethod('venmo')}
                 className={`flex-1 py-2 text-center transition-colors ${
                   donationMethod === 'venmo' 
-                    ? 'bg-nuevagen-blue text-white font-medium rounded-r-lg' 
+                    ? 'bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white font-medium rounded-r-lg' 
                     : 'bg-gray-100 text-gray-600 rounded-r-lg'
                 }`}
               >
@@ -135,18 +147,43 @@ const DonationsTab = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="amount">Donation Amount ($)</Label>
-              <Input
-                id="amount"
-                type="number"
-                min="1"
-                step="1"
-                placeholder="Enter donation amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-                className="mt-1"
-              />
+              <Label htmlFor="amount" className="mb-2 block">Donation Amount ($)</Label>
+              
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {presetAmounts.map((preset) => (
+                  <Button 
+                    key={preset}
+                    type="button"
+                    variant={amount === preset.toString() ? "default" : "outline"}
+                    onClick={() => handlePresetAmount(preset.toString())}
+                    className="w-full"
+                  >
+                    ${preset}
+                  </Button>
+                ))}
+              </div>
+              
+              <div className="flex items-center">
+                <div className="relative flex-1">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                  <Input
+                    id="amount"
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Custom amount"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    required
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              
+              <div className="mt-2 text-sm font-medium text-nuevagen-blue flex items-center">
+                <CalendarCheck className="mr-1" size={16} />
+                You will earn {pointsEarned} points with this donation
+              </div>
             </div>
             
             <div>

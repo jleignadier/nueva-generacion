@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarCheck, Clock, MapPin, Users } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, Users, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const HomeTab = () => {
@@ -79,86 +79,83 @@ const HomeTab = () => {
 
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-3">Next Event</h2>
-        <Card key={nextEvent.id} className="overflow-hidden mb-6">
-          <div className="border-l-4 border-nuevagen-pink h-full">
-            <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-lg">{nextEvent.title}</CardTitle>
-              <p className="text-sm text-gray-600">{nextEvent.organization}</p>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="flex items-center">
-                  <MapPin size={14} className="mr-1 text-nuevagen-blue" />
-                  <span>{nextEvent.location}</span>
-                </div>
-                <div className="flex items-center">
-                  <Users size={14} className="mr-1 text-nuevagen-purple" />
-                  <span>{nextEvent.participants} joining</span>
-                </div>
-                <div className="flex items-center">
-                  <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
-                  <span>{nextEvent.date}</span>
-                </div>
-                <div className="flex items-center">
-                  <Clock size={14} className="mr-1 text-nuevagen-green" />
-                  <span>{nextEvent.time}</span>
-                </div>
+        <Card key={nextEvent.id} className="overflow-hidden mb-6 border-l-4 border-nuevagen-pink">
+          <CardHeader className="p-4 pb-2">
+            <CardTitle className="text-lg">{nextEvent.title}</CardTitle>
+            <p className="text-sm text-gray-600">{nextEvent.organization}</p>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="flex items-center">
+                <MapPin size={14} className="mr-1 text-nuevagen-blue" />
+                <span>{nextEvent.location}</span>
               </div>
-              <Button 
-                className="w-full mt-3 btn-primary" 
-                size="sm"
-              >
-                Join Event
-              </Button>
-            </CardContent>
-          </div>
+              <div className="flex items-center">
+                <Users size={14} className="mr-1 text-nuevagen-purple" />
+                <span>{nextEvent.participants} joining</span>
+              </div>
+              <div className="flex items-center">
+                <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
+                <span>{nextEvent.date}</span>
+              </div>
+              <div className="flex items-center">
+                <Clock size={14} className="mr-1 text-nuevagen-green" />
+                <span>{nextEvent.time}</span>
+              </div>
+            </div>
+            <Button 
+              className="w-full mt-3 btn-primary" 
+              size="sm"
+            >
+              Participate Now
+            </Button>
+          </CardContent>
         </Card>
 
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-xl font-semibold text-gray-800">Upcoming Events</h2>
           <Button 
             variant="ghost" 
-            className="text-sm text-nuevagen-blue"
+            className="text-sm text-nuevagen-blue flex items-center"
             size="sm"
           >
             See All
+            <ChevronRight size={16} />
           </Button>
         </div>
         <div className="space-y-4">
           {otherEvents.map((event) => (
-            <Card key={event.id} className="overflow-hidden">
-              <div className="border-l-4 border-nuevagen-teal h-full">
-                <CardHeader className="p-4 pb-2">
-                  <CardTitle className="text-lg">{event.title}</CardTitle>
-                  <p className="text-sm text-gray-600">{event.organization}</p>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="flex items-center">
-                      <MapPin size={14} className="mr-1 text-nuevagen-blue" />
-                      <span>{event.location}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Users size={14} className="mr-1 text-nuevagen-purple" />
-                      <span>{event.participants} joining</span>
-                    </div>
-                    <div className="flex items-center">
-                      <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
-                      <span>{event.date}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock size={14} className="mr-1 text-nuevagen-green" />
-                      <span>{event.time}</span>
-                    </div>
+            <Card key={event.id} className="overflow-hidden border-l-4 border-nuevagen-teal">
+              <CardHeader className="p-4 pb-2">
+                <CardTitle className="text-lg">{event.title}</CardTitle>
+                <p className="text-sm text-gray-600">{event.organization}</p>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex items-center">
+                    <MapPin size={14} className="mr-1 text-nuevagen-blue" />
+                    <span>{event.location}</span>
                   </div>
-                  <Button 
-                    className="w-full mt-3 btn-primary" 
-                    size="sm"
-                  >
-                    Join Event
-                  </Button>
-                </CardContent>
-              </div>
+                  <div className="flex items-center">
+                    <Users size={14} className="mr-1 text-nuevagen-purple" />
+                    <span>{event.participants} joining</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
+                    <span>{event.date}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Clock size={14} className="mr-1 text-nuevagen-green" />
+                    <span>{event.time}</span>
+                  </div>
+                </div>
+                <Button 
+                  className="w-full mt-3 btn-primary" 
+                  size="sm"
+                >
+                  Participate
+                </Button>
+              </CardContent>
             </Card>
           ))}
         </div>

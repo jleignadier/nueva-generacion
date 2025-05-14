@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Clock, Award } from 'lucide-react';
+import { Trophy, Clock, Award, Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface LeaderboardEntry {
@@ -17,6 +17,12 @@ const LeaderboardTab = () => {
   const { user } = useAuth();
   const [currentTab, setCurrentTab] = useState('hours');
 
+  // User data
+  const userHours = 28;
+  const userHoursRank = 12;
+  const userDonations = 350;
+  const userDonationsRank = 18;
+
   const volunteerHoursLeaders: LeaderboardEntry[] = [
     { id: 1, name: 'Maria Garcia', rank: 1, value: 78, avatar: 'MG' },
     { id: 2, name: 'James Wilson', rank: 2, value: 64, avatar: 'JW' },
@@ -25,7 +31,7 @@ const LeaderboardTab = () => {
     { id: 5, name: 'Li Wei', rank: 5, value: 47, avatar: 'LW' },
     { id: 6, name: 'Olivia Martinez', rank: 6, value: 42, avatar: 'OM' },
     { id: 7, name: 'John Smith', rank: 7, value: 38, avatar: 'JS' },
-    { id: 8, name: 'User Name', rank: 12, value: 28, avatar: user?.name.charAt(0) || '?' },
+    { id: 8, name: 'User Name', rank: userHoursRank, value: userHours, avatar: user?.name.charAt(0) || '?' },
   ];
 
   const donationsLeaders: LeaderboardEntry[] = [
@@ -36,8 +42,41 @@ const LeaderboardTab = () => {
     { id: 5, name: 'Global Helpers', rank: 5, value: 1150, avatar: 'GH' },
     { id: 6, name: 'Aisha Patel', rank: 6, value: 950, avatar: 'AP' },
     { id: 7, name: 'Community First', rank: 7, value: 900, avatar: 'CF' },
-    { id: 8, name: 'User Name', rank: 18, value: 350, avatar: user?.name.charAt(0) || '?' },
+    { id: 8, name: 'User Name', rank: userDonationsRank, value: userDonations, avatar: user?.name.charAt(0) || '?' },
   ];
+
+  const renderUserStats = () => {
+    const isHoursTab = currentTab === 'hours';
+    const rank = isHoursTab ? userHoursRank : userDonationsRank;
+    const value = isHoursTab ? userHours : userDonations;
+    
+    return (
+      <Card className="mb-4 bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg mr-3">
+                {user?.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h3 className="font-bold">{user?.name}</h3>
+                <p className="text-sm opacity-90">Your Stats</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center justify-end text-white/80 text-sm">
+                <Trophy size={14} className="mr-1" />
+                Rank #{rank}
+              </div>
+              <div className="text-2xl font-bold mt-1">
+                {isHoursTab ? `${value} hours` : `$${value}`}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   const renderLeaderboard = (entries: LeaderboardEntry[], valueLabel: string) => (
     <div className="space-y-2">
@@ -90,6 +129,8 @@ const LeaderboardTab = () => {
         <h1 className="text-2xl font-bold text-gray-800">Leaderboard</h1>
         <Award size={24} className="text-nuevagen-yellow" />
       </div>
+
+      {renderUserStats()}
 
       <Tabs 
         defaultValue="hours" 
