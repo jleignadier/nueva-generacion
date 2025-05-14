@@ -18,7 +18,7 @@ const eventsMockData = [
     date: '2025-05-20',
     time: '09:00',
     endTime: '12:00',
-    description: 'Join us for a community beach cleanup! We'll be removing trash and debris from the shoreline to protect marine life and keep our beaches beautiful.',
+    description: "Join us for a community beach cleanup! We'll be removing trash and debris from the shoreline to protect marine life and keep our beaches beautiful.",
     pointsEarned: 50,
     image: 'https://placehold.co/600x400/png?text=Beach+Cleanup'
   },

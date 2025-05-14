@@ -14,7 +14,7 @@ const eventsMockData = [
     location: 'Santa Monica Beach',
     date: 'May 20, 2025',
     time: '9:00 AM - 12:00 PM',
-    description: 'Join us for a community beach cleanup! We'll be removing trash and debris from the shoreline to protect marine life and keep our beaches beautiful.',
+    description: "Join us for a community beach cleanup! We'll be removing trash and debris from the shoreline to protect marine life and keep our beaches beautiful.",
     participantCount: 24,
     pointsEarned: 50,
     image: 'https://placehold.co/600x400/png?text=Beach+Cleanup'
