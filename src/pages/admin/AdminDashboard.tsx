@@ -1,7 +1,95 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
+interface Donation {
+  id: string;
+  name: string;
+  amount: string;
+  date: string;
+  status: 'Pending' | 'Verified' | 'Rejected' | 'Completed';
+  receipt?: string;
+  note?: string;
+}
+
+interface Activity {
+  type: 'donation' | 'user' | 'event';
+  title: string;
+  person: string;
+  timeAgo: string;
+}
 
 const AdminDashboard = () => {
+  const [totalDonations, setTotalDonations] = useState<number>(0);
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+  
+  useEffect(() => {
+    // Load all donations to calculate total
+    const userDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
+    
+    // Calculate total donations amount
+    let total = 24500; // Base amount from mock data
+    
+    userDonations.forEach((donation: any) => {
+      const amount = parseFloat(donation.amount);
+      if (!isNaN(amount)) {
+        total += amount;
+      }
+    });
+    
+    setTotalDonations(total);
+    
+    // Generate recent activities
+    const activities: Activity[] = [
+      {
+        type: 'donation',
+        title: 'New Donation: $500',
+        person: 'John Doe',
+        timeAgo: '2 hours ago'
+      },
+      {
+        type: 'user',
+        title: 'New User Registered',
+        person: 'Maria Garcia',
+        timeAgo: '5 hours ago'
+      },
+      {
+        type: 'event',
+        title: 'Event Created: Fundraising Gala',
+        person: 'Admin',
+        timeAgo: '1 day ago'
+      }
+    ];
+    
+    // Add recent user donations to activities
+    const recentDonations = userDonations
+      .sort((a: any, b: any) => new Date(b.date || Date.now()).getTime() - new Date(a.date || Date.now()).getTime())
+      .slice(0, 3); // Get only the 3 most recent
+    
+    recentDonations.forEach((donation: any) => {
+      activities.unshift({
+        type: 'donation',
+        title: `New Donation: $${donation.amount}`,
+        person: donation.name || 'Anonymous',
+        timeAgo: getTimeAgo(new Date(donation.date || Date.now()))
+      });
+    });
+    
+    setRecentActivities(activities.slice(0, 6)); // Limit to 6 activities
+  }, []);
+  
+  // Helper function to format time ago
+  const getTimeAgo = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.round(diffMs / 60000);
+    const diffHours = Math.round(diffMs / 3600000);
+    const diffDays = Math.round(diffMs / 86400000);
+    
+    if (diffMins < 60) return `${diffMins} mins ago`;
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    return `${diffDays} days ago`;
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
@@ -15,7 +103,7 @@ const AdminDashboard = () => {
             </div>
             <div>
               <p className="text-zinc-400">Total Donations</p>
-              <p className="text-2xl font-bold">$24,500</p>
+              <p className="text-2xl font-bold">${totalDonations.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-zinc-400">Active Users</p>
@@ -27,18 +115,24 @@ const AdminDashboard = () => {
         <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
           <h2 className="text-xl font-medium mb-4">Recent Activity</h2>
           <div className="space-y-4">
-            <div className="border-b border-zinc-700 pb-3">
-              <p className="font-medium">New Donation: $500</p>
-              <p className="text-sm text-zinc-400">From: John Doe • 2 hours ago</p>
-            </div>
-            <div className="border-b border-zinc-700 pb-3">
-              <p className="font-medium">New User Registered</p>
-              <p className="text-sm text-zinc-400">Maria Garcia • 5 hours ago</p>
-            </div>
-            <div>
-              <p className="font-medium">Event Created: Fundraising Gala</p>
-              <p className="text-sm text-zinc-400">By: Admin • 1 day ago</p>
-            </div>
+            {recentActivities.map((activity, index) => (
+              <div 
+                key={index}
+                className={index < recentActivities.length - 1 ? "border-b border-zinc-700 pb-3" : ""}
+              >
+                <p className="font-medium">{activity.title}</p>
+                <p className="text-sm text-zinc-400">
+                  {activity.type === 'donation' ? 'From: ' : activity.type === 'event' ? 'By: ' : ''}
+                  {activity.person} • {activity.timeAgo}
+                </p>
+              </div>
+            ))}
+            
+            {recentActivities.length === 0 && (
+              <div>
+                <p className="text-zinc-400">No recent activity</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
