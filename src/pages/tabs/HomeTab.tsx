@@ -61,50 +61,34 @@ const HomeTab = () => {
         </div>
       </div>
       
-      <Card className="mb-6 bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal">
-        <CardContent className="p-6">
-          <div className="flex flex-col text-white">
-            <span className="text-lg font-medium opacity-90">Your Impact</span>
-            <span className="text-3xl font-bold mt-1">12</span>
-            <span className="text-sm mt-1">Volunteer Hours This Month</span>
-            <Button 
-              variant="outline" 
-              className="mt-4 bg-white/20 hover:bg-white/30 text-white border-white/40"
-            >
-              View All Activities
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-3">Next Event</h2>
-        <Card key={nextEvent.id} className="overflow-hidden mb-6 border-l-4 border-nuevagen-pink">
+        <Card key={nextEvent.id} className="overflow-hidden mb-6 border-l-4 border-nuevagen-pink bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
           <CardHeader className="p-4 pb-2">
             <CardTitle className="text-lg">{nextEvent.title}</CardTitle>
-            <p className="text-sm text-gray-600">{nextEvent.organization}</p>
+            <p className="text-sm text-white/90">{nextEvent.organization}</p>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="flex items-center">
-                <MapPin size={14} className="mr-1 text-nuevagen-blue" />
+                <MapPin size={14} className="mr-1 text-white" />
                 <span>{nextEvent.location}</span>
               </div>
               <div className="flex items-center">
-                <Users size={14} className="mr-1 text-nuevagen-purple" />
+                <Users size={14} className="mr-1 text-white" />
                 <span>{nextEvent.participants} joining</span>
               </div>
               <div className="flex items-center">
-                <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
+                <CalendarCheck size={14} className="mr-1 text-white" />
                 <span>{nextEvent.date}</span>
               </div>
               <div className="flex items-center">
-                <Clock size={14} className="mr-1 text-nuevagen-green" />
+                <Clock size={14} className="mr-1 text-white" />
                 <span>{nextEvent.time}</span>
               </div>
             </div>
             <Button 
-              className="w-full mt-3 btn-primary" 
+              className="w-full mt-3 bg-white/20 hover:bg-white/30 text-white" 
               size="sm"
             >
               Participate Now

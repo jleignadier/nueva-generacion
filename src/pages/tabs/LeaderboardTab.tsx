@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Clock, Award, Star } from 'lucide-react';
+import { Trophy, Award, Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface LeaderboardEntry {
@@ -15,15 +15,15 @@ interface LeaderboardEntry {
 
 const LeaderboardTab = () => {
   const { user } = useAuth();
-  const [currentTab, setCurrentTab] = useState('hours');
+  const [currentTab, setCurrentTab] = useState('volunteer');
 
   // User data
-  const userHours = 28;
-  const userHoursRank = 12;
-  const userDonations = 350;
-  const userDonationsRank = 18;
+  const userPoints = 28;
+  const userRank = 12;
+  const userDonationPoints = 35;
+  const userDonationRank = 18;
 
-  const volunteerHoursLeaders: LeaderboardEntry[] = [
+  const volunteerLeaders: LeaderboardEntry[] = [
     { id: 1, name: 'Maria Garcia', rank: 1, value: 78, avatar: 'MG' },
     { id: 2, name: 'James Wilson', rank: 2, value: 64, avatar: 'JW' },
     { id: 3, name: 'Sarah Johnson', rank: 3, value: 59, avatar: 'SJ' },
@@ -31,24 +31,24 @@ const LeaderboardTab = () => {
     { id: 5, name: 'Li Wei', rank: 5, value: 47, avatar: 'LW' },
     { id: 6, name: 'Olivia Martinez', rank: 6, value: 42, avatar: 'OM' },
     { id: 7, name: 'John Smith', rank: 7, value: 38, avatar: 'JS' },
-    { id: 8, name: 'User Name', rank: userHoursRank, value: userHours, avatar: user?.name.charAt(0) || '?' },
+    { id: 8, name: 'User Name', rank: userRank, value: userPoints, avatar: user?.name.charAt(0) || '?' },
   ];
 
   const donationsLeaders: LeaderboardEntry[] = [
-    { id: 1, name: 'Christina Wong', rank: 1, value: 2500, avatar: 'CW' },
-    { id: 2, name: 'Robert Johnson', rank: 2, value: 1750, avatar: 'RJ' },
-    { id: 3, name: 'Tech Solutions Inc.', rank: 3, value: 1500, avatar: 'TS' },
-    { id: 4, name: 'Miguel Sanchez', rank: 4, value: 1200, avatar: 'MS' },
-    { id: 5, name: 'Global Helpers', rank: 5, value: 1150, avatar: 'GH' },
-    { id: 6, name: 'Aisha Patel', rank: 6, value: 950, avatar: 'AP' },
-    { id: 7, name: 'Community First', rank: 7, value: 900, avatar: 'CF' },
-    { id: 8, name: 'User Name', rank: userDonationsRank, value: userDonations, avatar: user?.name.charAt(0) || '?' },
+    { id: 1, name: 'Christina Wong', rank: 1, value: 250, avatar: 'CW' },
+    { id: 2, name: 'Robert Johnson', rank: 2, value: 175, avatar: 'RJ' },
+    { id: 3, name: 'Tech Solutions Inc.', rank: 3, value: 150, avatar: 'TS' },
+    { id: 4, name: 'Miguel Sanchez', rank: 4, value: 120, avatar: 'MS' },
+    { id: 5, name: 'Global Helpers', rank: 5, value: 115, avatar: 'GH' },
+    { id: 6, name: 'Aisha Patel', rank: 6, value: 95, avatar: 'AP' },
+    { id: 7, name: 'Community First', rank: 7, value: 90, avatar: 'CF' },
+    { id: 8, name: 'User Name', rank: userDonationRank, value: userDonationPoints, avatar: user?.name.charAt(0) || '?' },
   ];
 
   const renderUserStats = () => {
-    const isHoursTab = currentTab === 'hours';
-    const rank = isHoursTab ? userHoursRank : userDonationsRank;
-    const value = isHoursTab ? userHours : userDonations;
+    const isVolunteerTab = currentTab === 'volunteer';
+    const rank = isVolunteerTab ? userRank : userDonationRank;
+    const value = isVolunteerTab ? userPoints : userDonationPoints;
     
     return (
       <Card className="mb-4 bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
@@ -69,7 +69,7 @@ const LeaderboardTab = () => {
                 Rank #{rank}
               </div>
               <div className="text-2xl font-bold mt-1">
-                {isHoursTab ? `${value} hours` : `$${value}`}
+                {value} points
               </div>
             </div>
           </div>
@@ -78,7 +78,7 @@ const LeaderboardTab = () => {
     );
   };
 
-  const renderLeaderboard = (entries: LeaderboardEntry[], valueLabel: string) => (
+  const renderLeaderboard = (entries: LeaderboardEntry[]) => (
     <div className="space-y-2">
       {entries.map((entry) => {
         const isUser = entry.name === 'User Name';
@@ -113,7 +113,7 @@ const LeaderboardTab = () => {
                   {entry.name}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {valueLabel === 'hours' ? `${entry.value} hours` : `$${entry.value}`}
+                  {entry.value} points
                 </p>
               </div>
             </CardContent>
@@ -133,22 +133,22 @@ const LeaderboardTab = () => {
       {renderUserStats()}
 
       <Tabs 
-        defaultValue="hours" 
+        defaultValue="volunteer" 
         onValueChange={setCurrentTab}
         className="w-full"
       >
         <TabsList className="grid grid-cols-2 mb-6">
-          <TabsTrigger value="hours" className="flex items-center">
-            <Clock size={16} className="mr-2" />
-            Volunteer Hours
+          <TabsTrigger value="volunteer" className="flex items-center">
+            <Star size={16} className="mr-2" />
+            Volunteer Points
           </TabsTrigger>
           <TabsTrigger value="donations" className="flex items-center">
             <Trophy size={16} className="mr-2" />
-            Donations
+            Donation Points
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="hours">
+        <TabsContent value="volunteer">
           <Card className="mb-4">
             <CardHeader className="p-4 pb-2">
               <CardTitle className="text-lg flex items-center">
@@ -157,7 +157,7 @@ const LeaderboardTab = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
-              {renderLeaderboard(volunteerHoursLeaders, 'hours')}
+              {renderLeaderboard(volunteerLeaders)}
             </CardContent>
           </Card>
         </TabsContent>
@@ -171,7 +171,7 @@ const LeaderboardTab = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
-              {renderLeaderboard(donationsLeaders, 'amount')}
+              {renderLeaderboard(donationsLeaders)}
             </CardContent>
           </Card>
         </TabsContent>
