@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
+import { Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,6 +12,14 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface Donation {
   id: string;
@@ -24,6 +34,8 @@ interface Donation {
 const AdminDonations = () => {
   const [donations, setDonations] = useState<Donation[]>([]);
   const { toast } = useToast();
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
 
   useEffect(() => {
     loadAllDonations();
@@ -97,6 +109,12 @@ const AdminDonations = () => {
       title: "Donation updated",
       description: `Donation status has been updated to ${newStatus}`
     });
+    
+    // Close the modal after updating status
+    if (showDetailsModal) {
+      setShowDetailsModal(false);
+      setSelectedDonation(null);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -111,6 +129,11 @@ const AdminDonations = () => {
       default:
         return <Badge className="bg-amber-600 hover:bg-amber-700">Pending</Badge>;
     }
+  };
+
+  const handleViewDetails = (donation: Donation) => {
+    setSelectedDonation(donation);
+    setShowDetailsModal(true);
   };
 
   return (
@@ -144,16 +167,10 @@ const AdminDonations = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="text-white hover:text-white"
-                        onClick={() => {
-                          toast({
-                            title: "Donation details",
-                            description: donation.note 
-                              ? `Note: ${donation.note}` 
-                              : "No additional details available"
-                          });
-                        }}
+                        className="text-black hover:text-black bg-white hover:bg-gray-100 border-gray-300"
+                        onClick={() => handleViewDetails(donation)}
                       >
+                        <Eye className="mr-1 h-4 w-4" /> 
                         Details
                       </Button>
                       
@@ -193,6 +210,87 @@ const AdminDonations = () => {
           </Table>
         </div>
       </div>
+
+      {/* Details Modal */}
+      <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Donation Details</DialogTitle>
+          </DialogHeader>
+          
+          {selectedDonation && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Donor</p>
+                  <p>{selectedDonation.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Amount</p>
+                  <p>{selectedDonation.amount}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Date</p>
+                  <p>{selectedDonation.date}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Status</p>
+                  <p>{selectedDonation.status}</p>
+                </div>
+              </div>
+              
+              {selectedDonation.note && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Note</p>
+                  <p className="text-sm mt-1 p-2 bg-gray-100 rounded">{selectedDonation.note}</p>
+                </div>
+              )}
+              
+              {selectedDonation.receipt && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Receipt</p>
+                  <div className="border rounded-lg overflow-hidden mt-1">
+                    <AspectRatio ratio={16/9}>
+                      <img 
+                        src={selectedDonation.receipt} 
+                        alt="Donation Receipt" 
+                        className="object-cover w-full h-full"
+                      />
+                    </AspectRatio>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowDetailsModal(false)}
+            >
+              Close
+            </Button>
+            
+            {selectedDonation && selectedDonation.status === 'Pending' && (
+              <div className="flex space-x-2">
+                <Button 
+                  variant="default"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => handleStatusUpdate(selectedDonation.id, 'Completed')}
+                >
+                  Verify
+                </Button>
+                <Button 
+                  variant="destructive"
+                  onClick={() => handleStatusUpdate(selectedDonation.id, 'Rejected')}
+                >
+                  Reject
+                </Button>
+              </div>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
