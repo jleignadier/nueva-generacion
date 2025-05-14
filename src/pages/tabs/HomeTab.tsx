@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarCheck, Clock, MapPin, Users, ChevronRight } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const HomeTab = () => {
@@ -12,38 +12,30 @@ const HomeTab = () => {
     {
       id: 1,
       title: 'Beach Cleanup',
-      organization: 'EcoGuardians',
       location: 'Santa Monica Beach',
       date: 'May 20, 2025',
-      time: '9:00 AM - 12:00 PM',
-      participants: 18
+      time: '9:00 AM - 12:00 PM'
     },
     {
       id: 2,
       title: 'Food Drive',
-      organization: 'Community Helpers',
       location: 'Central Park',
       date: 'May 25, 2025',
-      time: '10:00 AM - 2:00 PM',
-      participants: 24
+      time: '10:00 AM - 2:00 PM'
     },
     {
       id: 3,
       title: 'Tutoring Session',
-      organization: 'Education For All',
       location: 'Public Library',
       date: 'May 27, 2025',
-      time: '4:00 PM - 6:00 PM',
-      participants: 12
+      time: '4:00 PM - 6:00 PM'
     },
     {
       id: 4,
       title: 'Community Garden',
-      organization: 'Green Thumbs',
       location: 'Riverside Park',
       date: 'June 2, 2025',
-      time: '10:00 AM - 1:00 PM',
-      participants: 15
+      time: '10:00 AM - 1:00 PM'
     }
   ];
 
@@ -65,18 +57,13 @@ const HomeTab = () => {
         <h2 className="text-xl font-semibold text-gray-800 mb-3">Next Event</h2>
         <Card key={nextEvent.id} className="overflow-hidden mb-6 border-l-4 border-nuevagen-pink bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
           <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-lg">{nextEvent.title}</CardTitle>
-            <p className="text-sm text-white/90">{nextEvent.organization}</p>
+            <CardTitle className="text-xl md:text-2xl">{nextEvent.title}</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="flex items-center">
                 <MapPin size={14} className="mr-1 text-white" />
                 <span>{nextEvent.location}</span>
-              </div>
-              <div className="flex items-center">
-                <Users size={14} className="mr-1 text-white" />
-                <span>{nextEvent.participants} joining</span>
               </div>
               <div className="flex items-center">
                 <CalendarCheck size={14} className="mr-1 text-white" />
@@ -111,18 +98,13 @@ const HomeTab = () => {
           {otherEvents.map((event) => (
             <Card key={event.id} className="overflow-hidden border-l-4 border-nuevagen-teal">
               <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-lg">{event.title}</CardTitle>
-                <p className="text-sm text-gray-600">{event.organization}</p>
+                <CardTitle className="text-lg md:text-xl">{event.title}</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="flex items-center">
                     <MapPin size={14} className="mr-1 text-nuevagen-blue" />
                     <span>{event.location}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users size={14} className="mr-1 text-nuevagen-purple" />
-                    <span>{event.participants} joining</span>
                   </div>
                   <div className="flex items-center">
                     <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
