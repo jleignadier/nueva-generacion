@@ -33,7 +33,7 @@ const App = () => (
               <Route path="leaderboard" element={<LeaderboardTab />} />
               <Route path="profile" element={<ProfileTab />} />
             </Route>
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
