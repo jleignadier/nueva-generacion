@@ -5,54 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-
-// Mock data - would come from API in a real implementation
-const eventsMockData = [
-  {
-    id: '1',
-    title: 'Beach Cleanup',
-    location: 'Santa Monica Beach',
-    date: 'May 20, 2025',
-    time: '9:00 AM - 12:00 PM',
-    description: "Join us for a community beach cleanup! We'll be removing trash and debris from the shoreline to protect marine life and keep our beaches beautiful.",
-    participantCount: 24,
-    pointsEarned: 50,
-    image: 'https://placehold.co/600x400/png?text=Beach+Cleanup'
-  },
-  {
-    id: '2',
-    title: 'Food Drive',
-    location: 'Central Park',
-    date: 'May 25, 2025',
-    time: '10:00 AM - 2:00 PM',
-    description: 'Help us collect food donations for local food banks. Bring non-perishable items to support families in need in our community.',
-    participantCount: 18,
-    pointsEarned: 40,
-    image: 'https://placehold.co/600x400/png?text=Food+Drive'
-  },
-  {
-    id: '3',
-    title: 'Tutoring Session',
-    location: 'Public Library',
-    date: 'May 27, 2025',
-    time: '4:00 PM - 6:00 PM',
-    description: 'Volunteer to tutor students in math, science, and reading. Help young students improve their academic skills and confidence.',
-    participantCount: 12,
-    pointsEarned: 30,
-    image: 'https://placehold.co/600x400/png?text=Tutoring+Session'
-  },
-  {
-    id: '4',
-    title: 'Community Garden',
-    location: 'Riverside Park',
-    date: 'June 2, 2025',
-    time: '10:00 AM - 1:00 PM',
-    description: 'Help plant and maintain our community garden. Learn about sustainable gardening practices while beautifying our neighborhood.',
-    participantCount: 15,
-    pointsEarned: 45,
-    image: 'https://placehold.co/600x400/png?text=Community+Garden'
-  }
-];
+import { useEventsStore } from '@/store/eventsStore';
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -60,8 +13,10 @@ const EventDetail = () => {
   const { toast } = useToast();
   const [isParticipating, setIsParticipating] = useState(false);
   
+  const { getEvent } = useEventsStore();
+  
   // Find the event based on the ID parameter
-  const event = eventsMockData.find(e => e.id === id);
+  const event = id ? getEvent(id) : undefined;
   
   // Check localStorage on initial load to see if user is already participating
   useEffect(() => {
@@ -116,6 +71,26 @@ const EventDetail = () => {
     navigate('/dashboard');
   };
 
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  };
+
+  // Format time for display
+  const formatTime = (startTime: string, endTime?: string) => {
+    const formatTimeString = (timeStr: string) => {
+      const [hours, minutes] = timeStr.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    };
+    
+    if (!endTime) return formatTimeString(startTime);
+    return `${formatTimeString(startTime)} - ${formatTimeString(endTime)}`;
+  };
+
   return (
     <div className="app-container p-4">
       <Button 
@@ -143,11 +118,11 @@ const EventDetail = () => {
           <div className="grid grid-cols-2 gap-2 text-sm mb-4">
             <div className="flex items-center">
               <CalendarCheck size={16} className="mr-2 text-nuevagen-blue" />
-              <span>{event.date}</span>
+              <span>{formatDate(event.date)}</span>
             </div>
             <div className="flex items-center">
               <Clock size={16} className="mr-2 text-nuevagen-pink" />
-              <span>{event.time}</span>
+              <span>{formatTime(event.time, event.endTime)}</span>
             </div>
             <div className="flex items-center">
               <MapPin size={16} className="mr-2 text-nuevagen-green" />

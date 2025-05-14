@@ -6,63 +6,19 @@ import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search } from 'lucid
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-
-// Mock data - would come from API in a real implementation
-const eventsMockData = [
-  {
-    id: '1',
-    title: 'Beach Cleanup',
-    location: 'Santa Monica Beach',
-    date: 'May 20, 2025',
-    time: '9:00 AM - 12:00 PM',
-    participantCount: 24,
-    status: 'upcoming',
-    pointsEarned: 50
-  },
-  {
-    id: '2',
-    title: 'Food Drive',
-    location: 'Central Park',
-    date: 'May 25, 2025',
-    time: '10:00 AM - 2:00 PM',
-    participantCount: 18,
-    status: 'upcoming',
-    pointsEarned: 40
-  },
-  {
-    id: '3',
-    title: 'Tutoring Session',
-    location: 'Public Library',
-    date: 'May 27, 2025',
-    time: '4:00 PM - 6:00 PM',
-    participantCount: 12,
-    status: 'upcoming',
-    pointsEarned: 30
-  },
-  {
-    id: '4',
-    title: 'Earth Day Festival',
-    location: 'Downtown Square',
-    date: 'April 22, 2025',
-    time: '12:00 PM - 6:00 PM',
-    participantCount: 156,
-    status: 'completed',
-    pointsEarned: 60
-  }
-];
+import { useEventsStore } from '@/store/eventsStore';
 
 const AdminEvents = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [events, setEvents] = useState(eventsMockData);
+  const { events, deleteEvent } = useEventsStore();
   const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'completed'
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Handle deleting an event (mock implementation)
+  // Handle deleting an event
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this event?')) {
-      // In a real app, this would make an API call to delete the event
-      setEvents(events.filter(event => event.id !== id));
+      deleteEvent(id);
       toast({
         title: "Event deleted",
         description: "The event has been successfully removed",
@@ -77,6 +33,26 @@ const AdminEvents = () => {
                          event.location.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  // Function to format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  };
+
+  // Function to format time for display
+  const formatTime = (startTime: string, endTime?: string) => {
+    const formatTimeString = (timeStr: string) => {
+      const [hours, minutes] = timeStr.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    };
+    
+    if (!endTime) return formatTimeString(startTime);
+    return `${formatTimeString(startTime)} - ${formatTimeString(endTime)}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -102,7 +78,7 @@ const AdminEvents = () => {
               value="all" 
               className={filter === 'all' 
                 ? "bg-zinc-700 text-white" 
-                : "border-zinc-600 text-zinc-300 hover:bg-zinc-700"}
+                : "border-zinc-600 text-black hover:bg-zinc-700 hover:text-white"}
             >
               All Events
             </ToggleGroupItem>
@@ -110,7 +86,7 @@ const AdminEvents = () => {
               value="upcoming" 
               className={filter === 'upcoming' 
                 ? "bg-zinc-700 text-white" 
-                : "border-zinc-600 text-zinc-300 hover:bg-zinc-700"}
+                : "border-zinc-600 text-black hover:bg-zinc-700 hover:text-white"}
             >
               Upcoming
             </ToggleGroupItem>
@@ -118,7 +94,7 @@ const AdminEvents = () => {
               value="completed" 
               className={filter === 'completed' 
                 ? "bg-zinc-700 text-white" 
-                : "border-zinc-600 text-zinc-300 hover:bg-zinc-700"}
+                : "border-zinc-600 text-black hover:bg-zinc-700 hover:text-white"}
             >
               Completed
             </ToggleGroupItem>
@@ -148,10 +124,10 @@ const AdminEvents = () => {
                     <h3 className="font-medium text-lg">{event.title}</h3>
                     <div className="flex items-center text-zinc-400 text-sm">
                       <CalendarCheck size={14} className="mr-1" />
-                      <span>{event.date}</span>
+                      <span>{formatDate(event.date)}</span>
                       <span className="mx-2">•</span>
                       <Clock size={14} className="mr-1" />
-                      <span>{event.time}</span>
+                      <span>{formatTime(event.time, event.endTime)}</span>
                     </div>
                     <div className="flex items-center text-zinc-400 text-sm mt-1">
                       <MapPin size={14} className="mr-1" />
@@ -167,7 +143,7 @@ const AdminEvents = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="border-zinc-600 text-zinc-300 hover:bg-zinc-700"
+                      className="border-zinc-600 text-black hover:bg-zinc-700 hover:text-white"
                       onClick={() => navigate(`/admin/events/edit/${event.id}`)}
                     >
                       <Edit size={14} className="mr-1" />

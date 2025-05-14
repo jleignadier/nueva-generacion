@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,32 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { ArrowLeft, Calendar, Clock, MapPin } from 'lucide-react';
-
-// Mock data - would come from API in a real implementation
-const eventsMockData = [
-  {
-    id: '1',
-    title: 'Beach Cleanup',
-    location: 'Santa Monica Beach',
-    date: '2025-05-20',
-    time: '09:00',
-    endTime: '12:00',
-    description: "Join us for a community beach cleanup! We'll be removing trash and debris from the shoreline to protect marine life and keep our beaches beautiful.",
-    pointsEarned: 50,
-    image: 'https://placehold.co/600x400/png?text=Beach+Cleanup'
-  },
-  {
-    id: '2',
-    title: 'Food Drive',
-    location: 'Central Park',
-    date: '2025-05-25',
-    time: '10:00',
-    endTime: '14:00',
-    description: 'Help us collect food donations for local food banks. Bring non-perishable items to support families in need in our community.',
-    pointsEarned: 40,
-    image: 'https://placehold.co/600x400/png?text=Food+Drive'
-  }
-];
+import { useEventsStore } from '@/store/eventsStore';
 
 interface EventFormData {
   title: string;
@@ -44,6 +19,7 @@ interface EventFormData {
   description: string;
   pointsEarned: number;
   image: string;
+  status: 'upcoming' | 'completed';
 }
 
 const EventForm = () => {
@@ -52,15 +28,23 @@ const EventForm = () => {
   const { toast } = useToast();
   const isEditing = id !== undefined;
   
+  const { getEvent, addEvent, updateEvent } = useEventsStore();
+  
   // Get existing event data if editing
-  const existingEvent = isEditing 
-    ? eventsMockData.find(e => e.id === id) 
-    : null;
+  const existingEvent = isEditing ? getEvent(id) : null;
   
   // Set initial state based on whether we're editing or creating
   const [formData, setFormData] = useState<EventFormData>(
     existingEvent ? {
-      ...existingEvent
+      title: existingEvent.title,
+      location: existingEvent.location,
+      date: existingEvent.date,
+      time: existingEvent.time,
+      endTime: existingEvent.endTime || '',
+      description: existingEvent.description,
+      pointsEarned: existingEvent.pointsEarned,
+      image: existingEvent.image,
+      status: existingEvent.status
     } : {
       title: '',
       location: '',
@@ -69,7 +53,8 @@ const EventForm = () => {
       endTime: '',
       description: '',
       pointsEarned: 25,
-      image: 'https://placehold.co/600x400/png?text=Event+Image'
+      image: 'https://placehold.co/600x400/png?text=Event+Image',
+      status: 'upcoming'
     }
   );
   
@@ -77,7 +62,7 @@ const EventForm = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: name === 'pointsEarned' ? Number(value) : value
     }));
   };
   
@@ -94,11 +79,28 @@ const EventForm = () => {
       return;
     }
     
-    // In a real app, this would make an API call to create/update the event
-    toast({
-      title: isEditing ? "Event updated" : "Event created",
-      description: `Successfully ${isEditing ? 'updated' : 'created'} ${formData.title}`
-    });
+    // Update or create event
+    if (isEditing && id) {
+      updateEvent(id, {
+        ...formData,
+        pointsEarned: Number(formData.pointsEarned)
+      });
+      
+      toast({
+        title: "Event updated",
+        description: `Successfully updated ${formData.title}`
+      });
+    } else {
+      addEvent({
+        ...formData,
+        pointsEarned: Number(formData.pointsEarned)
+      });
+      
+      toast({
+        title: "Event created",
+        description: `Successfully created ${formData.title}`
+      });
+    }
     
     // Navigate back to events list
     navigate('/admin/events');
