@@ -4,34 +4,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CalendarCheck, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 const HomeTab = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   const upcomingEvents = [
     {
-      id: 1,
+      id: '1',
       title: 'Beach Cleanup',
       location: 'Santa Monica Beach',
       date: 'May 20, 2025',
       time: '9:00 AM - 12:00 PM'
     },
     {
-      id: 2,
+      id: '2',
       title: 'Food Drive',
       location: 'Central Park',
       date: 'May 25, 2025',
       time: '10:00 AM - 2:00 PM'
     },
     {
-      id: 3,
+      id: '3',
       title: 'Tutoring Session',
       location: 'Public Library',
       date: 'May 27, 2025',
       time: '4:00 PM - 6:00 PM'
     },
     {
-      id: 4,
+      id: '4',
       title: 'Community Garden',
       location: 'Riverside Park',
       date: 'June 2, 2025',
@@ -41,6 +43,12 @@ const HomeTab = () => {
 
   const nextEvent = upcomingEvents[0];
   const otherEvents = upcomingEvents.slice(1, 4);
+  
+  // Check if user is participating in events (from localStorage)
+  const getIsParticipating = (eventId: string) => {
+    const participatingEvents = JSON.parse(localStorage.getItem('participatingEvents') || '[]');
+    return participatingEvents.includes(eventId);
+  };
 
   return (
     <div className="app-container">
@@ -77,8 +85,9 @@ const HomeTab = () => {
             <Button 
               className="w-full mt-3 bg-white/20 hover:bg-white/30 text-white" 
               size="sm"
+              onClick={() => navigate(`/event/${nextEvent.id}`)}
             >
-              Participate Now
+              {getIsParticipating(nextEvent.id) ? 'View Details' : 'Participate Now'}
             </Button>
           </CardContent>
         </Card>
@@ -118,8 +127,9 @@ const HomeTab = () => {
                 <Button 
                   className="w-full mt-3 btn-primary" 
                   size="sm"
+                  onClick={() => navigate(`/event/${event.id}`)}
                 >
-                  Participate
+                  {getIsParticipating(event.id) ? 'View Details' : 'Participate'}
                 </Button>
               </CardContent>
             </Card>

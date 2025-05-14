@@ -11,6 +11,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import UserLayout from "./layouts/UserLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEvents from "./pages/admin/AdminEvents";
+import EventForm from "./pages/admin/EventForm";
 import AdminDonations from "./pages/admin/AdminDonations";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -18,6 +19,7 @@ import HomeTab from "./pages/tabs/HomeTab";
 import DonationsTab from "./pages/tabs/DonationsTab";
 import LeaderboardTab from "./pages/tabs/LeaderboardTab";
 import ProfileTab from "./pages/tabs/ProfileTab";
+import EventDetail from "./pages/EventDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -46,12 +48,15 @@ const App = () => (
               <Route path="/dashboard/donations" element={<DonationsTab />} />
               <Route path="/dashboard/leaderboard" element={<LeaderboardTab />} />
               <Route path="/dashboard/profile" element={<ProfileTab />} />
+              <Route path="/event/:id" element={<EventDetail />} />
             </Route>
             
             {/* Admin Routes */}
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/events" element={<AdminEvents />} />
+              <Route path="/admin/events/create" element={<EventForm />} />
+              <Route path="/admin/events/edit/:id" element={<EventForm />} />
               <Route path="/admin/donations" element={<AdminDonations />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
