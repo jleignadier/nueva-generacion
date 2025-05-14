@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { QrCode, Copy, CalendarCheck, DollarSign } from 'lucide-react';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 const DonationsTab = () => {
   const [amount, setAmount] = useState('');
@@ -58,7 +57,23 @@ const DonationsTab = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call
+    // Create donation object
+    const newDonation = {
+      id: `donation-${Date.now()}`,
+      amount: amount,
+      note: note,
+      receiptFile: receiptFile.name, // In a real app, we'd upload this file to storage
+      date: new Date().toLocaleDateString(),
+      name: "Current User", // In a real app, get this from user profile
+      status: "Pending"
+    };
+    
+    // Save to localStorage
+    const submittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
+    submittedDonations.push(newDonation);
+    localStorage.setItem('submittedDonations', JSON.stringify(submittedDonations));
+    
+    // Show success toast
     setTimeout(() => {
       toast({
         title: "Donation submitted!",
