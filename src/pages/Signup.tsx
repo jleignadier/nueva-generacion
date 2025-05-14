@@ -90,7 +90,7 @@ const Signup = () => {
               value="individual"
               className={`flex-1 py-3 text-center transition-colors rounded-none ${
                 accountType === 'individual' 
-                  ? 'text-white font-semibold' 
+                  ? 'text-white font-bold' 
                   : 'bg-white/80 text-gray-600 hover:bg-white/70'
               }`}
             >
@@ -100,7 +100,7 @@ const Signup = () => {
               value="organization"
               className={`flex-1 py-3 text-center transition-colors rounded-none ${
                 accountType === 'organization' 
-                  ? 'text-white font-semibold' 
+                  ? 'text-white font-bold' 
                   : 'bg-white/80 text-gray-600 hover:bg-white/70'
               }`}
             >
