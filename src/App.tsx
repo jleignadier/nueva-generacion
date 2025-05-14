@@ -44,11 +44,14 @@ const App = () => (
             </Route>
             
             {/* Admin Routes */}
-            <Route path="/admin" element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            }>
+            <Route 
+              path="/admin" 
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            >
               <Route index element={<AdminHomeTab />} />
               <Route path="events" element={<AdminEventsTab />} />
               <Route path="donations" element={<AdminDonationsTab />} />

@@ -41,7 +41,7 @@ export const AdminTabBar: React.FC = () => {
         {tabs.map((tab) => {
           const isActive = tab.exact 
             ? location.pathname === tab.path 
-            : location.pathname.startsWith(tab.path);
+            : location.pathname === tab.path || location.pathname.startsWith(tab.path + '/');
 
           return (
             <NavLink
@@ -64,4 +64,4 @@ export const AdminTabBar: React.FC = () => {
       </div>
     </div>
   );
-};
+});
