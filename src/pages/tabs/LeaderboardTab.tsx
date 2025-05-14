@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Award, Star } from 'lucide-react';
+import { Trophy, Award, Star, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface LeaderboardEntry {
@@ -15,13 +15,13 @@ interface LeaderboardEntry {
 
 const LeaderboardTab = () => {
   const { user } = useAuth();
-  const [currentTab, setCurrentTab] = useState('volunteer');
+  const [currentTab, setCurrentTab] = useState('individual');
 
   // User data
   const userPoints = 28;
   const userRank = 12;
-  const userDonationPoints = 35;
-  const userDonationRank = 18;
+  const organizationPoints = 35;
+  const organizationRank = 18;
 
   const volunteerLeaders: LeaderboardEntry[] = [
     { id: 1, name: 'Maria Garcia', rank: 1, value: 78, avatar: 'MG' },
@@ -34,21 +34,21 @@ const LeaderboardTab = () => {
     { id: 8, name: 'User Name', rank: userRank, value: userPoints, avatar: user?.name.charAt(0) || '?' },
   ];
 
-  const donationsLeaders: LeaderboardEntry[] = [
-    { id: 1, name: 'Christina Wong', rank: 1, value: 250, avatar: 'CW' },
-    { id: 2, name: 'Robert Johnson', rank: 2, value: 175, avatar: 'RJ' },
+  const organizationLeaders: LeaderboardEntry[] = [
+    { id: 1, name: 'Green Earth Foundation', rank: 1, value: 250, avatar: 'GE' },
+    { id: 2, name: 'Community Helpers', rank: 2, value: 175, avatar: 'CH' },
     { id: 3, name: 'Tech Solutions Inc.', rank: 3, value: 150, avatar: 'TS' },
-    { id: 4, name: 'Miguel Sanchez', rank: 4, value: 120, avatar: 'MS' },
+    { id: 4, name: 'Global Outreach', rank: 4, value: 120, avatar: 'GO' },
     { id: 5, name: 'Global Helpers', rank: 5, value: 115, avatar: 'GH' },
-    { id: 6, name: 'Aisha Patel', rank: 6, value: 95, avatar: 'AP' },
+    { id: 6, name: 'Future Leaders', rank: 6, value: 95, avatar: 'FL' },
     { id: 7, name: 'Community First', rank: 7, value: 90, avatar: 'CF' },
-    { id: 8, name: 'User Name', rank: userDonationRank, value: userDonationPoints, avatar: user?.name.charAt(0) || '?' },
+    { id: 8, name: 'User Organization', rank: organizationRank, value: organizationPoints, avatar: user?.name.charAt(0) || '?' },
   ];
 
   const renderUserStats = () => {
-    const isVolunteerTab = currentTab === 'volunteer';
-    const rank = isVolunteerTab ? userRank : userDonationRank;
-    const value = isVolunteerTab ? userPoints : userDonationPoints;
+    const isIndividualTab = currentTab === 'individual';
+    const rank = isIndividualTab ? userRank : organizationRank;
+    const value = isIndividualTab ? userPoints : organizationPoints;
     
     return (
       <Card className="mb-4 bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
@@ -81,7 +81,7 @@ const LeaderboardTab = () => {
   const renderLeaderboard = (entries: LeaderboardEntry[]) => (
     <div className="space-y-2">
       {entries.map((entry) => {
-        const isUser = entry.name === 'User Name';
+        const isUser = entry.name === 'User Name' || entry.name === 'User Organization';
         const isTop3 = entry.rank <= 3;
         
         return (
@@ -133,27 +133,27 @@ const LeaderboardTab = () => {
       {renderUserStats()}
 
       <Tabs 
-        defaultValue="volunteer" 
+        defaultValue="individual" 
         onValueChange={setCurrentTab}
         className="w-full"
       >
         <TabsList className="grid grid-cols-2 mb-6">
-          <TabsTrigger value="volunteer" className="flex items-center">
+          <TabsTrigger value="individual" className="flex items-center">
             <Star size={16} className="mr-2" />
-            Volunteer Points
+            Individual Volunteers Points
           </TabsTrigger>
-          <TabsTrigger value="donations" className="flex items-center">
-            <Trophy size={16} className="mr-2" />
-            Donation Points
+          <TabsTrigger value="organization" className="flex items-center">
+            <Users size={16} className="mr-2" />
+            Organization Points
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="volunteer">
+        <TabsContent value="individual">
           <Card className="mb-4">
             <CardHeader className="p-4 pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Trophy size={20} className="mr-2 text-nuevagen-yellow" />
-                Top Volunteers
+                Top Individual Volunteers
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
@@ -162,16 +162,16 @@ const LeaderboardTab = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="donations">
+        <TabsContent value="organization">
           <Card className="mb-4">
             <CardHeader className="p-4 pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Trophy size={20} className="mr-2 text-nuevagen-yellow" />
-                Top Donors
+                Top Organizations
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
-              {renderLeaderboard(donationsLeaders)}
+              {renderLeaderboard(organizationLeaders)}
             </CardContent>
           </Card>
         </TabsContent>
