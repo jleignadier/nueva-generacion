@@ -4,27 +4,42 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
+import { CalendarIcon, Eye, EyeOff } from 'lucide-react';
 
 const Signup = () => {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [birthdate, setBirthdate] = useState('');
   const [accountType, setAccountType] = useState<'individual' | 'organization'>('individual');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { signup, error } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure your passwords match",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
-      await signup(email, password, name, accountType);
+      await signup(email, password, `${firstName} ${lastName}`, accountType);
       navigate('/dashboard');
     } catch (err) {
       toast({
@@ -37,115 +52,153 @@ const Signup = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-6">
-        <div className="flex flex-col items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-nuevagen-blue to-nuevagen-teal">
+      <Card className="w-full max-w-md mx-4 p-6 bg-white rounded-xl shadow-lg">
+        <div className="flex flex-col items-center justify-center mb-6">
           <img 
             src="/lovable-uploads/3e471c72-20ba-448a-94e3-4531623f02bc.png" 
             alt="Nueva Generación Logo" 
-            className="h-24 w-auto" 
+            className="h-16 w-auto" 
           />
-          <h2 className="mt-4 text-center text-3xl font-bold tracking-tight text-gray-900">
-            Join Nueva Generación
+          <h2 className="mt-4 text-center text-3xl font-bold text-nuevagen-blue">
+            Create Account
           </h2>
+          <p className="text-center text-gray-600 mt-2">
+            Join our volunteer community
+          </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Create Account</CardTitle>
-            <CardDescription>
-              Sign up to start volunteering and making a difference
-            </CardDescription>
-          </CardHeader>
+        <div className="flex mb-6">
+          <button
+            type="button"
+            onClick={() => setAccountType('individual')}
+            className={`flex-1 py-3 text-center transition-colors ${
+              accountType === 'individual' 
+                ? 'bg-nuevagen-blue text-white font-medium rounded-l-lg' 
+                : 'bg-gray-100 text-gray-600 rounded-l-lg'
+            }`}
+          >
+            Individual
+          </button>
+          <button
+            type="button"
+            onClick={() => setAccountType('organization')}
+            className={`flex-1 py-3 text-center transition-colors ${
+              accountType === 'organization' 
+                ? 'bg-nuevagen-blue text-white font-medium rounded-r-lg' 
+                : 'bg-gray-100 text-gray-600 rounded-r-lg'
+            }`}
+          >
+            Organization
+          </button>
+        </div>
 
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-gray-700">
-                  Full Name
-                </label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
-                  required
-                  className="w-full"
-                />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full h-12 text-base"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  required
-                  className="w-full"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  className="w-full"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 block mb-2">
-                  Account Type
-                </label>
-                <RadioGroup 
-                  value={accountType}
-                  onValueChange={(val) => setAccountType(val as 'individual' | 'organization')}
-                  className="flex gap-6"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="individual" id="individual" />
-                    <Label htmlFor="individual">Individual</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="organization" id="organization" />
-                    <Label htmlFor="organization">Organization</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </CardContent>
-            
-            <CardFooter className="flex flex-col space-y-4">
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="btn-primary w-full py-6"
+          <div className="grid grid-cols-2 gap-4">
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full h-12 text-base pr-10"
+              />
+              <button 
+                type="button" 
+                onClick={togglePasswordVisibility}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
               >
-                {isLoading ? "Creating Account..." : "Sign Up"}
-              </Button>
-              
-              <div className="text-center text-sm">
-                <span className="text-gray-600">Already have an account? </span>
-                <Link to="/login" className="font-medium text-nuevagen-blue hover:text-nuevagen-teal">
-                  Log in
-                </Link>
-              </div>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <div>
+              <Input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="w-full h-12 text-base"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Input
+              type="text"
+              placeholder="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+              className="w-full h-12 text-base"
+            />
+          </div>
+
+          <div>
+            <Input
+              type="text"
+              placeholder="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+              className="w-full h-12 text-base"
+            />
+          </div>
+
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="mm/dd/yyyy"
+              value={birthdate}
+              onChange={(e) => setBirthdate(e.target.value)}
+              className="w-full h-12 text-base"
+            />
+            <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
+          </div>
+
+          <div>
+            <Input
+              type="tel"
+              placeholder="Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full h-12 text-base"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-12 bg-nuevagen-blue hover:bg-opacity-90 text-white font-medium rounded-lg"
+          >
+            {isLoading ? "Creating Account..." : "Sign Up"}
+          </Button>
+
+          <div className="text-center text-sm mt-4">
+            <span className="text-gray-600">Already have an account? </span>
+            <Link to="/login" className="font-medium text-nuevagen-blue hover:text-nuevagen-teal">
+              Log in
+            </Link>
+          </div>
+        </form>
+      </Card>
     </div>
   );
 };
