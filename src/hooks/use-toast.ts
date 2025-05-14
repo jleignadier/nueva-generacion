@@ -1,5 +1,5 @@
 
-import { Toast, toast as sonnerToast } from "sonner";
+import { toast as sonnerToast } from "sonner";
 
 // Define the toast parameters in a type
 type ToastProps = {
