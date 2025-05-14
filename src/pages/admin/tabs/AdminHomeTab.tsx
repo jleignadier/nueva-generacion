@@ -7,7 +7,7 @@ const AdminHomeTab = () => {
   const { user } = useAuth();
 
   return (
-    <div className="app-container">
+    <>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         <div className="bg-purple-600 text-white text-xs px-2 py-1 rounded">
@@ -74,7 +74,7 @@ const AdminHomeTab = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </>
   );
 };
 

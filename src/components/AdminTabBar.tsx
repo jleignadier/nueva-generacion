@@ -36,7 +36,7 @@ export const AdminTabBar: React.FC = () => {
   const location = useLocation();
 
   return (
-    <div className="bg-zinc-800 border-t border-zinc-700 shadow-sm">
+    <div className="bg-zinc-800 border-t border-zinc-700 shadow-sm fixed bottom-0 left-0 right-0">
       <div className="flex justify-around items-center h-16 max-w-md mx-auto px-4">
         {tabs.map((tab) => {
           const isActive = tab.exact 
@@ -54,6 +54,7 @@ export const AdminTabBar: React.FC = () => {
                     : 'text-zinc-400 hover:text-purple-300'
                 }`
               }
+              end={tab.exact}
             >
               <tab.icon size={20} />
               <span className="text-xs mt-1">{tab.name}</span>
