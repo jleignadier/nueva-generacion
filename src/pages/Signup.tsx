@@ -90,8 +90,8 @@ const Signup = () => {
               value="individual"
               className={`flex-1 py-3 text-center transition-colors rounded-none ${
                 accountType === 'individual' 
-                  ? 'text-white font-medium' 
-                  : 'bg-white/80 text-gray-600'
+                  ? 'text-white font-semibold' 
+                  : 'bg-white/80 text-gray-600 hover:bg-white/70'
               }`}
             >
               Individual
@@ -100,8 +100,8 @@ const Signup = () => {
               value="organization"
               className={`flex-1 py-3 text-center transition-colors rounded-none ${
                 accountType === 'organization' 
-                  ? 'text-white font-medium' 
-                  : 'bg-white/80 text-gray-600'
+                  ? 'text-white font-semibold' 
+                  : 'bg-white/80 text-gray-600 hover:bg-white/70'
               }`}
             >
               Organization

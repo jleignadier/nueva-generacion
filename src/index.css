@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -100,6 +99,10 @@
 
   /* Custom styles for Nueva Generacion */
   .nueva-gradient {
+    @apply bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal;
+  }
+
+  .gradient-toggle-container {
     @apply bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal;
   }
 
