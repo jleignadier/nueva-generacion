@@ -1,11 +1,23 @@
 
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
+import { toast } from '@/hooks/use-toast';
 
 const AdminLayout = () => {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
+  
+  // Add console logs for debugging
+  useEffect(() => {
+    console.log('AdminLayout rendered', { 
+      user: user?.email, 
+      isAdmin: user?.isAdmin, 
+      isLoading, 
+      path: location.pathname 
+    });
+  }, [user, isLoading, location.pathname]);
   
   // While loading, show loading state
   if (isLoading) {
@@ -16,9 +28,14 @@ const AdminLayout = () => {
     );
   }
   
-  // If not admin, redirect to dashboard
+  // If not admin, redirect to dashboard with toast notification
   if (!user?.isAdmin) {
     console.log("AdminLayout: Access denied - User is not admin");
+    toast({
+      title: "Access Denied",
+      description: "You don't have permission to access the admin area",
+      variant: "destructive"
+    });
     return <Navigate to="/dashboard" replace />;
   }
 

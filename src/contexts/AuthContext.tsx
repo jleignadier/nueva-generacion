@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 type User = {
   id: string;
@@ -26,6 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Check for saved user in localStorage
@@ -37,6 +38,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setIsLoading(false);
   }, []);
+
+  // Prevent automatic redirection based on path
+  useEffect(() => {
+    if (!isLoading && user) {
+      const path = location.pathname;
+      
+      // Only redirect if we're at root or on the wrong section
+      if (path === '/') {
+        if (user.isAdmin) {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
+      }
+    }
+  }, [isLoading, user, location.pathname, navigate]);
 
   // Mock login function - In a real app, this would call an API
   const login = async (email: string, password: string) => {

@@ -31,6 +31,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Routes>
+            {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             
@@ -51,7 +52,8 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* Root redirect based on auth state handled by AuthProvider */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
