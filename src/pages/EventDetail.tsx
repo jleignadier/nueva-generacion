@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,9 +59,15 @@ const EventDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isParticipating, setIsParticipating] = useState(false);
-
+  
   // Find the event based on the ID parameter
   const event = eventsMockData.find(e => e.id === id);
+  
+  // Check localStorage on initial load to see if user is already participating
+  useEffect(() => {
+    const participatingEvents = JSON.parse(localStorage.getItem('participatingEvents') || '[]');
+    setIsParticipating(participatingEvents.includes(id));
+  }, [id]);
 
   if (!event) {
     return (
@@ -105,12 +111,17 @@ const EventDetail = () => {
     });
   };
 
+  // Fix for the back navigation - use a direct route rather than navigate(-1)
+  const handleBack = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <div className="app-container p-4">
       <Button 
         variant="ghost" 
         className="mb-4" 
-        onClick={() => navigate(-1)}
+        onClick={handleBack}
       >
         <ArrowLeft size={16} className="mr-2" />
         Back

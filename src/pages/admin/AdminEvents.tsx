@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 // Mock data - would come from API in a real implementation
 const eventsMockData = [
@@ -15,7 +16,8 @@ const eventsMockData = [
     date: 'May 20, 2025',
     time: '9:00 AM - 12:00 PM',
     participantCount: 24,
-    status: 'upcoming'
+    status: 'upcoming',
+    pointsEarned: 50
   },
   {
     id: '2',
@@ -24,7 +26,8 @@ const eventsMockData = [
     date: 'May 25, 2025',
     time: '10:00 AM - 2:00 PM',
     participantCount: 18,
-    status: 'upcoming'
+    status: 'upcoming',
+    pointsEarned: 40
   },
   {
     id: '3',
@@ -33,7 +36,8 @@ const eventsMockData = [
     date: 'May 27, 2025',
     time: '4:00 PM - 6:00 PM',
     participantCount: 12,
-    status: 'upcoming'
+    status: 'upcoming',
+    pointsEarned: 30
   },
   {
     id: '4',
@@ -42,7 +46,8 @@ const eventsMockData = [
     date: 'April 22, 2025',
     time: '12:00 PM - 6:00 PM',
     participantCount: 156,
-    status: 'completed'
+    status: 'completed',
+    pointsEarned: 60
   }
 ];
 
@@ -87,29 +92,38 @@ const AdminEvents = () => {
 
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-2">
-            <Button 
-              variant={filter === 'all' ? "default" : "outline"}
-              onClick={() => setFilter('all')}
-              className={filter !== 'all' ? "border-zinc-600 hover:bg-zinc-700" : ""}
+          <ToggleGroup 
+            type="single" 
+            value={filter}
+            onValueChange={(value) => value && setFilter(value)}
+            className="flex gap-2"
+          >
+            <ToggleGroupItem 
+              value="all" 
+              className={filter === 'all' 
+                ? "bg-zinc-700 text-white" 
+                : "border-zinc-600 text-zinc-300 hover:bg-zinc-700"}
             >
               All Events
-            </Button>
-            <Button 
-              variant={filter === 'upcoming' ? "default" : "outline"}
-              onClick={() => setFilter('upcoming')}
-              className={filter !== 'upcoming' ? "border-zinc-600 hover:bg-zinc-700" : ""}
+            </ToggleGroupItem>
+            <ToggleGroupItem 
+              value="upcoming" 
+              className={filter === 'upcoming' 
+                ? "bg-zinc-700 text-white" 
+                : "border-zinc-600 text-zinc-300 hover:bg-zinc-700"}
             >
               Upcoming
-            </Button>
-            <Button 
-              variant={filter === 'completed' ? "default" : "outline"}
-              onClick={() => setFilter('completed')}
-              className={filter !== 'completed' ? "border-zinc-600 hover:bg-zinc-700" : ""}
+            </ToggleGroupItem>
+            <ToggleGroupItem 
+              value="completed" 
+              className={filter === 'completed' 
+                ? "bg-zinc-700 text-white" 
+                : "border-zinc-600 text-zinc-300 hover:bg-zinc-700"}
             >
               Completed
-            </Button>
-          </div>
+            </ToggleGroupItem>
+          </ToggleGroup>
+          
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={18} />
             <Input 
@@ -145,13 +159,15 @@ const AdminEvents = () => {
                       <span className="mx-2">•</span>
                       <Users size={14} className="mr-1" />
                       <span>{event.participantCount} participants</span>
+                      <span className="mx-2">•</span>
+                      <span>{event.pointsEarned} points</span>
                     </div>
                   </div>
                   <div className="space-x-2 flex items-start">
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="border-zinc-600 hover:bg-zinc-700"
+                      className="border-zinc-600 text-zinc-300 hover:bg-zinc-700"
                       onClick={() => navigate(`/admin/events/edit/${event.id}`)}
                     >
                       <Edit size={14} className="mr-1" />
