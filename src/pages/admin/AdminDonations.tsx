@@ -27,6 +27,10 @@ const AdminDonations = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    loadAllDonations();
+  }, []);
+
+  const loadAllDonations = () => {
     // Load mock donations and any user-submitted donations from localStorage
     const userSubmittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
     
@@ -41,17 +45,25 @@ const AdminDonations = () => {
       note: donation.note
     }));
 
-    // Combine with mock data
-    const mockDonations = [
+    // Get mock donations from localStorage or use default if not present
+    const savedMockDonations = JSON.parse(localStorage.getItem('mockDonations') || 'null');
+    
+    const mockDonations = savedMockDonations || [
       { id: '1', name: 'John Doe', amount: '$1,000', date: 'May 12, 2023', status: 'Completed' },
       { id: '2', name: 'Maria Garcia', amount: '$500', date: 'May 10, 2023', status: 'Completed' },
       { id: '3', name: 'Robert Smith', amount: '$750', date: 'May 8, 2023', status: 'Pending' },
     ];
 
+    // If mock donations were not in localStorage yet, save them
+    if (!savedMockDonations) {
+      localStorage.setItem('mockDonations', JSON.stringify(mockDonations));
+    }
+
     setDonations([...formattedUserDonations, ...mockDonations]);
-  }, []);
+  };
 
   const handleStatusUpdate = (donationId: string, newStatus: 'Verified' | 'Rejected' | 'Completed') => {
+    // Update in state
     setDonations(prev => 
       prev.map(donation => 
         donation.id === donationId 
@@ -60,12 +72,27 @@ const AdminDonations = () => {
       )
     );
 
-    // Update in localStorage
-    const userDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-    const updatedDonations = userDonations.map((donation: any) => 
-      donation.id === donationId ? { ...donation, status: newStatus } : donation
-    );
-    localStorage.setItem('submittedDonations', JSON.stringify(updatedDonations));
+    // Find the donation that was updated
+    const updatedDonation = donations.find(d => d.id === donationId);
+    
+    // Check if it's a mock donation
+    const isMockDonation = ['1', '2', '3'].includes(donationId);
+    
+    if (isMockDonation) {
+      // Update in mock donations storage
+      const mockDonations = JSON.parse(localStorage.getItem('mockDonations') || '[]');
+      const updatedMockDonations = mockDonations.map((donation: any) => 
+        donation.id === donationId ? { ...donation, status: newStatus } : donation
+      );
+      localStorage.setItem('mockDonations', JSON.stringify(updatedMockDonations));
+    } else {
+      // Update in user donations storage
+      const userDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
+      const updatedDonations = userDonations.map((donation: any) => 
+        donation.id === donationId ? { ...donation, status: newStatus } : donation
+      );
+      localStorage.setItem('submittedDonations', JSON.stringify(updatedDonations));
+    }
 
     toast({
       title: "Donation updated",
