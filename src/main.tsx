@@ -11,7 +11,7 @@ window.addEventListener('storage', (event) => {
   if (event.key === 'nuevaGen_user') {
     console.log('Auth state changed:', event.newValue ? 'User logged in' : 'User logged out');
     
-    // Force page refresh on auth state change from another tab
+    // Log user data when there's a change
     if (event.newValue !== null) {
       try {
         const userData = JSON.parse(event.newValue);
@@ -23,4 +23,7 @@ window.addEventListener('storage', (event) => {
   }
 });
 
-createRoot(document.getElementById("root")!).render(<App />);
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Failed to find the root element");
+
+createRoot(rootElement).render(<App />);

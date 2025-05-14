@@ -1,12 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, Info } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -14,22 +14,21 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login, error, user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   
-  // If user is already logged in, redirect to appropriate dashboard
   useEffect(() => {
-    if (user) {
-      if (user.isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
-    }
-  }, [user, navigate]);
+    console.log("Login page mounted, user state:", user?.email);
+  }, [user]);
+
+  // If user is already logged in, redirect to appropriate dashboard
+  if (user) {
+    console.log("Login: User already logged in, redirecting");
+    return <Navigate to={user.isAdmin ? '/admin' : '/dashboard'} replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Login form submitted with email:", email);
     setIsLoading(true);
     
     try {
@@ -50,6 +49,7 @@ const Login = () => {
   const fillAdminCredentials = () => {
     setEmail('admin@ng.org.pa');
     setPassword('admin123');
+    console.log("Admin credentials filled");
   };
 
   return (

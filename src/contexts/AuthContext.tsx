@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 type User = {
   id: string;
@@ -30,9 +30,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Load user on initial render only
   useEffect(() => {
+    console.log("AuthProvider: Initial load");
     try {
       const savedUser = localStorage.getItem('nuevaGen_user');
       if (savedUser) {
+        console.log("AuthProvider: Found user in localStorage");
         setUser(JSON.parse(savedUser));
       }
     } catch (err) {
@@ -44,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
+    console.log("AuthContext: Attempting login with", email);
     setIsLoading(true);
     setError(null);
     
@@ -67,29 +70,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser(adminUser);
         localStorage.setItem('nuevaGen_user', JSON.stringify(adminUser));
+        console.log("AuthContext: Admin login successful");
         toast({
           title: "Login Successful",
           description: "Welcome back, Admin!",
         });
         navigate('/admin');
-      } else {
-        // Regular user login - simplified for demo
-        const mockUser = {
-          id: Math.random().toString(36).substring(2),
-          name: email.split('@')[0],
-          email,
-          accountType: 'individual' as const,
-          isAdmin: false
-        };
-        
-        setUser(mockUser);
-        localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
-        toast({
-          title: "Login Successful",
-          description: `Welcome back, ${mockUser.name}!`,
-        });
-        navigate('/dashboard');
-      }
+        return;
+      } 
+      
+      // Regular user login - simplified for demo
+      const mockUser = {
+        id: Math.random().toString(36).substring(2),
+        name: email.split('@')[0],
+        email,
+        accountType: 'individual' as const,
+        isAdmin: false
+      };
+      
+      setUser(mockUser);
+      localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
+      console.log("AuthContext: User login successful");
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${mockUser.name}!`,
+      });
+      navigate('/dashboard');
+      
     } catch (err: any) {
       console.error("Login error:", err);
       setError(err.message || 'Failed to login');
@@ -152,6 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    console.log("AuthContext: Logging out");
     setUser(null);
     localStorage.removeItem('nuevaGen_user');
     toast({

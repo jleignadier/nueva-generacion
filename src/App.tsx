@@ -21,7 +21,14 @@ import LeaderboardTab from "./pages/tabs/LeaderboardTab";
 import ProfileTab from "./pages/tabs/ProfileTab";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false
+    }
+  }
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -53,7 +60,7 @@ const App = () => (
             </Route>
             
             {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
