@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -31,22 +32,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for saved user in localStorage
     const savedUser = localStorage.getItem('nuevaGen_user');
     if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-      // Don't auto-redirect on initial load
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        console.log("Retrieved user from localStorage:", parsedUser);
+      } catch (err) {
+        console.error("Error parsing user from localStorage:", err);
+        localStorage.removeItem('nuevaGen_user');
+      }
     }
     setIsLoading(false);
   }, []);
 
-  // Only redirect from root path, nowhere else
+  // Prevent automatic navigation from login or signup pages
   useEffect(() => {
-    if (!isLoading && user && location.pathname === '/') {
-      console.log('Redirecting from root path based on user role:', user.isAdmin ? 'admin' : 'user');
-      if (user.isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+    if (!isLoading && user && (location.pathname === '/login' || location.pathname === '/signup')) {
+      console.log('Redirecting after authentication:', user.isAdmin ? 'admin' : 'dashboard');
+      navigate(user.isAdmin ? '/admin' : '/dashboard', { replace: true });
     }
   }, [isLoading, user, location.pathname, navigate]);
 
@@ -73,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           setUser(adminUser);
           localStorage.setItem('nuevaGen_user', JSON.stringify(adminUser));
+          console.log('Admin login successful, redirecting to /admin');
           navigate('/admin');
         } else {
           // Regular user
@@ -86,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           setUser(mockUser);
           localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
+          console.log('User login successful, redirecting to /dashboard');
           navigate('/dashboard');
         }
       } else {
@@ -140,6 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    console.log('Logging out user');
     setUser(null);
     localStorage.removeItem('nuevaGen_user');
     navigate('/login');
