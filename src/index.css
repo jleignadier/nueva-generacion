@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,10 +14,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 210 79% 48%;  /* Nueva Generacion blue */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 174 58% 52%;  /* Nueva Generacion teal */
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
@@ -30,24 +31,17 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 210 79% 48%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -61,10 +55,10 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 210 79% 48%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 174 58% 52%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
@@ -97,5 +91,29 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Mobile-focused styles */
+  html, body, #root {
+    @apply h-full w-full overflow-hidden;
+  }
+
+  /* Custom styles for Nueva Generacion */
+  .nueva-gradient {
+    @apply bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal;
+  }
+
+  .btn-primary {
+    @apply bg-nuevagen-blue hover:bg-opacity-90 text-white font-medium rounded-lg 
+           transition-all duration-200 ease-in-out;
+  }
+
+  .btn-secondary {
+    @apply bg-nuevagen-teal hover:bg-opacity-90 text-white font-medium rounded-lg
+           transition-all duration-200 ease-in-out;
+  }
+  
+  .app-container {
+    @apply flex flex-col h-full w-full max-w-md mx-auto px-4 py-6;
   }
 }

@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Nueva Generacion brand colors
+				nuevagen: {
+					blue: '#4267b2',
+					teal: '#4EBBB5',
+					purple: '#8A3F97',
+					pink: '#E5197B',
+					green: '#68B04D',
+					yellow: '#F7B731',
+					orange: '#F5B971'
 				}
 			},
 			borderRadius: {
