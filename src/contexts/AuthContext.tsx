@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -9,13 +8,24 @@ type User = {
   email: string;
   accountType: 'individual' | 'organization' | 'admin';
   isAdmin: boolean;
+  organizationId?: string;
+};
+
+type OrganizationInfo = {
+  organizationId: string;
 };
 
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name: string, accountType: 'individual' | 'organization' | 'admin') => Promise<void>;
+  signup: (
+    email: string, 
+    password: string, 
+    name: string, 
+    accountType: 'individual' | 'organization' | 'admin',
+    orgInfo?: OrganizationInfo
+  ) => Promise<void>;
   logout: () => void;
   error: string | null;
 };
@@ -110,7 +120,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (email: string, password: string, name: string, accountType: 'individual' | 'organization' | 'admin') => {
+  const signup = async (
+    email: string, 
+    password: string, 
+    name: string, 
+    accountType: 'individual' | 'organization' | 'admin',
+    orgInfo?: OrganizationInfo
+  ) => {
     setIsLoading(true);
     setError(null);
     
@@ -129,15 +145,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name,
         email,
         accountType,
-        isAdmin
+        isAdmin,
+        ...(orgInfo && { organizationId: orgInfo.organizationId })
       };
       
       setUser(mockUser);
       localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
       
+      const successMessage = orgInfo 
+        ? "Your account has been created and you've been added to the organization!"
+        : "Your account has been created successfully!";
+        
       toast({
         title: "Account Created",
-        description: "Your account has been created successfully!",
+        description: successMessage,
       });
       
       if (isAdmin) {

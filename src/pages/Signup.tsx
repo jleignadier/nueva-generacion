@@ -10,6 +10,16 @@ import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, Shield } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+// Mock data for existing organizations - in a real app, this would come from an API
+const mockOrganizations = [
+  { id: '1', name: 'Eco Guardians' },
+  { id: '2', name: 'Ocean Defenders' },
+  { id: '3', name: 'Wildlife Protectors' },
+  { id: '4', name: 'Community Builders' },
+  { id: '5', name: 'Tech for Good' },
+];
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -25,6 +35,8 @@ const Signup = () => {
   const [adminKey, setAdminKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [joinOrg, setJoinOrg] = useState(false);
+  const [selectedOrgId, setSelectedOrgId] = useState<string>('');
   const { signup, error } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -58,7 +70,13 @@ const Signup = () => {
         : orgName;
         
       const finalAccountType = isAdmin ? 'admin' : accountType;
-      await signup(email, password, name, finalAccountType as any);
+      
+      // Include organization info if the user is joining an org
+      const orgInfo = joinOrg && accountType === 'individual' && selectedOrgId 
+        ? { organizationId: selectedOrgId } 
+        : undefined;
+        
+      await signup(email, password, name, finalAccountType as any, orgInfo);
       // Navigation is now handled in AuthContext
     } catch (err) {
       toast({
@@ -99,6 +117,10 @@ const Signup = () => {
             onValueChange={(value) => {
               if (value && !isAdmin) {
                 setAccountType(value as 'individual' | 'organization');
+                // Reset join org option when switching to organization account type
+                if (value === 'organization') {
+                  setJoinOrg(false);
+                }
               }
             }}
             className="w-full"
@@ -239,6 +261,46 @@ const Signup = () => {
                   className="w-full h-10 text-sm"
                 />
               </div>
+
+              {/* Organization Membership Option */}
+              <div className="mt-3 p-3 border border-gray-100 rounded-lg bg-blue-50">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="join-org" className="font-medium text-sm">
+                    Join an Organization
+                  </Label>
+                  <Switch 
+                    id="join-org" 
+                    checked={joinOrg} 
+                    onCheckedChange={setJoinOrg}
+                  />
+                </div>
+                
+                {joinOrg && (
+                  <div className="mt-3">
+                    <Label htmlFor="org-select" className="text-xs text-gray-700 mb-1 block">
+                      Select Organization
+                    </Label>
+                    <Select 
+                      value={selectedOrgId} 
+                      onValueChange={setSelectedOrgId}
+                    >
+                      <SelectTrigger id="org-select" className="w-full h-9 text-sm">
+                        <SelectValue placeholder="Select an organization" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mockOrganizations.map(org => (
+                          <SelectItem key={org.id} value={org.id}>
+                            {org.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      You'll be able to participate in the organization's events
+                    </p>
+                  </div>
+                )}
+              </div>
             </>
           ) : !isAdmin && accountType === 'organization' ? (
             <div>
@@ -276,7 +338,7 @@ const Signup = () => {
 
           <Button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || (joinOrg && !selectedOrgId)}
             className={`w-full h-10 ${isAdmin ? 'bg-purple-600 hover:bg-purple-700' : 'bg-nuevagen-blue hover:bg-opacity-90'} text-white font-medium rounded-lg text-sm`}
           >
             {isLoading ? "Creating Account..." : "Sign Up"}
