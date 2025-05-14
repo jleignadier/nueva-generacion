@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Award, Star, Users } from 'lucide-react';
+import { Trophy, Award, User, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface LeaderboardEntry {
@@ -139,8 +138,8 @@ const LeaderboardTab = () => {
       >
         <TabsList className="grid grid-cols-2 mb-6">
           <TabsTrigger value="individual" className="flex items-center">
-            <Star size={16} className="mr-2" />
-            Individual Volunteers Points
+            <User size={16} className="mr-2" />
+            Volunteer Points
           </TabsTrigger>
           <TabsTrigger value="organization" className="flex items-center">
             <Users size={16} className="mr-2" />
