@@ -1,12 +1,12 @@
 
 import React from 'react';
 
-const AdminDonationsTab = () => {
+const AdminDonations = () => {
   return (
-    <div className="app-container">
+    <div>
       <h1 className="text-2xl font-bold mb-6">Donations Management</h1>
       
-      <div className="text-center text-zinc-500 py-10">
+      <div className="text-center text-zinc-400 py-10 bg-zinc-800 rounded-lg">
         <p>Donations approval functionality will be implemented here.</p>
         <p className="text-sm">You'll be able to view and approve/reject donation submissions.</p>
       </div>
@@ -14,4 +14,4 @@ const AdminDonationsTab = () => {
   );
 };
 
-export default AdminDonationsTab;
+export default AdminDonations;

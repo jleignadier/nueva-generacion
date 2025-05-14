@@ -1,12 +1,12 @@
 
 import React from 'react';
 
-const AdminSettingsTab = () => {
+const AdminSettings = () => {
   return (
-    <div className="app-container">
+    <div>
       <h1 className="text-2xl font-bold mb-6">System Settings</h1>
       
-      <div className="text-center text-zinc-500 py-10">
+      <div className="text-center text-zinc-400 py-10 bg-zinc-800 rounded-lg">
         <p>System settings functionality will be implemented here.</p>
         <p className="text-sm">You'll be able to configure system parameters and defaults.</p>
       </div>
@@ -14,4 +14,4 @@ const AdminSettingsTab = () => {
   );
 };
 
-export default AdminSettingsTab;
+export default AdminSettings;
