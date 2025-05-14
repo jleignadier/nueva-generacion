@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 type User = {
   id: string;
@@ -25,75 +24,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
-  // Load user on initial render
+  // Load user on initial render only
   useEffect(() => {
-    const loadUser = () => {
-      try {
-        const savedUser = localStorage.getItem('nuevaGen_user');
-        if (savedUser) {
-          const parsedUser = JSON.parse(savedUser);
-          console.log("Retrieved user from localStorage:", parsedUser);
-          setUser(parsedUser);
-        }
-      } catch (err) {
-        console.error("Error loading user:", err);
-        localStorage.removeItem('nuevaGen_user');
-      } finally {
-        setIsLoading(false);
+    try {
+      const savedUser = localStorage.getItem('nuevaGen_user');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
       }
-    };
-    
-    loadUser();
+    } catch (err) {
+      localStorage.removeItem('nuevaGen_user');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  // Mock login function - In a real app, this would call an API
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // For demo purposes, any non-empty email and password works
-      if (email && password) {
-        // Admin login check
-        if (email === 'admin@ng.org.pa' && password === 'admin123') {
-          const adminUser = {
-            id: 'admin-1',
-            name: 'Admin User',
-            email,
-            accountType: 'admin' as const,
-            isAdmin: true
-          };
-          
-          setUser(adminUser);
-          localStorage.setItem('nuevaGen_user', JSON.stringify(adminUser));
-          console.log('Admin login successful');
-          navigate('/admin', { replace: true });
-        } else {
-          // Regular user
-          const mockUser = {
-            id: Math.random().toString(36).substring(2),
-            name: email.split('@')[0],
-            email,
-            accountType: 'individual' as const,
-            isAdmin: false
-          };
-          
-          setUser(mockUser);
-          localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
-          console.log('User login successful');
-          navigate('/dashboard', { replace: true });
-        }
-      } else {
+      if (!email || !password) {
         throw new Error('Email and password are required');
+      }
+      
+      // Admin login check
+      if (email === 'admin@ng.org.pa' && password === 'admin123') {
+        const adminUser = {
+          id: 'admin-1',
+          name: 'Admin User',
+          email,
+          accountType: 'admin' as const,
+          isAdmin: true
+        };
+        
+        setUser(adminUser);
+        localStorage.setItem('nuevaGen_user', JSON.stringify(adminUser));
+      } else {
+        // Regular user
+        const mockUser = {
+          id: Math.random().toString(36).substring(2),
+          name: email.split('@')[0],
+          email,
+          accountType: 'individual' as const,
+          isAdmin: false
+        };
+        
+        setUser(mockUser);
+        localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
       }
     } catch (err: any) {
       setError(err.message || 'Failed to login');
-      console.error('Login error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -104,46 +88,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // For demo purposes, any non-empty fields work
-      if (email && password && name) {
-        const isAdmin = accountType === 'admin';
-        
-        const mockUser = {
-          id: Math.random().toString(36).substring(2),
-          name,
-          email,
-          accountType,
-          isAdmin
-        };
-        
-        setUser(mockUser);
-        localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
-        
-        // Redirect based on account type
-        if (isAdmin) {
-          navigate('/admin', { replace: true });
-        } else {
-          navigate('/dashboard', { replace: true });
-        }
-      } else {
+      if (!email || !password || !name) {
         throw new Error('All fields are required');
       }
+      
+      const isAdmin = accountType === 'admin';
+      
+      const mockUser = {
+        id: Math.random().toString(36).substring(2),
+        name,
+        email,
+        accountType,
+        isAdmin
+      };
+      
+      setUser(mockUser);
+      localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
     } catch (err: any) {
       setError(err.message || 'Failed to sign up');
-      console.error('Signup error:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = () => {
-    console.log('Logging out user');
     setUser(null);
     localStorage.removeItem('nuevaGen_user');
-    navigate('/login', { replace: true });
   };
 
   return (

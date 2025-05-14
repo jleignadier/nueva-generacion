@@ -18,12 +18,12 @@ const UserLayout = () => {
 
   // If not logged in, redirect to login
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" />;
   }
   
   // If admin trying to access user area, redirect to admin
   if (user.isAdmin) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/admin" />;
   }
 
   return (

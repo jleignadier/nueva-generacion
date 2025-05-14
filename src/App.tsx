@@ -35,25 +35,25 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             
-            {/* User Routes with UserLayout */}
-            <Route path="/dashboard" element={<UserLayout />}>
-              <Route index element={<HomeTab />} />
-              <Route path="donations" element={<DonationsTab />} />
-              <Route path="leaderboard" element={<LeaderboardTab />} />
-              <Route path="profile" element={<ProfileTab />} />
+            {/* User Routes */}
+            <Route element={<UserLayout />}>
+              <Route path="/dashboard" element={<HomeTab />} />
+              <Route path="/dashboard/donations" element={<DonationsTab />} />
+              <Route path="/dashboard/leaderboard" element={<LeaderboardTab />} />
+              <Route path="/dashboard/profile" element={<ProfileTab />} />
             </Route>
             
-            {/* Admin Routes with AdminLayout */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="events" element={<AdminEvents />} />
-              <Route path="donations" element={<AdminDonations />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="settings" element={<AdminSettings />} />
+            {/* Admin Routes */}
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/events" element={<AdminEvents />} />
+              <Route path="/admin/donations" element={<AdminDonations />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
             </Route>
             
             {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/" element={<Navigate to="/login" />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
