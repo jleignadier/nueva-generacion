@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -78,29 +79,34 @@ const Signup = () => {
           </p>
         </div>
 
-        <div className="flex mb-6">
-          <button
-            type="button"
-            onClick={() => setAccountType('individual')}
-            className={`flex-1 py-3 text-center transition-colors ${
-              accountType === 'individual' 
-                ? 'bg-nuevagen-blue text-white font-medium rounded-l-lg' 
-                : 'bg-gray-100 text-gray-600 rounded-l-lg'
-            }`}
+        <div className="mb-6 rounded-lg overflow-hidden gradient-toggle-container">
+          <ToggleGroup
+            type="single"
+            value={accountType}
+            onValueChange={(value) => value && setAccountType(value as 'individual' | 'organization')}
+            className="w-full"
           >
-            Individual
-          </button>
-          <button
-            type="button"
-            onClick={() => setAccountType('organization')}
-            className={`flex-1 py-3 text-center transition-colors ${
-              accountType === 'organization' 
-                ? 'bg-nuevagen-blue text-white font-medium rounded-r-lg' 
-                : 'bg-gray-100 text-gray-600 rounded-r-lg'
-            }`}
-          >
-            Organization
-          </button>
+            <ToggleGroupItem 
+              value="individual"
+              className={`flex-1 py-3 text-center transition-colors rounded-none ${
+                accountType === 'individual' 
+                  ? 'text-white font-medium' 
+                  : 'bg-white/80 text-gray-600'
+              }`}
+            >
+              Individual
+            </ToggleGroupItem>
+            <ToggleGroupItem 
+              value="organization"
+              className={`flex-1 py-3 text-center transition-colors rounded-none ${
+                accountType === 'organization' 
+                  ? 'text-white font-medium' 
+                  : 'bg-white/80 text-gray-600'
+              }`}
+            >
+              Organization
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
