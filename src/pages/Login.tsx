@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Info } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -23,7 +23,13 @@ const Login = () => {
     
     try {
       await login(email, password);
-      navigate('/dashboard');
+      // Check if the user is an admin and redirect accordingly
+      const savedUser = JSON.parse(localStorage.getItem('nuevaGen_user') || '{}');
+      if (savedUser.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       toast({
         title: "Login Failed",
@@ -37,6 +43,11 @@ const Login = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const fillAdminCredentials = () => {
+    setEmail('admin@nuevagen.org');
+    setPassword('admin123');
   };
 
   return (
@@ -101,6 +112,30 @@ const Login = () => {
             </Link>
           </div>
         </form>
+
+        <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <div className="flex items-start">
+            <Info size={18} className="text-blue-500 mt-0.5 mr-2" />
+            <div>
+              <p className="text-sm text-gray-700 font-medium">
+                Admin Demo Access
+              </p>
+              <p className="text-xs text-gray-600 mt-1">
+                Use email: <span className="font-mono">admin@nuevagen.org</span> <br/>
+                Password: <span className="font-mono">admin123</span> 
+              </p>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm"
+                onClick={fillAdminCredentials}
+                className="mt-2 text-xs h-8"
+              >
+                Fill Admin Credentials
+              </Button>
+            </div>
+          </div>
+        </div>
       </Card>
     </div>
   );

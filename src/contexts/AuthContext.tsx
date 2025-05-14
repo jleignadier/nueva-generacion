@@ -5,7 +5,8 @@ type User = {
   id: string;
   name: string;
   email: string;
-  accountType: 'individual' | 'organization';
+  accountType: 'individual' | 'organization' | 'admin';
+  isAdmin: boolean;
 };
 
 type AuthContextType = {
@@ -44,15 +45,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // For demo purposes, any non-empty email and password works
       if (email && password) {
-        const mockUser = {
-          id: Math.random().toString(36).substring(2),
-          name: email.split('@')[0],
-          email,
-          accountType: 'individual' as const
-        };
-        
-        setUser(mockUser);
-        localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
+        // Admin login check
+        if (email === 'admin@nuevagen.org' && password === 'admin123') {
+          const adminUser = {
+            id: 'admin-1',
+            name: 'Admin User',
+            email,
+            accountType: 'admin' as const,
+            isAdmin: true
+          };
+          
+          setUser(adminUser);
+          localStorage.setItem('nuevaGen_user', JSON.stringify(adminUser));
+        } else {
+          // Regular user
+          const mockUser = {
+            id: Math.random().toString(36).substring(2),
+            name: email.split('@')[0],
+            email,
+            accountType: 'individual' as const,
+            isAdmin: false
+          };
+          
+          setUser(mockUser);
+          localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
+        }
       } else {
         throw new Error('Email and password are required');
       }
@@ -78,7 +95,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: Math.random().toString(36).substring(2),
           name,
           email,
-          accountType
+          accountType,
+          isAdmin: false
         };
         
         setUser(mockUser);
