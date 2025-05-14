@@ -36,7 +36,7 @@ const AdminDonations = () => {
       name: donation.name || 'User Donation',
       amount: `$${donation.amount}`,
       date: donation.date || new Date().toLocaleDateString(),
-      status: 'Pending',
+      status: donation.status || 'Pending',
       receipt: donation.receiptFile,
       note: donation.note
     }));
@@ -118,7 +118,7 @@ const AdminDonations = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="text-white hover:text-white"
+                        className="text-black hover:text-black"
                         onClick={() => {
                           toast({
                             title: "Donation details",
