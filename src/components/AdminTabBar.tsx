@@ -2,6 +2,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Home, Calendar, Trophy, User, Settings } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const tabs = [
   {
@@ -34,6 +35,19 @@ const tabs = [
 
 export const AdminTabBar: React.FC = () => {
   const location = useLocation();
+  const { user } = useAuth();
+
+  // Debug AdminTabBar state
+  console.log("AdminTabBar - Current state:", { 
+    currentPath: location.pathname,
+    isAdmin: user?.isAdmin
+  });
+
+  // If user is not admin, don't render the admin tab bar
+  if (!user?.isAdmin) {
+    console.log("AdminTabBar - User not admin, not rendering tab bar");
+    return null;
+  }
 
   return (
     <div className="bg-zinc-800 border-t border-zinc-700 shadow-sm fixed bottom-0 left-0 right-0">

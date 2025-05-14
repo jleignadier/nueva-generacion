@@ -1,6 +1,6 @@
 
-import React, { useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface AdminRouteProps {
@@ -9,14 +9,9 @@ interface AdminRouteProps {
 
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // If user is loaded and is not an admin, redirect to dashboard
-    if (!isLoading && (!user || !user.isAdmin)) {
-      navigate('/dashboard', { replace: true });
-    }
-  }, [user, isLoading, navigate]);
+  
+  // Debug user state
+  console.log("AdminRoute - User state:", { user, isAdmin: user?.isAdmin, isLoading });
 
   if (isLoading) {
     return (
@@ -26,10 +21,14 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user || !user.isAdmin) {
+  // Single protection check - if not admin, redirect to dashboard
+  if (!user?.isAdmin) {
+    console.log("AdminRoute - Not admin, redirecting to dashboard");
     return <Navigate to="/dashboard" replace />;
   }
 
+  // User is admin, render children
+  console.log("AdminRoute - Admin confirmed, rendering children");
   return <>{children}</>;
 };
 
