@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type User = {
   id: string;
@@ -26,31 +26,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
+  // Load user on initial render
   useEffect(() => {
-    // Check for saved user in localStorage
-    const savedUser = localStorage.getItem('nuevaGen_user');
-    if (savedUser) {
+    const loadUser = () => {
       try {
-        const parsedUser = JSON.parse(savedUser);
-        setUser(parsedUser);
-        console.log("Retrieved user from localStorage:", parsedUser);
+        const savedUser = localStorage.getItem('nuevaGen_user');
+        if (savedUser) {
+          const parsedUser = JSON.parse(savedUser);
+          console.log("Retrieved user from localStorage:", parsedUser);
+          setUser(parsedUser);
+        }
       } catch (err) {
-        console.error("Error parsing user from localStorage:", err);
+        console.error("Error loading user:", err);
         localStorage.removeItem('nuevaGen_user');
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+    
+    loadUser();
   }, []);
-
-  // Prevent automatic navigation from login or signup pages
-  useEffect(() => {
-    if (!isLoading && user && (location.pathname === '/login' || location.pathname === '/signup')) {
-      console.log('Redirecting after authentication:', user.isAdmin ? 'admin' : 'dashboard');
-      navigate(user.isAdmin ? '/admin' : '/dashboard', { replace: true });
-    }
-  }, [isLoading, user, location.pathname, navigate]);
 
   // Mock login function - In a real app, this would call an API
   const login = async (email: string, password: string) => {
@@ -75,8 +71,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           setUser(adminUser);
           localStorage.setItem('nuevaGen_user', JSON.stringify(adminUser));
-          console.log('Admin login successful, redirecting to /admin');
-          navigate('/admin');
+          console.log('Admin login successful');
+          navigate('/admin', { replace: true });
         } else {
           // Regular user
           const mockUser = {
@@ -89,8 +85,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           setUser(mockUser);
           localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
-          console.log('User login successful, redirecting to /dashboard');
-          navigate('/dashboard');
+          console.log('User login successful');
+          navigate('/dashboard', { replace: true });
         }
       } else {
         throw new Error('Email and password are required');
@@ -128,9 +124,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Redirect based on account type
         if (isAdmin) {
-          navigate('/admin');
+          navigate('/admin', { replace: true });
         } else {
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         }
       } else {
         throw new Error('All fields are required');
@@ -147,7 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Logging out user');
     setUser(null);
     localStorage.removeItem('nuevaGen_user');
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   return (

@@ -1,20 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { TabBar } from '@/components/TabBar';
 import { useAuth } from '@/contexts/AuthContext';
 
 const UserLayout = () => {
   const { user, isLoading } = useAuth();
-  
-  useEffect(() => {
-    console.log('UserLayout rendered', { 
-      user: user?.email, 
-      isAdmin: user?.isAdmin, 
-      isLoading,
-      timestamp: new Date().toISOString()
-    });
-  }, [user, isLoading]);
   
   // While loading, show loading state
   if (isLoading) {
@@ -27,17 +18,13 @@ const UserLayout = () => {
 
   // If not logged in, redirect to login
   if (!user) {
-    console.log("UserLayout: User not authenticated, redirecting to login");
     return <Navigate to="/login" replace />;
   }
   
   // If admin trying to access user area, redirect to admin
   if (user.isAdmin) {
-    console.log("UserLayout: Admin user detected, redirecting to admin area");
     return <Navigate to="/admin" replace />;
   }
-
-  console.log("UserLayout: Rendering user dashboard for", user.email);
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">

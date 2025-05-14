@@ -52,7 +52,7 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             
-            {/* Root redirect - send to login by default */}
+            {/* Root redirect */}
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
