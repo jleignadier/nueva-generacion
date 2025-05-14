@@ -1,5 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/components/ui/use-toast';
 
 type User = {
   id: string;
@@ -24,6 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Load user on initial render only
   useEffect(() => {
@@ -33,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(JSON.parse(savedUser));
       }
     } catch (err) {
+      console.error("Error loading user from localStorage:", err);
       localStorage.removeItem('nuevaGen_user');
     } finally {
       setIsLoading(false);
@@ -63,8 +67,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser(adminUser);
         localStorage.setItem('nuevaGen_user', JSON.stringify(adminUser));
+        toast({
+          title: "Login Successful",
+          description: "Welcome back, Admin!",
+        });
+        navigate('/admin');
       } else {
-        // Regular user
+        // Regular user login - simplified for demo
         const mockUser = {
           id: Math.random().toString(36).substring(2),
           name: email.split('@')[0],
@@ -75,9 +84,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser(mockUser);
         localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
+        toast({
+          title: "Login Successful",
+          description: `Welcome back, ${mockUser.name}!`,
+        });
+        navigate('/dashboard');
       }
     } catch (err: any) {
+      console.error("Login error:", err);
       setError(err.message || 'Failed to login');
+      toast({
+        title: "Login Failed",
+        description: err.message || "Please check your credentials and try again",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -107,8 +127,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       setUser(mockUser);
       localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
+      
+      toast({
+        title: "Account Created",
+        description: "Your account has been created successfully!",
+      });
+      
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
+      console.error("Signup error:", err);
       setError(err.message || 'Failed to sign up');
+      toast({
+        title: "Signup Failed",
+        description: err.message || "Please check your information and try again",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -117,6 +154,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem('nuevaGen_user');
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out",
+    });
+    navigate('/login');
   };
 
   return (

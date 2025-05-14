@@ -10,6 +10,16 @@ console.log('App initializing at:', new Date().toISOString());
 window.addEventListener('storage', (event) => {
   if (event.key === 'nuevaGen_user') {
     console.log('Auth state changed:', event.newValue ? 'User logged in' : 'User logged out');
+    
+    // Force page refresh on auth state change from another tab
+    if (event.newValue !== null) {
+      try {
+        const userData = JSON.parse(event.newValue);
+        console.log('User data changed:', userData.name, userData.isAdmin ? '(admin)' : '(regular user)');
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+    }
   }
 });
 

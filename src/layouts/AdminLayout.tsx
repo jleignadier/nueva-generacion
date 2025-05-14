@@ -7,7 +7,7 @@ import { AdminNavigation } from '@/components/admin/AdminNavigation';
 const AdminLayout = () => {
   const { user, isLoading } = useAuth();
   
-  // While loading, show loading state
+  // Show loading state while checking auth
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-zinc-900 text-white">
@@ -16,12 +16,17 @@ const AdminLayout = () => {
     );
   }
   
-  // Simple redirect logic - if no user or not admin, redirect to login
-  if (!user || !user.isAdmin) {
+  // If no user or not admin, redirect to login
+  if (!user) {
+    console.log("AdminLayout: No user found, redirecting to login");
     return <Navigate to="/login" />;
   }
   
-  // User is logged in and is an admin, show admin layout
+  if (!user.isAdmin) {
+    console.log("AdminLayout: Non-admin user detected, redirecting to user dashboard");
+    return <Navigate to="/dashboard" />;
+  }
+  
   return (
     <div className="flex h-screen bg-zinc-900 text-white">
       {/* Admin sidebar navigation */}

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,20 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, error } = useAuth();
+  const { login, error, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // If user is already logged in, redirect to appropriate dashboard
+  useEffect(() => {
+    if (user) {
+      if (user.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,14 +34,10 @@ const Login = () => {
     
     try {
       await login(email, password);
-      // The redirect is now handled by the AuthContext after successful login
-      // No redirection needed here
+      // Navigation is now handled in the AuthContext
     } catch (err) {
-      toast({
-        title: "Login Failed",
-        description: error || "Please check your credentials and try again",
-        variant: "destructive"
-      });
+      console.error("Login form error:", err);
+      // Error handling is now in AuthContext
     } finally {
       setIsLoading(false);
     }
