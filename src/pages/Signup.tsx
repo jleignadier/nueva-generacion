@@ -7,11 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { CalendarIcon, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [orgName, setOrgName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -39,7 +40,11 @@ const Signup = () => {
     setIsLoading(true);
     
     try {
-      await signup(email, password, `${firstName} ${lastName}`, accountType);
+      const name = accountType === 'individual' 
+        ? `${firstName} ${lastName}` 
+        : orgName;
+        
+      await signup(email, password, name, accountType);
       navigate('/dashboard');
     } catch (err) {
       toast({
@@ -63,7 +68,7 @@ const Signup = () => {
           <img 
             src="/lovable-uploads/3e471c72-20ba-448a-94e3-4531623f02bc.png" 
             alt="Nueva Generación Logo" 
-            className="h-16 w-auto" 
+            className="h-24 w-auto" 
           />
           <h2 className="mt-4 text-center text-3xl font-bold text-nuevagen-blue">
             Create Account
@@ -140,38 +145,52 @@ const Signup = () => {
             </div>
           </div>
 
-          <div>
-            <Input
-              type="text"
-              placeholder="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              className="w-full h-12 text-base"
-            />
-          </div>
+          {accountType === 'individual' ? (
+            <>
+              <div>
+                <Input
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  className="w-full h-12 text-base"
+                />
+              </div>
 
-          <div>
-            <Input
-              type="text"
-              placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-              className="w-full h-12 text-base"
-            />
-          </div>
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  className="w-full h-12 text-base"
+                />
+              </div>
 
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="mm/dd/yyyy"
-              value={birthdate}
-              onChange={(e) => setBirthdate(e.target.value)}
-              className="w-full h-12 text-base"
-            />
-            <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
-          </div>
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="mm/dd/yyyy"
+                  value={birthdate}
+                  onChange={(e) => setBirthdate(e.target.value)}
+                  className="w-full h-12 text-base"
+                />
+              </div>
+            </>
+          ) : (
+            <div>
+              <Input
+                type="text"
+                placeholder="Organization Name"
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+                required
+                className="w-full h-12 text-base"
+              />
+            </div>
+          )}
 
           <div>
             <Input

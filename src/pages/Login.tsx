@@ -46,7 +46,7 @@ const Login = () => {
           <img 
             src="/lovable-uploads/3e471c72-20ba-448a-94e3-4531623f02bc.png" 
             alt="Nueva Generación Logo" 
-            className="h-16 w-auto" 
+            className="h-24 w-auto" 
           />
           <h2 className="mt-4 text-center text-3xl font-bold text-nuevagen-blue">
             Welcome Back

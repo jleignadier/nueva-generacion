@@ -35,8 +35,20 @@ const HomeTab = () => {
       date: 'May 27, 2025',
       time: '4:00 PM - 6:00 PM',
       participants: 12
+    },
+    {
+      id: 4,
+      title: 'Community Garden',
+      organization: 'Green Thumbs',
+      location: 'Riverside Park',
+      date: 'June 2, 2025',
+      time: '10:00 AM - 1:00 PM',
+      participants: 15
     }
   ];
+
+  const nextEvent = upcomingEvents[0];
+  const otherEvents = upcomingEvents.slice(1, 4);
 
   return (
     <div className="app-container">
@@ -66,9 +78,54 @@ const HomeTab = () => {
       </Card>
 
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-3">Upcoming Events</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-3">Next Event</h2>
+        <Card key={nextEvent.id} className="overflow-hidden mb-6">
+          <div className="border-l-4 border-nuevagen-pink h-full">
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="text-lg">{nextEvent.title}</CardTitle>
+              <p className="text-sm text-gray-600">{nextEvent.organization}</p>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center">
+                  <MapPin size={14} className="mr-1 text-nuevagen-blue" />
+                  <span>{nextEvent.location}</span>
+                </div>
+                <div className="flex items-center">
+                  <Users size={14} className="mr-1 text-nuevagen-purple" />
+                  <span>{nextEvent.participants} joining</span>
+                </div>
+                <div className="flex items-center">
+                  <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
+                  <span>{nextEvent.date}</span>
+                </div>
+                <div className="flex items-center">
+                  <Clock size={14} className="mr-1 text-nuevagen-green" />
+                  <span>{nextEvent.time}</span>
+                </div>
+              </div>
+              <Button 
+                className="w-full mt-3 btn-primary" 
+                size="sm"
+              >
+                Join Event
+              </Button>
+            </CardContent>
+          </div>
+        </Card>
+
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-xl font-semibold text-gray-800">Upcoming Events</h2>
+          <Button 
+            variant="ghost" 
+            className="text-sm text-nuevagen-blue"
+            size="sm"
+          >
+            See All
+          </Button>
+        </div>
         <div className="space-y-4">
-          {upcomingEvents.map((event) => (
+          {otherEvents.map((event) => (
             <Card key={event.id} className="overflow-hidden">
               <div className="border-l-4 border-nuevagen-teal h-full">
                 <CardHeader className="p-4 pb-2">
