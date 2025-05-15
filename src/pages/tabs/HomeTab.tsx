@@ -5,44 +5,43 @@ import { Button } from '@/components/ui/button';
 import { CalendarCheck, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { useEventsStore, Event } from '@/store/eventsStore';
+import { format, parseISO } from 'date-fns';
 
 const HomeTab = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { events } = useEventsStore();
   
-  const upcomingEvents = [
-    {
-      id: '1',
-      title: 'Beach Cleanup',
-      location: 'Santa Monica Beach',
-      date: 'May 20, 2025',
-      time: '9:00 AM - 12:00 PM'
-    },
-    {
-      id: '2',
-      title: 'Food Drive',
-      location: 'Central Park',
-      date: 'May 25, 2025',
-      time: '10:00 AM - 2:00 PM'
-    },
-    {
-      id: '3',
-      title: 'Tutoring Session',
-      location: 'Public Library',
-      date: 'May 27, 2025',
-      time: '4:00 PM - 6:00 PM'
-    },
-    {
-      id: '4',
-      title: 'Community Garden',
-      location: 'Riverside Park',
-      date: 'June 2, 2025',
-      time: '10:00 AM - 1:00 PM'
-    }
-  ];
-
+  // Filter upcoming events and sort by date
+  const upcomingEvents = events
+    .filter(event => event.status === 'upcoming')
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
   const nextEvent = upcomingEvents[0];
   const otherEvents = upcomingEvents.slice(1, 4);
+  
+  // Format date from ISO string to readable format
+  const formatDate = (dateString: string) => {
+    const date = parseISO(dateString);
+    return format(date, 'MMMM d, yyyy');
+  };
+  
+  // Format time from 24h to 12h format
+  const formatEventTime = (event: Event) => {
+    if (!event.time) return '';
+    
+    const formatTimeString = (timeStr: string) => {
+      const [hours, minutes] = timeStr.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    };
+    
+    if (!event.endTime) return formatTimeString(event.time);
+    return `${formatTimeString(event.time)} - ${formatTimeString(event.endTime)}`;
+  };
   
   // Check if user is participating in events (from localStorage)
   const getIsParticipating = (eventId: string) => {
@@ -63,34 +62,42 @@ const HomeTab = () => {
       
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-3">Next Event</h2>
-        <Card key={nextEvent.id} className="overflow-hidden mb-6 border-l-4 border-nuevagen-pink bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-xl md:text-2xl">{nextEvent.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex items-center">
-                <MapPin size={14} className="mr-1 text-white" />
-                <span>{nextEvent.location}</span>
+        {nextEvent ? (
+          <Card key={nextEvent.id} className="overflow-hidden mb-6 border-l-4 border-nuevagen-pink bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="text-xl md:text-2xl">{nextEvent.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center">
+                  <MapPin size={14} className="mr-1 text-white" />
+                  <span>{nextEvent.location}</span>
+                </div>
+                <div className="flex items-center">
+                  <CalendarCheck size={14} className="mr-1 text-white" />
+                  <span>{formatDate(nextEvent.date)}</span>
+                </div>
+                <div className="flex items-center">
+                  <Clock size={14} className="mr-1 text-white" />
+                  <span>{formatEventTime(nextEvent)}</span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <CalendarCheck size={14} className="mr-1 text-white" />
-                <span>{nextEvent.date}</span>
-              </div>
-              <div className="flex items-center">
-                <Clock size={14} className="mr-1 text-white" />
-                <span>{nextEvent.time}</span>
-              </div>
-            </div>
-            <Button 
-              className="w-full mt-3 bg-white/20 hover:bg-white/30 text-white" 
-              size="sm"
-              onClick={() => navigate(`/event/${nextEvent.id}`)}
-            >
-              {getIsParticipating(nextEvent.id) ? 'View Details' : 'Participate Now'}
-            </Button>
-          </CardContent>
-        </Card>
+              <Button 
+                className="w-full mt-3 bg-white/20 hover:bg-white/30 text-white" 
+                size="sm"
+                onClick={() => navigate(`/event/${nextEvent.id}`)}
+              >
+                {getIsParticipating(nextEvent.id) ? 'View Details' : 'Participate Now'}
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mb-6 border-l-4 border-nuevagen-pink bg-gray-100">
+            <CardContent className="p-4">
+              <p className="text-center text-gray-500 py-4">No upcoming events</p>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-xl font-semibold text-gray-800">Upcoming Events</h2>
@@ -98,42 +105,51 @@ const HomeTab = () => {
             variant="ghost" 
             className="text-sm text-nuevagen-blue flex items-center"
             size="sm"
+            onClick={() => navigate('/events')}
           >
             See All
             <ChevronRight size={16} />
           </Button>
         </div>
         <div className="space-y-4">
-          {otherEvents.map((event) => (
-            <Card key={event.id} className="overflow-hidden border-l-4 border-nuevagen-teal">
-              <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-lg md:text-xl">{event.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center">
-                    <MapPin size={14} className="mr-1 text-nuevagen-blue" />
-                    <span>{event.location}</span>
+          {otherEvents.length > 0 ? (
+            otherEvents.map((event) => (
+              <Card key={event.id} className="overflow-hidden border-l-4 border-nuevagen-teal">
+                <CardHeader className="p-4 pb-2">
+                  <CardTitle className="text-lg md:text-xl">{event.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="flex items-center">
+                      <MapPin size={14} className="mr-1 text-nuevagen-blue" />
+                      <span>{event.location}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
+                      <span>{formatDate(event.date)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Clock size={14} className="mr-1 text-nuevagen-green" />
+                      <span>{formatEventTime(event)}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
-                    <span>{event.date}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Clock size={14} className="mr-1 text-nuevagen-green" />
-                    <span>{event.time}</span>
-                  </div>
-                </div>
-                <Button 
-                  className="w-full mt-3 btn-primary" 
-                  size="sm"
-                  onClick={() => navigate(`/event/${event.id}`)}
-                >
-                  {getIsParticipating(event.id) ? 'View Details' : 'Participate'}
-                </Button>
+                  <Button 
+                    className="w-full mt-3 btn-primary" 
+                    size="sm"
+                    onClick={() => navigate(`/event/${event.id}`)}
+                  >
+                    {getIsParticipating(event.id) ? 'View Details' : 'Participate'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <Card className="border-l-4 border-nuevagen-teal bg-gray-100">
+              <CardContent className="p-4">
+                <p className="text-center text-gray-500 py-4">No additional upcoming events</p>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
       </div>
     </div>
