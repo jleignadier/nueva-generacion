@@ -252,7 +252,7 @@ const AdminDonations = () => {
               {selectedDonation.note && (
                 <div>
                   <p className="text-sm font-medium text-gray-500">Note</p>
-                  <p className="text-sm mt-1 p-2 bg-gray-100 rounded">{selectedDonation.note}</p>
+                  <p className="text-sm mt-1 p-2 bg-gray-100 text-black rounded">{selectedDonation.note}</p>
                 </div>
               )}
               
@@ -264,7 +264,7 @@ const AdminDonations = () => {
                       <img 
                         src={selectedDonation.receipt} 
                         alt="Donation Receipt" 
-                        className="object-cover w-full h-full"
+                        className="object-contain w-full h-full"
                       />
                     </AspectRatio>
                   </div>

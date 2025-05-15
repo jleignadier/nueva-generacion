@@ -77,7 +77,7 @@ const AdminEvents = () => {
             <ToggleGroupItem 
               value="all" 
               className={filter === 'all' 
-                ? "bg-white text-black" 
+                ? "bg-white text-black font-medium" 
                 : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
             >
               All Events
@@ -85,7 +85,7 @@ const AdminEvents = () => {
             <ToggleGroupItem 
               value="upcoming" 
               className={filter === 'upcoming' 
-                ? "bg-white text-black" 
+                ? "bg-white text-black font-medium" 
                 : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
             >
               Upcoming
@@ -93,7 +93,7 @@ const AdminEvents = () => {
             <ToggleGroupItem 
               value="completed" 
               className={filter === 'completed' 
-                ? "bg-white text-black" 
+                ? "bg-white text-black font-medium" 
                 : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
             >
               Completed
