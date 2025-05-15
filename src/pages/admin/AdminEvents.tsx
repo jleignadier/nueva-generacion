@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -76,25 +75,19 @@ const AdminEvents = () => {
           >
             <ToggleGroupItem 
               value="all" 
-              className={filter === 'all' 
-                ? "bg-white text-black font-medium" 
-                : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
+              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"
             >
               All Events
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="upcoming" 
-              className={filter === 'upcoming' 
-                ? "bg-white text-black font-medium" 
-                : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
+              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"
             >
               Upcoming
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="completed" 
-              className={filter === 'completed' 
-                ? "bg-white text-black font-medium" 
-                : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
+              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"
             >
               Completed
             </ToggleGroupItem>
