@@ -66,7 +66,7 @@ const EventDetail = () => {
     });
   };
 
-  // Fix for the back navigation - use a direct route rather than navigate(-1)
+  // Use direct route for navigation - maintain the '/dashboard' path
   const handleBack = () => {
     navigate('/dashboard');
   };

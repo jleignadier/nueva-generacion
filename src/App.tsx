@@ -45,6 +45,7 @@ const App = () => (
             {/* User Routes */}
             <Route element={<UserLayout />}>
               <Route path="/dashboard" element={<HomeTab />} />
+              <Route path="/events" element={<HomeTab />} />
               <Route path="/dashboard/donations" element={<DonationsTab />} />
               <Route path="/dashboard/leaderboard" element={<LeaderboardTab />} />
               <Route path="/dashboard/profile" element={<ProfileTab />} />
