@@ -77,7 +77,7 @@ const AdminEvents = () => {
             <ToggleGroupItem 
               value="all" 
               className={filter === 'all' 
-                ? "bg-zinc-700 text-white" 
+                ? "bg-white text-black" 
                 : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
             >
               All Events
@@ -85,7 +85,7 @@ const AdminEvents = () => {
             <ToggleGroupItem 
               value="upcoming" 
               className={filter === 'upcoming' 
-                ? "bg-zinc-700 text-white" 
+                ? "bg-white text-black" 
                 : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
             >
               Upcoming
@@ -93,7 +93,7 @@ const AdminEvents = () => {
             <ToggleGroupItem 
               value="completed" 
               className={filter === 'completed' 
-                ? "bg-zinc-700 text-white" 
+                ? "bg-white text-black" 
                 : "border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"}
             >
               Completed
@@ -143,7 +143,7 @@ const AdminEvents = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"
+                      className="border-zinc-600 text-black bg-white hover:bg-gray-100 hover:text-black"
                       onClick={() => navigate(`/admin/events/edit/${event.id}`)}
                     >
                       <Edit size={14} className="mr-1" />

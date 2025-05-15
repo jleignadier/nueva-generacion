@@ -70,7 +70,17 @@ const AdminDonations = () => {
       localStorage.setItem('mockDonations', JSON.stringify(mockDonations));
     }
 
-    setDonations([...formattedUserDonations, ...mockDonations]);
+    // Combine and sort by date (most recent first)
+    const allDonations = [...formattedUserDonations, ...mockDonations];
+    
+    // Parse dates for sorting
+    const sortedDonations = allDonations.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return dateB - dateA; // Sort by most recent first
+    });
+
+    setDonations(sortedDonations);
   };
 
   const handleStatusUpdate = (donationId: string, newStatus: 'Completed' | 'Rejected') => {
