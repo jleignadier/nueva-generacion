@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Calendar, Clock, MapPin } from 'lucide-react';
 import { useEventsStore } from '@/store/eventsStore';
 
@@ -113,6 +113,7 @@ const EventForm = () => {
         <Button 
           variant="outline" 
           onClick={() => navigate('/admin/events')}
+          className="text-black bg-white hover:text-black hover:bg-gray-100"
         >
           <ArrowLeft size={16} className="mr-2" />
           Back
@@ -124,7 +125,7 @@ const EventForm = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Event Title*</Label>
+                <Label htmlFor="title" className="text-white">Event Title*</Label>
                 <Input
                   id="title"
                   name="title"
@@ -132,12 +133,12 @@ const EventForm = () => {
                   onChange={handleInputChange}
                   placeholder="Enter event title"
                   required
-                  className="bg-zinc-700 border-zinc-600"
+                  className="bg-zinc-700 border-zinc-600 text-white"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="location">Location*</Label>
+                <Label htmlFor="location" className="text-white">Location*</Label>
                 <div className="relative">
                   <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <Input
@@ -147,13 +148,13 @@ const EventForm = () => {
                     onChange={handleInputChange}
                     placeholder="Enter location"
                     required
-                    className="pl-10 bg-zinc-700 border-zinc-600"
+                    className="pl-10 bg-zinc-700 border-zinc-600 text-white"
                   />
                 </div>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="date">Date*</Label>
+                <Label htmlFor="date" className="text-white">Date*</Label>
                 <div className="relative">
                   <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <Input
@@ -163,14 +164,14 @@ const EventForm = () => {
                     value={formData.date}
                     onChange={handleInputChange}
                     required
-                    className="pl-10 bg-zinc-700 border-zinc-600"
+                    className="pl-10 bg-zinc-700 border-zinc-600 text-white"
                   />
                 </div>
               </div>
               
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
-                  <Label htmlFor="time">Start Time*</Label>
+                  <Label htmlFor="time" className="text-white">Start Time*</Label>
                   <div className="relative">
                     <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <Input
@@ -180,13 +181,13 @@ const EventForm = () => {
                       value={formData.time}
                       onChange={handleInputChange}
                       required
-                      className="pl-10 bg-zinc-700 border-zinc-600"
+                      className="pl-10 bg-zinc-700 border-zinc-600 text-white"
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="endTime">End Time*</Label>
+                  <Label htmlFor="endTime" className="text-white">End Time*</Label>
                   <div className="relative">
                     <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <Input
@@ -196,14 +197,14 @@ const EventForm = () => {
                       value={formData.endTime}
                       onChange={handleInputChange}
                       required
-                      className="pl-10 bg-zinc-700 border-zinc-600"
+                      className="pl-10 bg-zinc-700 border-zinc-600 text-white"
                     />
                   </div>
                 </div>
               </div>
               
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-white">Description</Label>
                 <Textarea
                   id="description"
                   name="description"
@@ -211,12 +212,12 @@ const EventForm = () => {
                   onChange={handleInputChange}
                   placeholder="Enter event description"
                   rows={5}
-                  className="bg-zinc-700 border-zinc-600"
+                  className="bg-zinc-700 border-zinc-600 text-white"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="pointsEarned">Points for Participation</Label>
+                <Label htmlFor="pointsEarned" className="text-white">Points for Participation</Label>
                 <Input
                   id="pointsEarned"
                   name="pointsEarned"
@@ -224,19 +225,19 @@ const EventForm = () => {
                   min="0"
                   value={formData.pointsEarned}
                   onChange={handleInputChange}
-                  className="bg-zinc-700 border-zinc-600"
+                  className="bg-zinc-700 border-zinc-600 text-white"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="image">Image URL</Label>
+                <Label htmlFor="image" className="text-white">Image URL</Label>
                 <Input
                   id="image"
                   name="image"
                   value={formData.image}
                   onChange={handleInputChange}
                   placeholder="Enter image URL"
-                  className="bg-zinc-700 border-zinc-600"
+                  className="bg-zinc-700 border-zinc-600 text-white"
                 />
               </div>
             </div>
