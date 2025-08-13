@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Award, User, Users } from 'lucide-react';
+import { Trophy, Award, User, Users, Calendar, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCompetitionsStore } from '@/store/competitionsStore';
 
 interface LeaderboardEntry {
   id: number;
@@ -14,7 +15,10 @@ interface LeaderboardEntry {
 
 const LeaderboardTab = () => {
   const { user } = useAuth();
+  const { getActiveCompetition } = useCompetitionsStore();
   const [currentTab, setCurrentTab] = useState('individual');
+  
+  const activeCompetition = getActiveCompetition();
 
   // User data
   const userPoints = 28;
@@ -77,6 +81,41 @@ const LeaderboardTab = () => {
     );
   };
 
+  const renderActiveCompetition = () => {
+    if (!activeCompetition) return null;
+
+    const endDate = new Date(activeCompetition.endDate);
+    const today = new Date();
+    const daysLeft = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return (
+      <Card className="mb-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg mr-3">
+                <Trophy size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">{activeCompetition.name}</h3>
+                <p className="text-sm opacity-90">Current Competition</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center justify-end text-white/80 text-sm">
+                <Calendar size={14} className="mr-1" />
+                {daysLeft > 0 ? `${daysLeft} days left` : 'Ends today!'}
+              </div>
+              <div className="text-lg font-bold mt-1">
+                🏆 {activeCompetition.prize}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   const renderLeaderboard = (entries: LeaderboardEntry[]) => (
     <div className="space-y-2">
       {entries.map((entry) => {
@@ -129,9 +168,10 @@ const LeaderboardTab = () => {
         <Award size={24} className="text-nuevagen-yellow" />
       </div>
 
+      {renderActiveCompetition()}
       {renderUserStats()}
 
-      <Tabs 
+      <Tabs
         defaultValue="individual" 
         onValueChange={setCurrentTab}
         className="w-full"
