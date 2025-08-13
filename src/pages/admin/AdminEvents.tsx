@@ -127,10 +127,10 @@ const AdminEvents = () => {
       </div>
 
       {/* Competition Management Section */}
-      <Card className="bg-zinc-800 border-zinc-700">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
+            <CardTitle className="flex items-center gap-2 text-xl text-foreground">
               <Trophy className="text-yellow-500" size={24} />
               Competition Management
             </CardTitle>
@@ -144,43 +144,43 @@ const AdminEvents = () => {
                   Create Competition
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-zinc-800 border-zinc-700">
+              <DialogContent className="bg-popover border-border">
                 <DialogHeader>
-                  <DialogTitle>
+                  <DialogTitle className="text-popover-foreground">
                     {editingCompetition ? 'Edit Competition' : 'Create New Competition'}
                   </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleCompetitionSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="name">Competition Name</Label>
+                    <Label htmlFor="name" className="text-popover-foreground">Competition Name</Label>
                     <Input
                       id="name"
                       value={competitionForm.name}
                       onChange={(e) => setCompetitionForm({...competitionForm, name: e.target.value})}
                       placeholder="Enter competition name"
-                      className="bg-zinc-700 border-zinc-600"
+                      className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="prize">Prize</Label>
+                    <Label htmlFor="prize" className="text-popover-foreground">Prize</Label>
                     <Input
                       id="prize"
                       value={competitionForm.prize}
                       onChange={(e) => setCompetitionForm({...competitionForm, prize: e.target.value})}
                       placeholder="Enter prize description"
-                      className="bg-zinc-700 border-zinc-600"
+                      className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="endDate">End Date</Label>
+                    <Label htmlFor="endDate" className="text-popover-foreground">End Date</Label>
                     <Input
                       id="endDate"
                       type="date"
                       value={competitionForm.endDate}
                       onChange={(e) => setCompetitionForm({...competitionForm, endDate: e.target.value})}
-                      className="bg-zinc-700 border-zinc-600"
+                      className="bg-input border-border text-foreground"
                       required
                     />
                   </div>
@@ -190,7 +190,7 @@ const AdminEvents = () => {
                       checked={competitionForm.isActive}
                       onCheckedChange={(checked) => setCompetitionForm({...competitionForm, isActive: checked})}
                     />
-                    <Label htmlFor="isActive">Active Competition</Label>
+                    <Label htmlFor="isActive" className="text-popover-foreground">Active Competition</Label>
                   </div>
                   <div className="flex gap-2 pt-4">
                     <Button type="submit" className="flex-1">
@@ -200,7 +200,7 @@ const AdminEvents = () => {
                       type="button" 
                       variant="outline" 
                       onClick={() => setIsCompetitionDialogOpen(false)}
-                      className="border-zinc-600"
+                      className="border-border text-foreground hover:bg-muted"
                     >
                       Cancel
                     </Button>
@@ -212,17 +212,17 @@ const AdminEvents = () => {
         </CardHeader>
         <CardContent>
           {competitions.length === 0 ? (
-            <div className="text-center py-8 text-zinc-400">
+            <div className="text-center py-8 text-muted-foreground">
               No competitions created yet
             </div>
           ) : (
             <div className="space-y-3">
               {competitions.map((competition) => (
-                <div key={competition.id} className="border border-zinc-700 rounded-lg p-4 bg-zinc-900/50">
+                <div key={competition.id} className="border border-border rounded-lg p-4 bg-muted/50">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                     <div className="flex-1">
-                      <h3 className="font-medium text-lg mb-1">{competition.name}</h3>
-                      <div className="text-sm text-zinc-400 space-y-1">
+                      <h3 className="font-medium text-lg mb-1 text-foreground">{competition.name}</h3>
+                      <div className="text-sm text-muted-foreground space-y-1">
                         <div className="flex items-center gap-2">
                           <Trophy size={14} />
                           <span>Prize: {competition.prize}</span>
@@ -237,9 +237,9 @@ const AdminEvents = () => {
                       <div className="flex items-center gap-2 mb-2">
                         <span className={`px-2 py-1 text-xs rounded ${
                           competition.isActive 
-                            ? 'bg-green-900/30 text-green-400' 
-                            : 'bg-gray-900/30 text-gray-400'
-                        }`}>
+                             ? 'bg-green-900/30 text-green-400' 
+                             : 'bg-muted text-muted-foreground'
+                         }`}>
                           {competition.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </div>
@@ -248,7 +248,7 @@ const AdminEvents = () => {
                           variant="outline" 
                           size="sm"
                           onClick={() => handleEditCompetition(competition)}
-                          className="border-zinc-600 text-white bg-zinc-700 hover:bg-zinc-600 flex-1 sm:flex-initial"
+                          className="border-border text-foreground bg-muted hover:bg-muted/80 flex-1 sm:flex-initial"
                         >
                           <Edit size={14} className="mr-1" />
                           Edit
@@ -272,7 +272,7 @@ const AdminEvents = () => {
         </CardContent>
       </Card>
 
-      <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
+      <div className="bg-card border border-border p-6 rounded-lg">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
           <ToggleGroup 
             type="single" 
@@ -282,47 +282,47 @@ const AdminEvents = () => {
           >
             <ToggleGroupItem 
               value="all" 
-              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white text-xs sm:text-sm"
+              className="border-border text-foreground hover:bg-muted hover:text-foreground text-xs sm:text-sm"
             >
               All Events
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="upcoming" 
-              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white text-xs sm:text-sm"
+              className="border-border text-foreground hover:bg-muted hover:text-foreground text-xs sm:text-sm"
             >
               Upcoming
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="completed" 
-              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white text-xs sm:text-sm"
+              className="border-border text-foreground hover:bg-muted hover:text-foreground text-xs sm:text-sm"
             >
               Completed
             </ToggleGroupItem>
           </ToggleGroup>
           
           <div className="relative w-full lg:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
             <Input 
               placeholder="Search events..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-zinc-700 border-zinc-600"
+              className="pl-10 bg-input border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>
         
         <div className="space-y-4">
           {filteredEvents.length === 0 ? (
-            <div className="text-center py-8 text-zinc-400">
+            <div className="text-center py-8 text-muted-foreground">
               No events found matching your criteria
             </div>
           ) : (
             filteredEvents.map((event) => (
-              <div key={event.id} className="border border-zinc-700 rounded-lg p-4 bg-zinc-800">
+              <div key={event.id} className="border border-border rounded-lg p-4 bg-card">
                 <div className="flex flex-col lg:flex-row lg:justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-lg mb-2 break-words">{event.title}</h3>
-                    <div className="flex flex-wrap items-center text-zinc-400 text-sm gap-x-4 gap-y-1">
+                    <h3 className="font-medium text-lg mb-2 break-words text-foreground">{event.title}</h3>
+                    <div className="flex flex-wrap items-center text-muted-foreground text-sm gap-x-4 gap-y-1">
                       <div className="flex items-center">
                         <CalendarCheck size={14} className="mr-1 flex-shrink-0" />
                         <span className="truncate">{formatDate(event.date)}</span>
@@ -332,7 +332,7 @@ const AdminEvents = () => {
                         <span className="truncate">{formatTime(event.time, event.endTime)}</span>
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center text-zinc-400 text-sm mt-1 gap-x-4 gap-y-1">
+                    <div className="flex flex-wrap items-center text-muted-foreground text-sm mt-1 gap-x-4 gap-y-1">
                       <div className="flex items-center">
                         <MapPin size={14} className="mr-1 flex-shrink-0" />
                         <span className="truncate">{event.location}</span>
@@ -353,7 +353,7 @@ const AdminEvents = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="border-zinc-600 text-black bg-white hover:bg-gray-100 hover:text-black flex-1 lg:flex-initial"
+                      className="border-border text-foreground bg-background hover:bg-muted hover:text-foreground flex-1 lg:flex-initial"
                       onClick={() => navigate(`/admin/events/edit/${event.id}`)}
                     >
                       <Edit size={14} className="mr-1" />
@@ -379,7 +379,7 @@ const AdminEvents = () => {
                 )}
                 {event.status === 'upcoming' && (
                   <div className="mt-2">
-                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 text-xs rounded">
+                    <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
                       Upcoming
                     </span>
                   </div>
