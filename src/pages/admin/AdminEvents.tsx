@@ -55,10 +55,10 @@ const AdminEvents = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Events Management</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Events Management</h1>
         <Button 
-          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white"
+          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white w-full sm:w-auto"
           onClick={() => navigate('/admin/events/create')}
         >
           Create New Event
@@ -66,34 +66,34 @@ const AdminEvents = () => {
       </div>
 
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
           <ToggleGroup 
             type="single" 
             value={filter}
             onValueChange={(value) => value && setFilter(value)}
-            className="flex gap-2"
+            className="flex flex-wrap gap-2"
           >
             <ToggleGroupItem 
               value="all" 
-              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"
+              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white text-xs sm:text-sm"
             >
               All Events
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="upcoming" 
-              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"
+              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white text-xs sm:text-sm"
             >
               Upcoming
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="completed" 
-              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white"
+              className="border-zinc-600 text-white hover:bg-zinc-700 hover:text-white text-xs sm:text-sm"
             >
               Completed
             </ToggleGroupItem>
           </ToggleGroup>
           
-          <div className="relative w-64">
+          <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={18} />
             <Input 
               placeholder="Search events..." 
@@ -112,31 +112,38 @@ const AdminEvents = () => {
           ) : (
             filteredEvents.map((event) => (
               <div key={event.id} className="border border-zinc-700 rounded-lg p-4 bg-zinc-800">
-                <div className="flex justify-between">
-                  <div>
-                    <h3 className="font-medium text-lg">{event.title}</h3>
-                    <div className="flex items-center text-zinc-400 text-sm">
-                      <CalendarCheck size={14} className="mr-1" />
-                      <span>{formatDate(event.date)}</span>
-                      <span className="mx-2">•</span>
-                      <Clock size={14} className="mr-1" />
-                      <span>{formatTime(event.time, event.endTime)}</span>
+                <div className="flex flex-col lg:flex-row lg:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-lg mb-2 break-words">{event.title}</h3>
+                    <div className="flex flex-wrap items-center text-zinc-400 text-sm gap-x-4 gap-y-1">
+                      <div className="flex items-center">
+                        <CalendarCheck size={14} className="mr-1 flex-shrink-0" />
+                        <span className="truncate">{formatDate(event.date)}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock size={14} className="mr-1 flex-shrink-0" />
+                        <span className="truncate">{formatTime(event.time, event.endTime)}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center text-zinc-400 text-sm mt-1">
-                      <MapPin size={14} className="mr-1" />
-                      <span>{event.location}</span>
-                      <span className="mx-2">•</span>
-                      <Users size={14} className="mr-1" />
-                      <span>{event.participantCount} participants</span>
-                      <span className="mx-2">•</span>
-                      <span>{event.pointsEarned} points</span>
+                    <div className="flex flex-wrap items-center text-zinc-400 text-sm mt-1 gap-x-4 gap-y-1">
+                      <div className="flex items-center">
+                        <MapPin size={14} className="mr-1 flex-shrink-0" />
+                        <span className="truncate">{event.location}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Users size={14} className="mr-1 flex-shrink-0" />
+                        <span>{event.participantCount} participants</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span>{event.pointsEarned} points</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="space-x-2 flex items-start">
+                  <div className="flex flex-row lg:flex-col gap-2 lg:items-end">
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="border-zinc-600 text-black bg-white hover:bg-gray-100 hover:text-black"
+                      className="border-zinc-600 text-black bg-white hover:bg-gray-100 hover:text-black flex-1 lg:flex-initial"
                       onClick={() => navigate(`/admin/events/edit/${event.id}`)}
                     >
                       <Edit size={14} className="mr-1" />
@@ -145,6 +152,7 @@ const AdminEvents = () => {
                     <Button 
                       variant="destructive" 
                       size="sm"
+                      className="flex-1 lg:flex-initial"
                       onClick={() => handleDelete(event.id)}
                     >
                       <Trash2 size={14} className="mr-1" />
