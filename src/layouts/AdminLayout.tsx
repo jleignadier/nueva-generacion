@@ -32,12 +32,12 @@ const AdminLayout = () => {
   }
   
   return (
-    <div className="flex h-screen bg-zinc-900 text-white">
-      {/* Admin sidebar navigation */}
+    <div className="min-h-screen bg-zinc-900 text-white">
+      {/* Admin navigation - responsive */}
       <AdminNavigation />
       
       {/* Main content area */}
-      <div className="flex-1 overflow-auto">
+      <div className="lg:ml-64">
         <div className="container max-w-4xl mx-auto px-4 py-8">
           <Outlet />
         </div>
