@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { Edit, LogOut, User, Award, Bell, Settings, Gift, ChevronRight, CircleDollarSign } from 'lucide-react';
+import { Edit, LogOut, User, Award, Bell, Settings, Gift, ChevronRight, CircleDollarSign, Calendar, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const ProfileTab = () => {
@@ -16,11 +16,25 @@ const ProfileTab = () => {
   const donationStats = {
     total: 350,
     count: 12,
+    points: 45, // Points earned from donations
     lastDonation: '2023-05-01',
     recentDonations: [
-      { id: 1, amount: 50, date: '2023-05-01', cause: 'Beach Cleanup' },
-      { id: 2, amount: 75, date: '2023-04-15', cause: 'Animal Shelter' },
-      { id: 3, amount: 25, date: '2023-03-22', cause: 'Food Bank' },
+      { id: 1, amount: 50, date: '2023-05-01', cause: 'Beach Cleanup', points: 8 },
+      { id: 2, amount: 75, date: '2023-04-15', cause: 'Animal Shelter', points: 12 },
+      { id: 3, amount: 25, date: '2023-03-22', cause: 'Food Bank', points: 5 },
+    ]
+  };
+
+  // Events statistics - this would typically come from your API
+  const eventStats = {
+    total: 15,
+    points: 142, // Points earned from events
+    hoursVolunteered: 48,
+    lastEvent: '2023-05-15',
+    recentEvents: [
+      { id: 1, title: 'Community Garden Cleanup', date: '2023-05-15', points: 15, hours: 4 },
+      { id: 2, title: 'Food Drive Organization', date: '2023-05-08', points: 20, hours: 6 },
+      { id: 3, title: 'Senior Center Visit', date: '2023-04-28', points: 10, hours: 3 },
     ]
   };
 
@@ -102,19 +116,26 @@ const ProfileTab = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-600">Total Donated</p>
+              <p className="text-xs text-gray-600">Total Donated</p>
               <div className="flex items-center mt-1">
-                <CircleDollarSign size={18} className="text-nuevagen-green mr-1" />
-                <span className="text-xl font-semibold">${donationStats.total}</span>
+                <CircleDollarSign size={16} className="text-nuevagen-green mr-1" />
+                <span className="text-lg font-semibold">${donationStats.total}</span>
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-600">Donations Made</p>
+              <p className="text-xs text-gray-600">Donations Made</p>
               <div className="flex items-center mt-1">
-                <Gift size={18} className="text-nuevagen-blue mr-1" />
-                <span className="text-xl font-semibold">{donationStats.count}</span>
+                <Gift size={16} className="text-nuevagen-blue mr-1" />
+                <span className="text-lg font-semibold">{donationStats.count}</span>
+              </div>
+            </div>
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-xs text-gray-600">Points Earned</p>
+              <div className="flex items-center mt-1">
+                <Trophy size={16} className="text-nuevagen-yellow mr-1" />
+                <span className="text-lg font-semibold">{donationStats.points}</span>
               </div>
             </div>
           </div>
@@ -123,13 +144,86 @@ const ProfileTab = () => {
           <div className="space-y-3">
             {donationStats.recentDonations.map(donation => (
               <div key={donation.id} className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{donation.cause}</p>
-                  <p className="text-sm text-gray-500">{donation.date}</p>
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{donation.cause}</p>
+                  <p className="text-xs text-gray-500">{donation.date}</p>
                 </div>
-                <div className="flex items-center">
-                  <span className="font-semibold text-nuevagen-green">${donation.amount}</span>
-                  <ChevronRight size={16} className="text-gray-400 ml-2" />
+                <div className="flex items-center space-x-3">
+                  <div className="text-right">
+                    <div className="flex items-center">
+                      <span className="font-semibold text-nuevagen-green text-sm">${donation.amount}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Trophy size={12} className="text-nuevagen-yellow mr-1" />
+                      <span className="text-xs text-gray-600">{donation.points} pts</span>
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className="text-gray-400" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Events Attended Tracker Card */}
+      <Card className="mb-6">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-nuevagen-purple bg-opacity-10 flex items-center justify-center text-nuevagen-purple mr-3">
+                <Calendar size={20} />
+              </div>
+              <h3 className="text-lg font-semibold">Events Attended</h3>
+            </div>
+            <Button variant="ghost" size="sm" className="text-nuevagen-blue">
+              See All
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-xs text-gray-600">Events Attended</p>
+              <div className="flex items-center mt-1">
+                <Calendar size={16} className="text-nuevagen-purple mr-1" />
+                <span className="text-lg font-semibold">{eventStats.total}</span>
+              </div>
+            </div>
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-xs text-gray-600">Hours Volunteered</p>
+              <div className="flex items-center mt-1">
+                <Award size={16} className="text-nuevagen-teal mr-1" />
+                <span className="text-lg font-semibold">{eventStats.hoursVolunteered}</span>
+              </div>
+            </div>
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-xs text-gray-600">Points Earned</p>
+              <div className="flex items-center mt-1">
+                <Trophy size={16} className="text-nuevagen-yellow mr-1" />
+                <span className="text-lg font-semibold">{eventStats.points}</span>
+              </div>
+            </div>
+          </div>
+
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Recent Events</h4>
+          <div className="space-y-3">
+            {eventStats.recentEvents.map(event => (
+              <div key={event.id} className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{event.title}</p>
+                  <p className="text-xs text-gray-500">{event.date}</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="text-right">
+                    <div className="flex items-center">
+                      <span className="font-semibold text-nuevagen-purple text-sm">{event.hours}h</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Trophy size={12} className="text-nuevagen-yellow mr-1" />
+                      <span className="text-xs text-gray-600">{event.points} pts</span>
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className="text-gray-400" />
                 </div>
               </div>
             ))}
