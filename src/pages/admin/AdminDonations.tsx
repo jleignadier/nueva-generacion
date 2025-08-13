@@ -33,6 +33,8 @@ interface Donation {
 
 const AdminDonations = () => {
   const [donations, setDonations] = useState<Donation[]>([]);
+  const [filteredDonations, setFilteredDonations] = useState<Donation[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
@@ -40,6 +42,26 @@ const AdminDonations = () => {
   useEffect(() => {
     loadAllDonations();
   }, []);
+
+  // Filter donations based on search term
+  React.useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredDonations(donations);
+      return;
+    }
+
+    const filtered = donations.filter(donation => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        donation.name.toLowerCase().includes(searchLower) ||
+        donation.amount.toLowerCase().includes(searchLower) ||
+        donation.date.toLowerCase().includes(searchLower) ||
+        donation.status.toLowerCase().includes(searchLower)
+      );
+    });
+
+    setFilteredDonations(filtered);
+  }, [searchTerm, donations]);
 
   const loadAllDonations = () => {
     // Load mock donations and any user-submitted donations from localStorage
@@ -81,11 +103,20 @@ const AdminDonations = () => {
     });
 
     setDonations(sortedDonations);
+    setFilteredDonations(sortedDonations);
   };
 
   const handleStatusUpdate = (donationId: string, newStatus: 'Completed' | 'Rejected') => {
     // Update in state
-    setDonations(prev => 
+    const updatedDonations = donations.map(donation => 
+      donation.id === donationId 
+        ? { ...donation, status: newStatus } 
+        : donation
+    );
+    setDonations(updatedDonations);
+    
+    // Update filtered donations as well
+    setFilteredDonations(prev => 
       prev.map(donation => 
         donation.id === donationId 
           ? { ...donation, status: newStatus } 
@@ -150,7 +181,16 @@ const AdminDonations = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Donations Management</h1>
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
-        <h2 className="text-xl font-medium mb-6">All Donations</h2>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+          <h2 className="text-xl font-medium text-white">All Donations</h2>
+          <input
+            type="text"
+            placeholder="Search by donor, amount, date, or status..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-zinc-700 border border-zinc-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-zinc-400 sm:w-80"
+          />
+        </div>
         
         <div className="overflow-x-auto">
           <Table>
@@ -164,7 +204,7 @@ const AdminDonations = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {donations.map((donation) => (
+              {filteredDonations.map((donation) => (
                 <TableRow key={donation.id} className="border-b border-zinc-700">
                   <TableCell>{donation.name}</TableCell>
                   <TableCell className="font-medium">{donation.amount}</TableCell>
@@ -173,7 +213,7 @@ const AdminDonations = () => {
                     {getStatusBadge(donation.status)}
                   </TableCell>
                   <TableCell>
-                    <div className="flex space-x-2">
+                    <div className="flex gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -209,10 +249,10 @@ const AdminDonations = () => {
                 </TableRow>
               ))}
               
-              {donations.length === 0 && (
+              {filteredDonations.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-4 text-zinc-400">
-                    No donations found
+                    {searchTerm ? 'No donations found matching your search' : 'No donations found'}
                   </TableCell>
                 </TableRow>
               )}

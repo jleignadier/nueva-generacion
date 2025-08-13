@@ -163,13 +163,15 @@ const AdminOrganizations = () => {
                       {org.status}
                     </span>
                   </td>
-                  <td className="py-3 px-4 space-x-2">
-                    <button className="text-purple-400 hover:text-purple-300 text-sm">
-                      Edit
-                    </button>
-                    <button className="text-red-500 hover:text-red-400 text-sm">
-                      {org.status === 'Active' ? 'Disable' : 'Enable'}
-                    </button>
+                  <td className="py-3 px-4">
+                    <div className="flex gap-2">
+                      <button className="text-purple-400 hover:text-purple-300 text-sm">
+                        Edit
+                      </button>
+                      <button className="text-red-500 hover:text-red-400 text-sm">
+                        {org.status === 'Active' ? 'Disable' : 'Enable'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
