@@ -18,6 +18,7 @@ interface EventFormData {
   endTime: string;
   description: string;
   pointsEarned: number;
+  volunteerHours: number;
   image: string;
   status: 'upcoming' | 'completed';
 }
@@ -43,6 +44,7 @@ const EventForm = () => {
       endTime: existingEvent.endTime || '',
       description: existingEvent.description,
       pointsEarned: existingEvent.pointsEarned,
+      volunteerHours: existingEvent.volunteerHours,
       image: existingEvent.image,
       status: existingEvent.status
     } : {
@@ -53,6 +55,7 @@ const EventForm = () => {
       endTime: '',
       description: '',
       pointsEarned: 25,
+      volunteerHours: 3,
       image: 'https://placehold.co/600x400/png?text=Event+Image',
       status: 'upcoming'
     }
@@ -62,7 +65,7 @@ const EventForm = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'pointsEarned' ? Number(value) : value
+      [name]: name === 'pointsEarned' || name === 'volunteerHours' ? Number(value) : value
     }));
   };
   
@@ -83,7 +86,8 @@ const EventForm = () => {
     if (isEditing && id) {
       updateEvent(id, {
         ...formData,
-        pointsEarned: Number(formData.pointsEarned)
+        pointsEarned: Number(formData.pointsEarned),
+        volunteerHours: Number(formData.volunteerHours)
       });
       
       toast({
@@ -93,7 +97,8 @@ const EventForm = () => {
     } else {
       addEvent({
         ...formData,
-        pointsEarned: Number(formData.pointsEarned)
+        pointsEarned: Number(formData.pointsEarned),
+        volunteerHours: Number(formData.volunteerHours)
       });
       
       toast({
@@ -216,17 +221,34 @@ const EventForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="pointsEarned" className="text-white">Points for Participation</Label>
-                <Input
-                  id="pointsEarned"
-                  name="pointsEarned"
-                  type="number"
-                  min="0"
-                  value={formData.pointsEarned}
-                  onChange={handleInputChange}
-                  className="bg-zinc-700 border-zinc-600 text-white"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="pointsEarned" className="text-white">Points for Participation</Label>
+                  <Input
+                    id="pointsEarned"
+                    name="pointsEarned"
+                    type="number"
+                    min="0"
+                    value={formData.pointsEarned}
+                    onChange={handleInputChange}
+                    className="bg-zinc-700 border-zinc-600 text-white"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="volunteerHours" className="text-white">Volunteer Hours</Label>
+                  <Input
+                    id="volunteerHours"
+                    name="volunteerHours"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={formData.volunteerHours}
+                    onChange={handleInputChange}
+                    className="bg-zinc-700 border-zinc-600 text-white"
+                    placeholder="Hours for volunteer credit"
+                  />
+                </div>
               </div>
               
               <div className="space-y-2">

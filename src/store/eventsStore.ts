@@ -12,6 +12,7 @@ export interface Event {
   description: string;
   participantCount: number;
   pointsEarned: number;
+  volunteerHours: number; // Admin-set hours for volunteer credit
   status: 'upcoming' | 'completed';
   image: string;
 }
@@ -28,6 +29,7 @@ const initialEvents: Event[] = [
     description: "Join us for a community beach cleanup! We will be removing trash and debris from the shoreline to protect marine life and keep our beaches beautiful.",
     participantCount: 24,
     pointsEarned: 50,
+    volunteerHours: 4, // Higher than actual 3 hours due to physical effort
     status: 'upcoming',
     image: 'https://placehold.co/600x400/png?text=Beach+Cleanup'
   },
@@ -41,6 +43,7 @@ const initialEvents: Event[] = [
     description: 'Help us collect food donations for local food banks. Bring non-perishable items to support families in need in our community.',
     participantCount: 18,
     pointsEarned: 40,
+    volunteerHours: 5, // Higher than actual 4 hours due to organization required
     status: 'upcoming',
     image: 'https://placehold.co/600x400/png?text=Food+Drive'
   },
@@ -54,6 +57,7 @@ const initialEvents: Event[] = [
     description: 'Volunteer to tutor students in math, science, and reading. Help young students improve their academic skills and confidence.',
     participantCount: 12,
     pointsEarned: 30,
+    volunteerHours: 3, // Higher than actual 2 hours due to preparation and expertise required
     status: 'upcoming',
     image: 'https://placehold.co/600x400/png?text=Tutoring+Session'
   },
@@ -67,6 +71,7 @@ const initialEvents: Event[] = [
     description: 'Help plant and maintain our community garden. Learn about sustainable gardening practices while beautifying our neighborhood.',
     participantCount: 156,
     pointsEarned: 60,
+    volunteerHours: 8, // Higher than actual 6 hours due to educational value and leadership
     status: 'completed',
     image: 'https://placehold.co/600x400/png?text=Community+Garden'
   }

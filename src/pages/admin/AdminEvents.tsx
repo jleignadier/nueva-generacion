@@ -344,6 +344,9 @@ const AdminEvents = () => {
                       <div className="flex items-center">
                         <span>{event.pointsEarned} points</span>
                       </div>
+                      <div className="flex items-center">
+                        <span>{event.volunteerHours}h volunteer credit</span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex flex-row lg:flex-col gap-2 lg:items-end">

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, ScanQrCode } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, ScanQrCode, Award } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useEventsStore } from '@/store/eventsStore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -153,6 +153,10 @@ const EventDetail = () => {
               <Users size={16} className="mr-2 text-nuevagen-purple" />
               <span>{event.participantCount} participants</span>
             </div>
+            <div className="flex items-center">
+              <Award size={16} className="mr-2 text-nuevagen-yellow" />
+              <span>{event.volunteerHours} volunteer hours</span>
+            </div>
           </div>
           
           <div className="border-t border-b py-4 my-4">
@@ -161,9 +165,15 @@ const EventDetail = () => {
           </div>
           
           <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-sm text-gray-600">Points for participation</p>
-              <p className="font-medium text-lg text-nuevagen-blue">{event.pointsEarned} points</p>
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <div>
+                <p className="text-sm text-gray-600">Points for participation</p>
+                <p className="font-medium text-lg text-nuevagen-blue">{event.pointsEarned} points</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Volunteer hours credit</p>
+                <p className="font-medium text-lg text-nuevagen-yellow">{event.volunteerHours} hours</p>
+              </div>
             </div>
           </div>
           
