@@ -318,7 +318,7 @@ const AdminEvents = () => {
             </div>
           ) : (
             filteredEvents.map((event) => (
-              <div key={event.id} className="border border-border rounded-lg p-4 bg-card">
+              <div key={event.id} className="border border-border rounded-lg p-4 bg-muted/30">
                 <div className="flex flex-col lg:flex-row lg:justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-lg mb-2 break-words text-foreground">{event.title}</h3>
@@ -353,7 +353,7 @@ const AdminEvents = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="border-border text-foreground bg-background hover:bg-muted hover:text-foreground flex-1 lg:flex-initial"
+                      className="border-border text-foreground bg-muted/50 hover:bg-muted hover:text-foreground flex-1 lg:flex-initial"
                       onClick={() => navigate(`/admin/events/edit/${event.id}`)}
                     >
                       <Edit size={14} className="mr-1" />
