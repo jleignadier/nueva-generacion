@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Calendar, Trophy, User, Settings, LogOut, Menu, X } from 'lucide-react';
+import { Home, Calendar, Trophy, User, Settings, LogOut, Menu, X, Building2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
@@ -25,6 +25,11 @@ const navItems = [
     name: 'Users',
     path: '/admin/users',
     icon: User
+  },
+  {
+    name: 'Organizations',
+    path: '/admin/organizations',
+    icon: Building2
   },
   {
     name: 'Settings',
