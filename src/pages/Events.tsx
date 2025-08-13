@@ -10,10 +10,14 @@ const Events = () => {
   const navigate = useNavigate();
   const { events } = useEventsStore();
   
+  console.log('Events page - All events:', events);
+  
   // Filter upcoming events and sort by date
   const upcomingEvents = events
     .filter(event => event.status === 'upcoming')
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
+  console.log('Events page - Upcoming events:', upcomingEvents);
   
   // Format date from ISO string to readable format
   const formatDate = (dateString: string) => {
