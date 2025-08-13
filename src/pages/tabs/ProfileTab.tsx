@@ -118,21 +118,21 @@ const ProfileTab = () => {
           
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Total Donated</p>
+              <p className="text-xs text-gray-600">Total<br />Donated</p>
               <div className="flex items-center mt-1">
                 <CircleDollarSign size={16} className="text-nuevagen-green mr-1" />
                 <span className="text-lg font-semibold">${donationStats.total}</span>
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Donations Made</p>
+              <p className="text-xs text-gray-600">Donations<br />Made</p>
               <div className="flex items-center mt-1">
                 <Gift size={16} className="text-nuevagen-blue mr-1" />
                 <span className="text-lg font-semibold">{donationStats.count}</span>
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Points Earned</p>
+              <p className="text-xs text-gray-600">Points<br />Earned</p>
               <div className="flex items-center mt-1">
                 <Trophy size={16} className="text-nuevagen-yellow mr-1" />
                 <span className="text-lg font-semibold">{donationStats.points}</span>
@@ -183,21 +183,21 @@ const ProfileTab = () => {
           
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Events Attended</p>
+              <p className="text-xs text-gray-600">Events<br />Attended</p>
               <div className="flex items-center mt-1">
                 <Calendar size={16} className="text-nuevagen-purple mr-1" />
                 <span className="text-lg font-semibold">{eventStats.total}</span>
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Hours Volunteered</p>
+              <p className="text-xs text-gray-600">Hours<br />Volunteered</p>
               <div className="flex items-center mt-1">
                 <Award size={16} className="text-nuevagen-teal mr-1" />
                 <span className="text-lg font-semibold">{eventStats.hoursVolunteered}</span>
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Points Earned</p>
+              <p className="text-xs text-gray-600">Points<br />Earned</p>
               <div className="flex items-center mt-1">
                 <Trophy size={16} className="text-nuevagen-yellow mr-1" />
                 <span className="text-lg font-semibold">{eventStats.points}</span>
