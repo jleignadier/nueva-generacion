@@ -20,6 +20,7 @@ import HomeTab from "./pages/tabs/HomeTab";
 import DonationsTab from "./pages/tabs/DonationsTab";
 import LeaderboardTab from "./pages/tabs/LeaderboardTab";
 import ProfileTab from "./pages/tabs/ProfileTab";
+import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import NotFound from "./pages/NotFound";
 
@@ -46,7 +47,7 @@ const App = () => (
             {/* User Routes */}
             <Route element={<UserLayout />}>
               <Route path="/dashboard" element={<HomeTab />} />
-              <Route path="/events" element={<HomeTab />} />
+              <Route path="/events" element={<Events />} />
               <Route path="/dashboard/donations" element={<DonationsTab />} />
               <Route path="/dashboard/leaderboard" element={<LeaderboardTab />} />
               <Route path="/dashboard/profile" element={<ProfileTab />} />

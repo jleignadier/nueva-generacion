@@ -1,0 +1,114 @@
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { CalendarCheck, Clock, MapPin, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useEventsStore, Event } from '@/store/eventsStore';
+import { format, parseISO } from 'date-fns';
+
+const Events = () => {
+  const navigate = useNavigate();
+  const { events } = useEventsStore();
+  
+  // Filter upcoming events and sort by date
+  const upcomingEvents = events
+    .filter(event => event.status === 'upcoming')
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
+  // Format date from ISO string to readable format
+  const formatDate = (dateString: string) => {
+    const date = parseISO(dateString);
+    return format(date, 'MMMM d, yyyy');
+  };
+  
+  // Format time from 24h to 12h format
+  const formatEventTime = (event: Event) => {
+    if (!event.time) return '';
+    
+    const formatTimeString = (timeStr: string) => {
+      const [hours, minutes] = timeStr.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    };
+    
+    if (!event.endTime) return formatTimeString(event.time);
+    return `${formatTimeString(event.time)} - ${formatTimeString(event.endTime)}`;
+  };
+  
+  // Check if user is participating in events (from localStorage)
+  const getIsParticipating = (eventId: string) => {
+    const participatingEvents = JSON.parse(localStorage.getItem('participatingEvents') || '[]');
+    return participatingEvents.includes(eventId);
+  };
+
+  return (
+    <div className="app-container">
+      <div className="flex items-center mb-6">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate('/dashboard')}
+          className="mr-3"
+        >
+          <ArrowLeft size={16} className="mr-1" />
+          Back
+        </Button>
+        <h1 className="text-2xl font-bold text-gray-800">All Events</h1>
+      </div>
+      
+      <div className="space-y-4">
+        {upcomingEvents.length > 0 ? (
+          upcomingEvents.map((event) => (
+            <Card key={event.id} className="overflow-hidden border-l-4 border-nuevagen-teal hover:shadow-md transition-shadow">
+              <CardHeader className="p-4 pb-2">
+                <CardTitle className="text-lg md:text-xl">{event.title}</CardTitle>
+                <p className="text-sm text-gray-600 mt-1">{event.description}</p>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm mb-3">
+                  <div className="flex items-center">
+                    <MapPin size={14} className="mr-1 text-nuevagen-blue" />
+                    <span>{event.location}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CalendarCheck size={14} className="mr-1 text-nuevagen-pink" />
+                    <span>{formatDate(event.date)}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Clock size={14} className="mr-1 text-nuevagen-green" />
+                    <span>{formatEventTime(event)}</span>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="text-xs text-gray-500">
+                    <span className="bg-nuevagen-blue bg-opacity-10 text-nuevagen-blue px-2 py-1 rounded-full">
+                      {event.volunteerHours}h volunteer hours
+                    </span>
+                  </div>
+                  <Button 
+                    className="btn-primary" 
+                    size="sm"
+                    onClick={() => navigate(`/event/${event.id}`)}
+                  >
+                    {getIsParticipating(event.id) ? 'View Details' : 'Participate'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card className="border-l-4 border-nuevagen-teal bg-gray-100">
+            <CardContent className="p-6">
+              <p className="text-center text-gray-500 py-8">No upcoming events available</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Events;

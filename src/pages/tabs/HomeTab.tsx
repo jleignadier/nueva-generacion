@@ -4,26 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CalendarCheck, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEventsStore, Event } from '@/store/eventsStore';
 import { format, parseISO } from 'date-fns';
 
 const HomeTab = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const { events } = useEventsStore();
-  
-  // Check if we're on the events page (showing all events)
-  const isEventsPage = location.pathname === '/events';
   
   // Filter upcoming events and sort by date
   const upcomingEvents = events
     .filter(event => event.status === 'upcoming')
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
+  
   const nextEvent = upcomingEvents[0];
-  const otherEvents = isEventsPage ? upcomingEvents.slice(1) : upcomingEvents.slice(1, 4);
+  const otherEvents = upcomingEvents.slice(1, 4);
   
   // Format date from ISO string to readable format
   const formatDate = (dateString: string) => {
@@ -104,20 +101,16 @@ const HomeTab = () => {
         )}
 
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-xl font-semibold text-gray-800">
-            {isEventsPage ? 'All Upcoming Events' : 'Upcoming Events'}
-          </h2>
-          {!isEventsPage && (
-            <Button 
-              variant="ghost" 
-              className="text-sm text-nuevagen-blue flex items-center"
-              size="sm"
-              onClick={() => navigate('/events')}
-            >
-              See All
-              <ChevronRight size={16} />
-            </Button>
-          )}
+          <h2 className="text-xl font-semibold text-gray-800">Upcoming Events</h2>
+          <Button 
+            variant="ghost" 
+            className="text-sm text-nuevagen-blue flex items-center"
+            size="sm"
+            onClick={() => navigate('/events')}
+          >
+            See All
+            <ChevronRight size={16} />
+          </Button>
         </div>
         <div className="space-y-4">
           {otherEvents.length > 0 ? (
