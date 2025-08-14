@@ -51,7 +51,7 @@ export const AdminNavigation: React.FC = () => {
             <span className="text-white text-sm font-bold">NG</span>
           </div>
           <div className="ml-3">
-            <h2 className="text-white font-medium">Nueva Gen Admin</h2>
+            <h2 className="text-white font-medium">Nueva Generación Admin</h2>
           </div>
         </div>
         <button
@@ -106,7 +106,7 @@ export const AdminNavigation: React.FC = () => {
               <span className="text-white font-bold">NG</span>
             </div>
             <div className="ml-3">
-              <h2 className="text-white font-medium">Nueva Gen</h2>
+              <h2 className="text-white font-medium">Nueva Generación</h2>
               <p className="text-xs text-zinc-400">Admin Portal</p>
             </div>
           </div>
