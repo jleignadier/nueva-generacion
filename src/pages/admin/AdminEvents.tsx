@@ -272,7 +272,7 @@ const AdminEvents = () => {
         </CardContent>
       </Card>
 
-      <div className="bg-card border border-border p-6 rounded-lg">
+      <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
           <ToggleGroup 
             type="single" 
