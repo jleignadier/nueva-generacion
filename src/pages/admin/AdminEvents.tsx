@@ -247,7 +247,7 @@ const AdminEvents = () => {
                           variant="outline" 
                           size="sm"
                           onClick={() => handleEditCompetition(competition)}
-                          className="border-border text-white bg-muted hover:bg-muted/80 flex-1 sm:flex-initial"
+                          className="border-border text-white bg-muted/50 hover:bg-muted flex-1 sm:flex-initial"
                         >
                           <Edit size={14} className="mr-1" />
                           Edit
@@ -310,7 +310,7 @@ const AdminEvents = () => {
           </div>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-96 overflow-y-auto">
           {filteredEvents.length === 0 ? (
             <div className="text-center py-8 text-zinc-400">
               No events found matching your criteria

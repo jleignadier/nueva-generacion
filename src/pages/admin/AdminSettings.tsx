@@ -28,14 +28,6 @@ const AdminSettings = () => {
             />
           </div>
           
-          <div>
-            <label className="block text-sm font-medium mb-2">Platform Theme</label>
-            <select className="w-full bg-zinc-700 border border-zinc-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-              <option>Dark Theme</option>
-              <option>Light Theme</option>
-              <option>System Default</option>
-            </select>
-          </div>
           
           <div className="flex items-center">
             <input 
