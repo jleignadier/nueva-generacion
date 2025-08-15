@@ -130,7 +130,7 @@ const AdminEvents = () => {
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
         <div className="pb-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <h3 className="flex items-center gap-2 text-xl text-foreground font-semibold">
+            <h3 className="flex items-center gap-2 text-xl text-white font-semibold">
               <Trophy className="text-yellow-500" size={24} />
               Competition Management
             </h3>
@@ -212,17 +212,17 @@ const AdminEvents = () => {
         </div>
         <div>
           {competitions.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-zinc-400">
               No competitions created yet
             </div>
           ) : (
             <div className="space-y-3">
               {competitions.map((competition) => (
-                <div key={competition.id} className="border border-border rounded-lg p-4 bg-muted/50">
+                <div key={competition.id} className="border border-border rounded-lg p-4 bg-zinc-700/50">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                     <div className="flex-1">
-                      <h3 className="font-medium text-lg mb-1 text-foreground">{competition.name}</h3>
-                      <div className="text-sm text-muted-foreground space-y-1">
+                      <h3 className="font-medium text-lg mb-1 text-white">{competition.name}</h3>
+                      <div className="text-sm text-zinc-400 space-y-1">
                         <div className="flex items-center gap-2">
                           <Trophy size={14} />
                           <span>Prize: {competition.prize}</span>
@@ -238,7 +238,7 @@ const AdminEvents = () => {
                         <span className={`px-2 py-1 text-xs rounded ${
                           competition.isActive 
                              ? 'bg-green-900/30 text-green-400' 
-                             : 'bg-muted text-muted-foreground'
+                             : 'bg-muted text-zinc-400'
                          }`}>
                           {competition.isActive ? 'Active' : 'Inactive'}
                         </span>
@@ -248,7 +248,7 @@ const AdminEvents = () => {
                           variant="outline" 
                           size="sm"
                           onClick={() => handleEditCompetition(competition)}
-                          className="border-border text-foreground bg-muted hover:bg-muted/80 flex-1 sm:flex-initial"
+                          className="border-border text-white bg-muted hover:bg-muted/80 flex-1 sm:flex-initial"
                         >
                           <Edit size={14} className="mr-1" />
                           Edit
@@ -282,47 +282,47 @@ const AdminEvents = () => {
           >
             <ToggleGroupItem 
               value="all" 
-              className="border-border text-foreground hover:bg-muted hover:text-foreground text-xs sm:text-sm"
+              className="border-border text-white hover:bg-muted hover:text-white text-xs sm:text-sm"
             >
               All Events
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="upcoming" 
-              className="border-border text-foreground hover:bg-muted hover:text-foreground text-xs sm:text-sm"
+              className="border-border text-white hover:bg-muted hover:text-white text-xs sm:text-sm"
             >
               Upcoming
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="completed" 
-              className="border-border text-foreground hover:bg-muted hover:text-foreground text-xs sm:text-sm"
+              className="border-border text-white hover:bg-muted hover:text-white text-xs sm:text-sm"
             >
               Completed
             </ToggleGroupItem>
           </ToggleGroup>
           
           <div className="relative w-full lg:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={18} />
             <Input 
               placeholder="Search events..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-input border-border text-foreground placeholder:text-muted-foreground"
+              className="pl-10 bg-input border-border text-white placeholder:text-zinc-400"
             />
           </div>
         </div>
         
         <div className="space-y-4">
           {filteredEvents.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-zinc-400">
               No events found matching your criteria
             </div>
           ) : (
             filteredEvents.map((event) => (
-              <div key={event.id} className="border border-border rounded-lg p-4 bg-muted/50">
+              <div key={event.id} className="border border-border rounded-lg p-4 bg-zinc-700/50">
                 <div className="flex flex-col lg:flex-row lg:justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-lg mb-2 break-words text-foreground">{event.title}</h3>
-                    <div className="flex flex-wrap items-center text-muted-foreground text-sm gap-x-4 gap-y-1">
+                    <h3 className="font-medium text-lg mb-2 break-words text-white">{event.title}</h3>
+                    <div className="flex flex-wrap items-center text-zinc-400 text-sm gap-x-4 gap-y-1">
                       <div className="flex items-center">
                         <CalendarCheck size={14} className="mr-1 flex-shrink-0" />
                         <span className="truncate">{formatDate(event.date)}</span>
@@ -332,7 +332,7 @@ const AdminEvents = () => {
                         <span className="truncate">{formatTime(event.time, event.endTime)}</span>
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center text-muted-foreground text-sm mt-1 gap-x-4 gap-y-1">
+                    <div className="flex flex-wrap items-center text-zinc-400 text-sm mt-1 gap-x-4 gap-y-1">
                       <div className="flex items-center">
                         <MapPin size={14} className="mr-1 flex-shrink-0" />
                         <span className="truncate">{event.location}</span>
@@ -353,7 +353,7 @@ const AdminEvents = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="border-border text-foreground bg-muted/50 hover:bg-muted hover:text-foreground flex-1 lg:flex-initial"
+                      className="border-border text-white bg-muted/50 hover:bg-muted hover:text-white flex-1 lg:flex-initial"
                       onClick={() => navigate(`/admin/events/edit/${event.id}`)}
                     >
                       <Edit size={14} className="mr-1" />
