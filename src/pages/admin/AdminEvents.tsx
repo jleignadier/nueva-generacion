@@ -5,7 +5,6 @@ import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search, Trophy, Plus
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
