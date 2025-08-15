@@ -127,13 +127,13 @@ const AdminEvents = () => {
       </div>
 
       {/* Competition Management Section */}
-      <Card className="bg-card border-border">
-        <CardHeader className="pb-4">
+      <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
+        <div className="pb-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <CardTitle className="flex items-center gap-2 text-xl text-foreground">
+            <h3 className="flex items-center gap-2 text-xl text-foreground font-semibold">
               <Trophy className="text-yellow-500" size={24} />
               Competition Management
-            </CardTitle>
+            </h3>
             <Dialog open={isCompetitionDialogOpen} onOpenChange={setIsCompetitionDialogOpen}>
               <DialogTrigger asChild>
                 <Button 
@@ -209,8 +209,8 @@ const AdminEvents = () => {
               </DialogContent>
             </Dialog>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div>
           {competitions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               No competitions created yet
@@ -269,8 +269,8 @@ const AdminEvents = () => {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
