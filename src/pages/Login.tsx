@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { login, error, user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     console.log("Login page mounted, user state:", user?.email);
@@ -32,8 +33,12 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      await login(email, password);
-      // Navigation is now handled in the AuthContext
+      const user = await login(email, password);
+      if (user.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       console.error("Login form error:", err);
       // Error handling is now in AuthContext

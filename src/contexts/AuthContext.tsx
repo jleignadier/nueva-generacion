@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
 type User = {
@@ -18,14 +17,14 @@ type OrganizationInfo = {
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   signup: (
     email: string, 
     password: string, 
     name: string, 
     accountType: 'individual' | 'organization' | 'admin',
     orgInfo?: OrganizationInfo
-  ) => Promise<void>;
+  ) => Promise<User>;
   logout: () => void;
   error: string | null;
 };
@@ -36,7 +35,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   // Load user on initial render only
   useEffect(() => {
@@ -85,9 +83,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           title: "Login Successful",
           description: "Welcome back, Admin!",
         });
-        navigate('/admin');
-        return;
-      } 
+        return adminUser;
+      }
       
       // Regular user login - simplified for demo
       const mockUser = {
@@ -105,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         title: "Login Successful",
         description: `Welcome back, ${mockUser.name}!`,
       });
-      navigate('/dashboard');
+      return mockUser;
       
     } catch (err: any) {
       console.error("Login error:", err);
@@ -115,6 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: err.message || "Please check your credentials and try again",
         variant: "destructive"
       });
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -161,11 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: successMessage,
       });
       
-      if (isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      return mockUser;
     } catch (err: any) {
       console.error("Signup error:", err);
       setError(err.message || 'Failed to sign up');
@@ -174,6 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: err.message || "Please check your information and try again",
         variant: "destructive"
       });
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -187,7 +182,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       title: "Logged out",
       description: "You have been successfully logged out",
     });
-    navigate('/login');
   };
 
   return (

@@ -76,8 +76,12 @@ const Signup = () => {
         ? { organizationId: selectedOrgId } 
         : undefined;
         
-      await signup(email, password, name, finalAccountType as any, orgInfo);
-      // Navigation is now handled in AuthContext
+      const user = await signup(email, password, name, finalAccountType as any, orgInfo);
+      if (user.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       toast({
         title: "Signup Failed",

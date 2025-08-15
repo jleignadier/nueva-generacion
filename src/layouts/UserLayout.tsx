@@ -5,8 +5,13 @@ import { TabBar } from '@/components/TabBar';
 import { useAuth } from '@/contexts/AuthContext';
 
 const UserLayout = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   
   useEffect(() => {
     console.log("UserLayout mounted, user:", user?.email, "isAdmin:", user?.isAdmin);
