@@ -1,73 +1,210 @@
-# Welcome to your Lovable project
+# Nueva Generación - Volunteer Management Platform
 
-## Project info
+A comprehensive web application designed to connect volunteers, organizations, and administrators in a unified ecosystem for community service and social impact.
 
-**URL**: https://lovable.dev/projects/ed4d784c-89a9-4cd4-a409-4cc3ff8e1ec4
+## 🌟 Features
 
-## How can I edit this code?
+### Multi-User System
+- **Individual Volunteers**: Personal accounts for volunteer participation and tracking
+- **Organizations**: Institutional accounts for managing events and volunteer coordination
+- **Administrators**: Full platform management with analytics and oversight
 
-There are several ways of editing your application.
+### Core Functionality
 
-**Use Lovable**
+#### 🎯 Event Management
+- Create, edit, and manage volunteer events
+- Event registration and participation tracking
+- Event details with location, date, and description
+- QR code-based event check-ins for streamlined attendance
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ed4d784c-89a9-4cd4-a409-4cc3ff8e1ec4) and start prompting.
+#### 📊 Analytics & Tracking
+- Personal contribution tracking for volunteers
+- Organization performance metrics
+- Leaderboard system to gamify volunteer participation
+- Points-based achievement system
 
-Changes made via Lovable will be committed automatically to this repo.
+#### 💝 Donation Management
+- Donation tracking and history
+- Integration with volunteer activities
+- Transparency in fund allocation and impact
 
-**Use your preferred IDE**
+#### 👤 Profile Management
+- Comprehensive user profiles with personal information
+- Organization profiles with descriptions and contact details
+- Achievement badges and volunteer history
+- Privacy controls and data management
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+#### 📱 Mobile-First Design
+- Responsive design optimized for mobile devices
+- Tab-based navigation (Home, Events, Donations, Leaderboard, Profile)
+- Touch-friendly interface with intuitive navigation
+- QR code scanner for mobile event check-ins
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Administrative Features
 
-Follow these steps:
+#### 🛠 Admin Dashboard
+- **User Management**: View, edit, enable/disable user accounts
+- **Organization Management**: Oversee organizational accounts and activities
+- **Event Administration**: Create system-wide events and manage event participation
+- **Settings Management**: Configure platform settings and parameters
+- **Analytics Dashboard**: Comprehensive insights into platform usage and impact
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+#### 🔐 Security & Access Control
+- Role-based access control (Individual, Organization, Admin)
+- Secure authentication system
+- Protected admin routes and functionality
+- Data privacy compliance
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Technical Features
 
-# Step 3: Install the necessary dependencies.
-npm i
+#### 🎨 Modern UI/UX
+- Built with shadcn/ui components for consistent design
+- Dark/light mode support
+- Gradient-based theming with custom color palette
+- Smooth animations and transitions
+- Toast notifications for user feedback
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+#### 📊 Real-time Updates
+- Live leaderboard updates
+- Real-time event participation tracking
+- Instant notification system
+- Dynamic content updates
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (18+ recommended)
+- npm or bun package manager
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd nueva-generacion
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Demo Accounts
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+#### Admin Access
+- **Email**: admin@ng.org.pa
+- **Password**: admin123
+- **Admin Key**: admin2024
 
-**Use GitHub Codespaces**
+#### Test Individual Account
+- Create via signup form with "Individual" account type
+- Fill in personal details and optional organization affiliation
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+#### Test Organization Account
+- Create via signup form with "Organization" account type
+- Include organization name and optional description
 
-## What technologies are used for this project?
+## 🛠 Technology Stack
 
-This project is built with:
+### Frontend
+- **React 18**: Modern React with hooks and functional components
+- **TypeScript**: Type-safe development with full TypeScript support
+- **Vite**: Fast build tool and development server
+- **Tailwind CSS**: Utility-first CSS framework for styling
+- **shadcn/ui**: High-quality, accessible component library
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### State Management
+- **Zustand**: Lightweight state management for events and competitions
+- **React Context**: Authentication and global app state
+- **React Hook Form**: Form handling with validation
+- **Zod**: Schema validation for form inputs
 
-## How can I deploy this project?
+### Routing & Navigation
+- **React Router DOM**: Client-side routing with protected routes
+- **Tab-based Navigation**: Mobile-first navigation pattern
 
-Simply open [Lovable](https://lovable.dev/projects/ed4d784c-89a9-4cd4-a409-4cc3ff8e1ec4) and click on Share -> Publish.
+### Additional Libraries
+- **Lucide React**: Icon library for consistent iconography
+- **Recharts**: Data visualization for analytics
+- **React Query**: Server state management and caching
+- **Sonner**: Toast notification system
 
-## Can I connect a custom domain to my Lovable project?
+## 📁 Project Structure
 
-Yes, you can!
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # shadcn/ui components
+│   └── admin/          # Admin-specific components
+├── contexts/           # React contexts (Auth, Theme)
+├── hooks/              # Custom React hooks
+├── layouts/            # Layout components (User, Admin)
+├── pages/              # Page components
+│   ├── admin/          # Admin dashboard pages
+│   └── tabs/           # Tab navigation pages
+├── store/              # Zustand stores
+└── lib/                # Utility functions
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🌐 Deployment
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Lovable Platform
+1. Open the [Lovable Project](https://lovable.dev/projects/ed4d784c-89a9-4cd4-a409-4cc3ff8e1ec4)
+2. Click Share → Publish
+3. Configure custom domain if needed
+
+### Self-Hosting
+The application can be deployed to any static hosting platform:
+
+```bash
+# Build for production
+npm run build
+
+# Preview production build locally
+npm run preview
+```
+
+Compatible with Vercel, Netlify, GitHub Pages, and other static hosting providers.
+
+## 🔧 Development
+
+### Available Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+### Environment Setup
+No environment variables required for basic functionality. The app uses localStorage for demo data persistence.
+
+### Contributing
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is built with Lovable and follows standard web development practices. All code is available in this repository.
+
+## 🤝 Support & Community
+
+- **Documentation**: [Lovable Docs](https://docs.lovable.dev/)
+- **Community**: [Lovable Discord](https://discord.com/channels/1119885301872070706/1280461670979993613)
+- **Tutorials**: [YouTube Playlist](https://www.youtube.com/watch?v=9KHLTZaJcR8&list=PLbVHz4urQBZkJiAWdG8HWoJTdgEysigIO)
+
+## 🎯 Roadmap
+
+- [ ] Real Supabase backend integration
+- [ ] Push notifications for events
+- [ ] Advanced analytics dashboard
+- [ ] Mobile app companion
+- [ ] Integration with payment processors
+- [ ] Multi-language support
+- [ ] Advanced reporting features
+
+---
+
+**Nueva Generación** - Empowering communities through organized volunteerism and social impact.
