@@ -23,7 +23,8 @@ type AuthContextType = {
     password: string, 
     name: string, 
     accountType: 'individual' | 'organization' | 'admin',
-    orgInfo?: OrganizationInfo
+    orgInfo?: OrganizationInfo,
+    description?: string
   ) => Promise<User>;
   logout: () => void;
   error: string | null;
@@ -123,7 +124,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string, 
     name: string, 
     accountType: 'individual' | 'organization' | 'admin',
-    orgInfo?: OrganizationInfo
+    orgInfo?: OrganizationInfo,
+    description?: string
   ) => {
     setIsLoading(true);
     setError(null);

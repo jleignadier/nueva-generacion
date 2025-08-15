@@ -11,6 +11,7 @@ import { Eye, EyeOff, Shield } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 // Mock data for existing organizations - in a real app, this would come from an API
 const mockOrganizations = [
@@ -25,6 +26,7 @@ const Signup = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [orgName, setOrgName] = useState('');
+  const [orgDescription, setOrgDescription] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -76,7 +78,7 @@ const Signup = () => {
         ? { organizationId: selectedOrgId } 
         : undefined;
         
-      const user = await signup(email, password, name, finalAccountType as any, orgInfo);
+      const user = await signup(email, password, name, finalAccountType as any, orgInfo, accountType === 'organization' ? orgDescription : undefined);
       if (user.isAdmin) {
         navigate('/admin');
       } else {
@@ -307,16 +309,27 @@ const Signup = () => {
               </div>
             </>
           ) : !isAdmin && accountType === 'organization' ? (
-            <div>
-              <Input
-                type="text"
-                placeholder="Organization Name"
-                value={orgName}
-                onChange={(e) => setOrgName(e.target.value)}
-                required={!isAdmin && accountType === 'organization'}
-                className="w-full h-10 text-sm"
-              />
-            </div>
+            <>
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Organization Name"
+                  value={orgName}
+                  onChange={(e) => setOrgName(e.target.value)}
+                  required={!isAdmin && accountType === 'organization'}
+                  className="w-full h-10 text-sm"
+                />
+              </div>
+              <div>
+                <Textarea
+                  placeholder="Brief description of your organization (optional)"
+                  value={orgDescription}
+                  onChange={(e) => setOrgDescription(e.target.value)}
+                  className="w-full text-sm resize-none"
+                  rows={3}
+                />
+              </div>
+            </>
           ) : (
             <div>
               <Input
