@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Home, Calendar, Trophy, User, Settings, LogOut, Menu, X, Building2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -40,7 +39,13 @@ const navItems = [
 
 export const AdminNavigation: React.FC = () => {
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -85,7 +90,7 @@ export const AdminNavigation: React.FC = () => {
             ))}
             <button 
               onClick={() => {
-                logout();
+                handleLogout();
                 setIsMobileMenuOpen(false);
               }}
               className="flex items-center px-3 py-2 w-full text-sm text-zinc-400 hover:bg-zinc-700 hover:text-white rounded-md transition-colors"
@@ -137,7 +142,7 @@ export const AdminNavigation: React.FC = () => {
         {/* Logout */}
         <div className="p-4 border-t border-zinc-700">
           <button 
-            onClick={logout}
+            onClick={handleLogout}
             className="flex items-center px-4 py-3 w-full text-sm text-zinc-400 hover:bg-zinc-700 hover:text-white rounded-md transition-colors"
           >
             <LogOut className="h-5 w-5 mr-3" />

@@ -1,17 +1,11 @@
 
 import React, { useEffect } from 'react';
-import { Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
 
 const AdminLayout = () => {
-  const { user, isLoading, logout } = useAuth();
-  const navigate = useNavigate();
-  
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const { user, isLoading } = useAuth();
   
   useEffect(() => {
     console.log("AdminLayout mounted, user:", user?.email, "isAdmin:", user?.isAdmin);
