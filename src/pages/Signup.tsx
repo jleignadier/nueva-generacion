@@ -100,7 +100,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-nuevagen-blue to-nuevagen-teal py-6">
+    <div className="min-h-screen bg-gradient-to-br from-nuevagen-blue to-nuevagen-teal py-6 px-4 flex items-center justify-center">
       <Card className="w-full max-w-md mx-4 p-5 bg-white rounded-xl shadow-lg">
         <div className="flex flex-col items-center justify-center mb-4">
           <img 

@@ -94,7 +94,7 @@
 
   /* Mobile-focused styles */
   html, body, #root {
-    @apply h-full w-full overflow-hidden;
+    @apply h-full w-full overflow-auto;
   }
 
   /* Custom styles for Nueva Generacion */
