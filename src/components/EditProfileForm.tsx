@@ -44,11 +44,11 @@ const EditProfileForm = ({ isOpen, onClose }: EditProfileFormProps) => {
         name: formData.name,
         email: formData.email,
         accountType: formData.accountType as 'individual' | 'organization' | 'admin',
-        organizationId: formData.accountType === 'organization' ? formData.organizationId : undefined
+        organizationId: formData.accountType === 'organization' ? formData.organizationId : (formData.organizationId === 'none' ? undefined : formData.organizationId)
       };
 
       // Update localStorage
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      localStorage.setItem('nuevaGen_user', JSON.stringify(updatedUser));
       
       // Update context (using login method to set user)
       await login(formData.email, 'password'); // Mock password since we're updating existing user
@@ -140,7 +140,7 @@ const EditProfileForm = ({ isOpen, onClose }: EditProfileFormProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   {formData.accountType === 'individual' && (
-                    <SelectItem value="">No organization</SelectItem>
+                    <SelectItem value="none">No organization</SelectItem>
                   )}
                   {organizations
                     .filter(org => org.status === 'Active')
