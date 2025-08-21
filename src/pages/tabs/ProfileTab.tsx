@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,10 +7,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Edit, LogOut, User, Award, Bell, Settings, Gift, ChevronRight, CircleDollarSign, Calendar, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import EditProfileForm from '@/components/EditProfileForm';
 
 const ProfileTab = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   // Mock data - in a real app, this would come from an API or store
   const donationStats = {
@@ -88,6 +90,7 @@ const ProfileTab = () => {
             variant="outline" 
             size="sm" 
             className="w-full mt-4 flex items-center justify-center"
+            onClick={() => setShowEditProfile(true)}
           >
             <Edit size={16} className="mr-2" />
             Edit Profile
@@ -226,6 +229,12 @@ const ProfileTab = () => {
         <LogOut size={16} className="mr-2" />
         Logout
       </Button>
+
+      {/* Edit Profile Dialog */}
+      <EditProfileForm 
+        isOpen={showEditProfile} 
+        onClose={() => setShowEditProfile(false)} 
+      />
     </div>
   );
 };

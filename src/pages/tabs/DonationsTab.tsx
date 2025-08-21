@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { QrCode, Copy, CalendarCheck, DollarSign } from 'lucide-react';
+import { QrCode, Copy, CalendarCheck, DollarSign, Camera } from 'lucide-react';
+import QRScanner from '@/components/QRScanner';
 
 const DonationsTab = () => {
   const [amount, setAmount] = useState('');
@@ -14,6 +16,7 @@ const DonationsTab = () => {
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [donationMethod, setDonationMethod] = useState<'qrcode' | 'venmo'>('qrcode');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
   const { toast } = useToast();
   
   const venmoHandle = '@NuevaGeneracion';
@@ -32,6 +35,18 @@ const DonationsTab = () => {
     if (e.target.files && e.target.files.length > 0) {
       setReceiptFile(e.target.files[0]);
     }
+  };
+
+  const handleQRScanSuccess = (result: string) => {
+    // In a real app, this would be a donation URL
+    // For now, we'll open a mock Venmo donation link
+    const donationUrl = `https://venmo.com/u/NuevaGeneracion?txn=pay&amount=${amount || '10'}&note=Donation`;
+    window.open(donationUrl, '_blank');
+    setShowQRScanner(false);
+    toast({
+      title: "Opening donation link",
+      description: "Complete your donation in the opened tab",
+    });
   };
   
   const handlePresetAmount = (value: string) => {
@@ -128,15 +143,18 @@ const DonationsTab = () => {
             
             {donationMethod === 'qrcode' ? (
               <div className="flex flex-col items-center p-4 border border-gray-200 rounded-lg bg-gray-50">
-                <div className="bg-white p-3 rounded-lg shadow-sm">
-                  <img 
-                    src="https://placehold.co/200x200/png?text=QR+Code" 
-                    alt="Donation QR Code" 
-                    className="w-48 h-48" 
-                  />
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <Button 
+                    onClick={() => setShowQRScanner(true)}
+                    className="w-full flex items-center justify-center gap-2"
+                  >
+                    <QrCode size={20} />
+                    Scan Donation QR Code
+                  </Button>
                 </div>
                 <p className="mt-4 text-sm text-gray-600">
-                  Scan this QR code to donate through Venmo
+                  Use your camera to scan a donation QR code
                 </p>
               </div>
             ) : (
@@ -245,6 +263,19 @@ const DonationsTab = () => {
           </form>
         </CardContent>
       </Card>
+
+      {/* QR Scanner Dialog */}
+      <Dialog open={showQRScanner} onOpenChange={setShowQRScanner}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Scan Donation QR Code</DialogTitle>
+          </DialogHeader>
+          <QRScanner 
+            onSuccess={handleQRScanSuccess}
+            onClose={() => setShowQRScanner(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
