@@ -41,10 +41,17 @@ const Events = () => {
     return `${formatTimeString(event.time)} - ${formatTimeString(event.endTime)}`;
   };
   
-  // Check if user is participating in events (from localStorage)
-  const getIsParticipating = (eventId: string) => {
-    const participatingEvents = JSON.parse(localStorage.getItem('participatingEvents') || '[]');
-    return participatingEvents.includes(eventId);
+  // Function to check event status
+  const getEventStatus = (eventId: string) => {
+    const registeredEvents = JSON.parse(localStorage.getItem('registeredEvents') || '[]');
+    const attendedEvents = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
+    
+    const isRegistered = registeredEvents.includes(eventId);
+    const hasAttended = attendedEvents.includes(eventId);
+    
+    if (hasAttended) return { status: 'attended', text: 'Attended ✓' };
+    if (isRegistered) return { status: 'registered', text: 'Registered' };
+    return { status: 'available', text: 'View Details' };
   };
 
   return (
@@ -95,9 +102,11 @@ const Events = () => {
                   <Button 
                     className="btn-primary" 
                     size="sm"
-                    onClick={() => navigate(`/event/${event.id}`)}
+                    onClick={() => navigate(`/dashboard/events/${event.id}`)}
+                    variant={getEventStatus(event.id).status === 'attended' ? 'secondary' : 'default'}
+                    disabled={getEventStatus(event.id).status === 'attended'}
                   >
-                    {getIsParticipating(event.id) ? 'View Details' : 'Participate'}
+                    {getEventStatus(event.id).text}
                   </Button>
                 </div>
               </CardContent>

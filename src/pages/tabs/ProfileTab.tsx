@@ -12,31 +12,25 @@ const ProfileTab = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Donation statistics - this would typically come from your API
+  // Mock data - in a real app, this would come from an API or store
   const donationStats = {
-    total: 350,
-    count: 12,
-    points: 45, // Points earned from donations
-    lastDonation: '2023-05-01',
-    recentDonations: [
-      { id: 1, amount: 50, date: '2023-05-01', cause: 'Beach Cleanup', points: 8 },
-      { id: 2, amount: 75, date: '2023-04-15', cause: 'Animal Shelter', points: 12 },
-      { id: 3, amount: 25, date: '2023-03-22', cause: 'Food Bank', points: 5 },
-    ]
+    total: 1250.00,
+    thisMonth: 85.00,
+    impact: "Helped 12 families"
   };
 
-  // Events statistics - this would typically come from your API
-  const eventStats = {
-    total: 15,
-    points: 142, // Points earned from events
-    hoursVolunteered: 48,
-    lastEvent: '2023-05-15',
-    recentEvents: [
-      { id: 1, title: 'Community Garden Cleanup', date: '2023-05-15', points: 15, hours: 4 },
-      { id: 2, title: 'Food Drive Organization', date: '2023-05-08', points: 20, hours: 6 },
-      { id: 3, title: 'Senior Center Visit', date: '2023-04-28', points: 10, hours: 3 },
-    ]
+  // Get actual attended events from localStorage
+  const getAttendedEventsStats = () => {
+    const attendedEventIds = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
+    // Mock calculation - in real app, would calculate from actual events
+    return {
+      attended: attendedEventIds.length,
+      hours: attendedEventIds.length * 3, // Rough estimate
+      points: attendedEventIds.length * 40 // Rough estimate
+    };
   };
+
+  const eventStats = getAttendedEventsStats();
 
   const handleLogout = () => {
     logout();
@@ -101,70 +95,53 @@ const ProfileTab = () => {
         </CardContent>
       </Card>
 
-      {/* Donation Tracker Card */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-nuevagen-green bg-opacity-10 flex items-center justify-center text-nuevagen-green mr-3">
-                <Gift size={20} />
-              </div>
-              <h3 className="text-lg font-semibold">Your Donations</h3>
-            </div>
-            <Button variant="ghost" size="sm" className="text-nuevagen-blue">
-              See All
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Total<br />Donated</p>
-              <div className="flex items-center mt-1">
-                <CircleDollarSign size={16} className="text-nuevagen-green mr-1" />
-                <span className="text-lg font-semibold">${donationStats.total}</span>
-              </div>
-            </div>
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Donations<br />Made</p>
-              <div className="flex items-center mt-1">
-                <Gift size={16} className="text-nuevagen-blue mr-1" />
-                <span className="text-lg font-semibold">{donationStats.count}</span>
-              </div>
-            </div>
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Points<br />Earned</p>
-              <div className="flex items-center mt-1">
-                <Trophy size={16} className="text-nuevagen-yellow mr-1" />
-                <span className="text-lg font-semibold">{donationStats.points}</span>
-              </div>
-            </div>
-          </div>
-
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Recent Donations</h4>
-          <div className="space-y-3">
-            {donationStats.recentDonations.map(donation => (
-              <div key={donation.id} className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{donation.cause}</p>
-                  <p className="text-xs text-gray-500">{donation.date}</p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <div className="flex items-center">
-                      <span className="font-semibold text-nuevagen-green text-sm">${donation.amount}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Trophy size={12} className="text-nuevagen-yellow mr-1" />
-                      <span className="text-xs text-gray-600">{donation.points} pts</span>
-                    </div>
+          {/* Donation Tracker Card */}
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 rounded-full bg-nuevagen-green bg-opacity-10 flex items-center justify-center text-nuevagen-green mr-3">
+                    <Gift size={20} />
                   </div>
-                  <ChevronRight size={16} className="text-gray-400" />
+                  <h3 className="text-lg font-semibold">Your Donations</h3>
+                </div>
+                <Button variant="ghost" size="sm" className="text-nuevagen-blue">
+                  See All
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-xs text-gray-600">Total<br />Donated</p>
+                  <div className="flex items-center mt-1">
+                    <CircleDollarSign size={16} className="text-nuevagen-green mr-1" />
+                    <span className="text-lg font-semibold">${donationStats.total}</span>
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-xs text-gray-600">This<br />Month</p>
+                  <div className="flex items-center mt-1">
+                    <Gift size={16} className="text-nuevagen-blue mr-1" />
+                    <span className="text-lg font-semibold">${donationStats.thisMonth}</span>
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-xs text-gray-600">Impact</p>
+                  <div className="flex items-center mt-1">
+                    <Trophy size={16} className="text-nuevagen-yellow mr-1" />
+                    <span className="text-xs font-semibold">{donationStats.impact}</span>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Recent Donations</h4>
+              <div className="space-y-3">
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">Donation history will appear here</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
       {/* Events Attended Tracker Card */}
       <Card className="mb-6">
@@ -186,14 +163,14 @@ const ProfileTab = () => {
               <p className="text-xs text-gray-600">Events<br />Attended</p>
               <div className="flex items-center mt-1">
                 <Calendar size={16} className="text-nuevagen-purple mr-1" />
-                <span className="text-lg font-semibold">{eventStats.total}</span>
+                <span className="text-lg font-semibold">{eventStats.attended}</span>
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
               <p className="text-xs text-gray-600">Hours<br />Volunteered</p>
               <div className="flex items-center mt-1">
                 <Award size={16} className="text-nuevagen-teal mr-1" />
-                <span className="text-lg font-semibold">{eventStats.hoursVolunteered}</span>
+                <span className="text-lg font-semibold">{eventStats.hours}</span>
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
@@ -207,26 +184,17 @@ const ProfileTab = () => {
 
           <h4 className="text-sm font-medium text-gray-700 mb-3">Recent Events</h4>
           <div className="space-y-3">
-            {eventStats.recentEvents.map(event => (
-              <div key={event.id} className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{event.title}</p>
-                  <p className="text-xs text-gray-500">{event.date}</p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <div className="flex items-center">
-                      <span className="font-semibold text-nuevagen-purple text-sm">{event.hours}h</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Trophy size={12} className="text-nuevagen-yellow mr-1" />
-                      <span className="text-xs text-gray-600">{event.points} pts</span>
-                    </div>
-                  </div>
-                  <ChevronRight size={16} className="text-gray-400" />
-                </div>
+            {eventStats.attended > 0 ? (
+              <div className="text-center py-4 text-gray-500">
+                <p className="text-sm">Event history will appear here</p>
+                <p className="text-xs">QR scan events to track your participation</p>
               </div>
-            ))}
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                <p className="text-sm">No events attended yet</p>
+                <p className="text-xs">Scan QR codes at events to earn volunteer hours</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

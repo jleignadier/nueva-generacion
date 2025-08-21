@@ -3,17 +3,24 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, ScanQrCode, Award } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, ScanQrCode, Award, Calendar, CheckCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useEventsStore } from '@/store/eventsStore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import QRScanner from '@/components/QRScanner';
+import { getEventRegistrationStatus, registerForEvent, markEventAttended, downloadCalendarFile, isEventToday } from '@/utils/eventUtils';
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isParticipating, setIsParticipating] = useState(false);
+  const [registrationStatus, setRegistrationStatus] = useState({
+    isRegistered: false,
+    hasAttended: false,
+    canScanQR: false,
+    canRegister: false,
+    isEventPast: false
+  });
   const [scannerOpen, setScannerOpen] = useState(false);
   
   const { getEvent } = useEventsStore();
@@ -21,11 +28,13 @@ const EventDetail = () => {
   // Find the event based on the ID parameter
   const event = id ? getEvent(id) : undefined;
   
-  // Check localStorage on initial load to see if user is already participating
+  // Check registration and attendance status
   useEffect(() => {
-    const participatingEvents = JSON.parse(localStorage.getItem('participatingEvents') || '[]');
-    setIsParticipating(participatingEvents.includes(id));
-  }, [id]);
+    if (id && event) {
+      const status = getEventRegistrationStatus(id, event.date);
+      setRegistrationStatus(status);
+    }
+  }, [id, event]);
 
   if (!event) {
     return (
@@ -43,32 +52,65 @@ const EventDetail = () => {
     );
   }
 
-  const handleParticipate = () => {
-    // Open the QR scanner instead of immediately registering
+  const handleRegisterForReminder = () => {
+    if (!event || !id) return;
+    
+    // Register for the event (calendar reminder)
+    registerForEvent(id);
+    
+    // Download calendar file
+    downloadCalendarFile({
+      title: event.title,
+      date: event.date,
+      time: event.time,
+      endTime: event.endTime,
+      location: event.location,
+      description: event.description
+    });
+    
+    // Update local state
+    setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false }));
+    
+    // Show success toast
+    toast({
+      title: "Registered for reminder!",
+      description: `Calendar event added for ${event.title}. Remember to scan the QR code on event day for attendance.`,
+    });
+  };
+
+  const handleScanQR = () => {
+    // Only allow QR scanning on the event day
+    if (!event || !isEventToday(event.date)) {
+      toast({
+        title: "QR scanning not available",
+        description: "QR code scanning is only available on the day of the event.",
+        variant: "destructive"
+      });
+      return;
+    }
     setScannerOpen(true);
   };
 
   const handleQRSuccess = (result: string) => {
+    if (!event || !id) return;
+    
     // Close the scanner
     setScannerOpen(false);
 
     // Validate the QR code - in a real app this would verify if the QR code 
     // matches the event ID or contains a valid participation token
     if (result.includes(event.id) || result === 'valid-qr-code') {
-      setIsParticipating(true);
+      // Mark attendance
+      markEventAttended(id);
+      
+      // Update local state
+      setRegistrationStatus(prev => ({ ...prev, hasAttended: true, canScanQR: false }));
       
       // Show success toast
       toast({
-        title: "You're registered!",
-        description: `You've successfully signed up for ${event.title}`,
+        title: "Attendance recorded!",
+        description: `You've successfully checked in to ${event.title}. Points and volunteer hours have been awarded.`,
       });
-      
-      // Save participation to localStorage
-      const participatingEvents = JSON.parse(localStorage.getItem('participatingEvents') || '[]');
-      if (!participatingEvents.includes(event.id)) {
-        participatingEvents.push(event.id);
-        localStorage.setItem('participatingEvents', JSON.stringify(participatingEvents));
-      }
     } else {
       // Invalid QR code
       toast({
@@ -178,17 +220,36 @@ const EventDetail = () => {
           </div>
           
           <div className="flex gap-2">
-            {isParticipating ? (
-              <Button className="flex-1" disabled>
-                Registered
+            {registrationStatus.hasAttended ? (
+              <Button className="flex-1" disabled variant="secondary">
+                <CheckCircle size={16} className="mr-2" />
+                Attended ✓
               </Button>
-            ) : (
+            ) : registrationStatus.canScanQR ? (
               <Button 
                 className="flex-1" 
-                onClick={handleParticipate}
+                onClick={handleScanQR}
               >
                 <ScanQrCode size={16} className="mr-2" />
-                Scan QR to Register
+                Scan QR for Attendance
+              </Button>
+            ) : registrationStatus.canRegister ? (
+              <Button 
+                className="flex-1" 
+                onClick={handleRegisterForReminder}
+                variant="outline"
+              >
+                <Calendar size={16} className="mr-2" />
+                Register for Reminder
+              </Button>
+            ) : registrationStatus.isRegistered && !registrationStatus.hasAttended ? (
+              <Button className="flex-1" disabled>
+                <Calendar size={16} className="mr-2" />
+                {registrationStatus.canScanQR ? 'Registered - Scan QR Today' : 'Registered'}
+              </Button>
+            ) : (
+              <Button className="flex-1" disabled>
+                Event Completed
               </Button>
             )}
             <Button 
@@ -205,8 +266,14 @@ const EventDetail = () => {
       <Dialog open={scannerOpen} onOpenChange={setScannerOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Scan Event QR Code</DialogTitle>
+            <DialogTitle>Scan Event QR Code for Attendance</DialogTitle>
           </DialogHeader>
+          <div className="mb-4 p-3 bg-muted rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              Scanning this QR code will mark your attendance and award you {event?.pointsEarned} points 
+              and {event?.volunteerHours} volunteer hours.
+            </p>
+          </div>
           <QRScanner onSuccess={handleQRSuccess} onClose={() => setScannerOpen(false)} />
         </DialogContent>
       </Dialog>
