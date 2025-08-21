@@ -34,7 +34,7 @@ const LeaderboardTab = () => {
     { id: 5, name: 'Li Wei', rank: 5, value: 47, avatar: 'LW' },
     { id: 6, name: 'Olivia Martinez', rank: 6, value: 42, avatar: 'OM' },
     { id: 7, name: 'John Smith', rank: 7, value: 38, avatar: 'JS' },
-    { id: 8, name: 'User Name', rank: userRank, value: userPoints, avatar: user?.name.charAt(0) || '?' },
+    { id: 8, name: user?.name || 'User Name', rank: userRank, value: userPoints, avatar: user?.name?.charAt(0) || '?' },
   ];
 
   const organizationLeaders: LeaderboardEntry[] = [
@@ -45,7 +45,7 @@ const LeaderboardTab = () => {
     { id: 5, name: 'Global Helpers', rank: 5, value: 115, avatar: 'GH' },
     { id: 6, name: 'Future Leaders', rank: 6, value: 95, avatar: 'FL' },
     { id: 7, name: 'Community First', rank: 7, value: 90, avatar: 'CF' },
-    { id: 8, name: 'User Organization', rank: organizationRank, value: organizationPoints, avatar: user?.name.charAt(0) || '?' },
+    { id: 8, name: user?.name || 'User Organization', rank: organizationRank, value: organizationPoints, avatar: user?.name?.charAt(0) || '?' },
   ];
 
   const renderUserStats = () => {
@@ -119,7 +119,7 @@ const LeaderboardTab = () => {
   const renderLeaderboard = (entries: LeaderboardEntry[]) => (
     <div className="space-y-2">
       {entries.map((entry) => {
-        const isUser = entry.name === 'User Name' || entry.name === 'User Organization';
+        const isUser = entry.name === user?.name;
         const isTop3 = entry.rank <= 3;
         
         return (
@@ -182,7 +182,7 @@ const LeaderboardTab = () => {
             Volunteer Points
           </TabsTrigger>
           <TabsTrigger value="organization" className="flex items-center">
-            <Users size={16} className="mr-2" />
+            <Users size={20} className="mr-2" />
             Organization Points
           </TabsTrigger>
         </TabsList>

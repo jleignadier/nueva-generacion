@@ -85,9 +85,22 @@ const AdminEvents = () => {
     setCompetitionForm({ name: '', prize: '', endDate: '', isActive: true });
   };
 
-  // Filter events based on status and search query
+  // Filter events based on date-based status and search query
   const filteredEvents = events.filter(event => {
-    const matchesFilter = filter === 'all' || event.status === filter;
+    // Determine actual status based on date
+    const today = new Date();
+    const eventDate = new Date(event.date);
+    today.setHours(0, 0, 0, 0);
+    eventDate.setHours(0, 0, 0, 0);
+    
+    let actualStatus: string;
+    if (eventDate > today) {
+      actualStatus = 'upcoming';
+    } else {
+      actualStatus = 'completed';
+    }
+    
+    const matchesFilter = filter === 'all' || actualStatus === filter;
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          event.location.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;

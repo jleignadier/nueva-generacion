@@ -221,9 +221,9 @@ const EventForm = () => {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="pointsEarned" className="text-white">Points for Participation</Label>
+                  <Label htmlFor="pointsEarned" className="text-white">Points Earned</Label>
                   <Input
                     id="pointsEarned"
                     name="pointsEarned"

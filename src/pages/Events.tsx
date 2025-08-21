@@ -12,9 +12,15 @@ const Events = () => {
   
   console.log('Events page - All events:', events);
   
-  // Filter upcoming events and sort by date
+  // Filter upcoming events and sort by date (using date-based status)
   const upcomingEvents = events
-    .filter(event => event.status === 'upcoming')
+    .filter(event => {
+      const today = new Date();
+      const eventDate = new Date(event.date);
+      today.setHours(0, 0, 0, 0);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate >= today; // Include today and future events
+    })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
   console.log('Events page - Upcoming events:', upcomingEvents);

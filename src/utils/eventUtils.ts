@@ -9,6 +9,35 @@ export interface EventRegistrationStatus {
 }
 
 /**
+ * Date-based event status functions
+ */
+export const getEventStatus = (eventDate: string): 'upcoming' | 'today' | 'completed' => {
+  const today = new Date();
+  const event = new Date(eventDate);
+  
+  // Set both dates to midnight for accurate comparison
+  today.setHours(0, 0, 0, 0);
+  event.setHours(0, 0, 0, 0);
+  
+  if (event.getTime() === today.getTime()) {
+    return 'today';
+  } else if (event > today) {
+    return 'upcoming';
+  } else {
+    return 'completed';
+  }
+};
+
+export const isEventCompleted = (eventDate: string): boolean => {
+  return getEventStatus(eventDate) === 'completed';
+};
+
+export const isEventUpcomingOrToday = (eventDate: string): boolean => {
+  const status = getEventStatus(eventDate);
+  return status === 'upcoming' || status === 'today';
+};
+
+/**
  * Check if current date matches the event date
  */
 export const isEventToday = (eventDate: string): boolean => {
