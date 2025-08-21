@@ -51,7 +51,7 @@ const App = () => (
               <Route path="/dashboard/donations" element={<DonationsTab />} />
               <Route path="/dashboard/leaderboard" element={<LeaderboardTab />} />
               <Route path="/dashboard/profile" element={<ProfileTab />} />
-              <Route path="/event/:id" element={<EventDetail />} />
+              <Route path="/dashboard/events/:id" element={<EventDetail />} />
             </Route>
             
             {/* Admin Routes */}
