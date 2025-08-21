@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { User, Mail, Building } from 'lucide-react';
+import { organizations } from '@/data/organizations';
 
 interface EditProfileFormProps {
   isOpen: boolean;
@@ -121,20 +122,35 @@ const EditProfileForm = ({ isOpen, onClose }: EditProfileFormProps) => {
             </Select>
           </div>
 
-          {formData.accountType === 'organization' && (
+          {(formData.accountType === 'organization' || formData.accountType === 'individual') && (
             <div className="space-y-2">
-              <Label htmlFor="organizationId">Organization ID</Label>
-              <div className="relative">
-                <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                <Input
-                  id="organizationId"
-                  value={formData.organizationId}
-                  onChange={(e) => handleInputChange('organizationId', e.target.value)}
-                  required={formData.accountType === 'organization'}
-                  className="pl-10"
-                  placeholder="Enter organization ID"
-                />
-              </div>
+              <Label htmlFor="organizationId">
+                {formData.accountType === 'organization' ? 'Your Organization' : 'Join Organization (Optional)'}
+              </Label>
+              <Select 
+                value={formData.organizationId} 
+                onValueChange={(value) => handleInputChange('organizationId', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={
+                    formData.accountType === 'organization' 
+                      ? "Select your organization" 
+                      : "Select organization to join"
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {formData.accountType === 'individual' && (
+                    <SelectItem value="">No organization</SelectItem>
+                  )}
+                  {organizations
+                    .filter(org => org.status === 'Active')
+                    .map((org) => (
+                      <SelectItem key={org.id} value={org.id}>
+                        {org.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 

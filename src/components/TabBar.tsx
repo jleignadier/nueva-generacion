@@ -42,13 +42,11 @@ export const TabBar: React.FC = () => {
             <NavLink
               key={tab.name}
               to={tab.path}
-              className={({ isActive }) =>
-                `flex flex-col items-center justify-center w-full h-full ${
-                  isActive
-                    ? 'text-nuevagen-blue'
-                    : 'text-gray-500 hover:text-nuevagen-teal'
-                }`
-              }
+              className={`flex flex-col items-center justify-center w-full h-full ${
+                isActive
+                  ? 'text-nuevagen-blue'
+                  : 'text-gray-500 hover:text-nuevagen-teal'
+              }`}
             >
               <tab.icon size={20} />
               <span className="text-xs mt-1">{tab.name}</span>

@@ -57,6 +57,12 @@ const Login = () => {
     console.log("Admin credentials filled");
   };
 
+  const fillOrgCredentials = () => {
+    setEmail('org@greenfuture.org');
+    setPassword('org123');
+    console.log("Organization credentials filled");
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-nuevagen-blue to-nuevagen-teal">
       <Card className="w-full max-w-md mx-4 p-6 bg-white rounded-xl shadow-lg">
@@ -120,26 +126,52 @@ const Login = () => {
           </div>
         </form>
 
-        <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-100">
-          <div className="flex items-start">
-            <Info size={18} className="text-blue-500 mt-0.5 mr-2" />
-            <div>
-              <p className="text-sm text-gray-700 font-medium">
-                Admin Demo Access
-              </p>
-              <p className="text-xs text-gray-600 mt-1">
-                Use email: <span className="font-mono">admin@ng.org.pa</span> <br/>
-                Password: <span className="font-mono">admin123</span> 
-              </p>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                onClick={fillAdminCredentials}
-                className="mt-2 text-xs h-8"
-              >
-                Fill Admin Credentials
-              </Button>
+        <div className="space-y-3">
+          <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <div className="flex items-start">
+              <Info size={18} className="text-blue-500 mt-0.5 mr-2" />
+              <div>
+                <p className="text-sm text-gray-700 font-medium">
+                  Admin Demo Access
+                </p>
+                <p className="text-xs text-gray-600 mt-1">
+                  Use email: <span className="font-mono">admin@ng.org.pa</span> <br/>
+                  Password: <span className="font-mono">admin123</span> 
+                </p>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={fillAdminCredentials}
+                  className="mt-2 text-xs h-8"
+                >
+                  Fill Admin Credentials
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3 bg-green-50 rounded-lg border border-green-100">
+            <div className="flex items-start">
+              <Info size={18} className="text-green-500 mt-0.5 mr-2" />
+              <div>
+                <p className="text-sm text-gray-700 font-medium">
+                  Organization Demo Access
+                </p>
+                <p className="text-xs text-gray-600 mt-1">
+                  Use email: <span className="font-mono">org@greenfuture.org</span> <br/>
+                  Password: <span className="font-mono">org123</span> 
+                </p>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={fillOrgCredentials}
+                  className="mt-2 text-xs h-8"
+                >
+                  Fill Organization Credentials
+                </Button>
+              </div>
             </div>
           </div>
         </div>

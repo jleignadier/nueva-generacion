@@ -87,6 +87,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return adminUser;
       }
       
+      // Organization login check
+      if (email === 'org@greenfuture.org' && password === 'org123') {
+        const orgUser = {
+          id: 'org-1',
+          name: 'Green Future Foundation',
+          email,
+          accountType: 'organization' as const,
+          isAdmin: false,
+          organizationId: '1'
+        };
+        
+        setUser(orgUser);
+        localStorage.setItem('nuevaGen_user', JSON.stringify(orgUser));
+        console.log("AuthContext: Organization login successful");
+        toast({
+          title: "Login Successful",
+          description: "Welcome back, Green Future Foundation!",
+        });
+        return orgUser;
+      }
+      
       // Regular user login - simplified for demo
       const mockUser = {
         id: Math.random().toString(36).substring(2),
