@@ -26,8 +26,8 @@ const DonationsTab = () => {
   const handleCopyVenmoHandle = () => {
     navigator.clipboard.writeText(venmoHandle);
     toast({
-      title: "Copied!",
-      description: "Venmo handle copied to clipboard",
+      title: "¡Copiado!",
+      description: "Usuario de Venmo copiado al portapapeles",
     });
   };
   
@@ -44,8 +44,8 @@ const DonationsTab = () => {
     window.open(donationUrl, '_blank');
     setShowQRScanner(false);
     toast({
-      title: "Opening donation link",
-      description: "Complete your donation in the opened tab",
+      title: "Abriendo enlace de donación",
+      description: "Completa tu donación en la pestaña abierta",
     });
   };
   
@@ -63,8 +63,8 @@ const DonationsTab = () => {
     
     if (!amount || !receiptFile) {
       toast({
-        title: "Missing information",
-        description: "Please provide the donation amount and upload a receipt",
+        title: "Información faltante",
+        description: "Por favor proporciona la cantidad de donación y sube un recibo",
         variant: "destructive"
       });
       return;
@@ -91,8 +91,8 @@ const DonationsTab = () => {
     // Show success toast
     setTimeout(() => {
       toast({
-        title: "Donation submitted!",
-        description: `Your donation of $${amount} has been submitted for verification.`,
+        title: "¡Donación enviada!",
+        description: `Tu donación de $${amount} ha sido enviada para verificación.`,
       });
       
       // Reset form
@@ -106,12 +106,12 @@ const DonationsTab = () => {
   return (
     <div className="app-container">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Donations</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Donaciones</h1>
       </div>
       
       <Card className="mb-6">
         <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Make a Donation</CardTitle>
+          <CardTitle className="text-xl">Hacer una Donación</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-6">
@@ -126,7 +126,7 @@ const DonationsTab = () => {
                 }`}
               >
                 <QrCode className="mx-auto mb-1" size={18} />
-                Scan QR Code
+                Escanear Código QR
               </button>
               <button
                 type="button"
@@ -137,7 +137,7 @@ const DonationsTab = () => {
                     : 'bg-gray-100 text-gray-600 rounded-r-lg'
                 }`}
               >
-                Venmo Handle
+                Usuario de Venmo
               </button>
             </div>
             
@@ -150,11 +150,11 @@ const DonationsTab = () => {
                     className="w-full flex items-center justify-center gap-2"
                   >
                     <QrCode size={20} />
-                    Scan Donation QR Code
+                    Escanear Código QR de Donación
                   </Button>
                 </div>
                 <p className="mt-4 text-sm text-gray-600">
-                  Use your camera to scan a donation QR code
+                  Usa tu cámara para escanear un código QR de donación
                 </p>
               </div>
             ) : (
@@ -168,11 +168,11 @@ const DonationsTab = () => {
                     className="flex gap-1 items-center" 
                   >
                     <Copy size={16} />
-                    Copy
+                    Copiar
                   </Button>
                 </div>
                 <p className="mt-3 text-sm text-gray-600">
-                  Send your donation to this Venmo handle
+                  Envía tu donación a este usuario de Venmo
                 </p>
               </div>
             )}
@@ -180,7 +180,7 @@ const DonationsTab = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="amount" className="mb-2 block">Donation Amount ($)</Label>
+              <Label htmlFor="amount" className="mb-2 block">Cantidad de Donación ($)</Label>
               
               <div className="grid grid-cols-4 gap-2 mb-3">
                 {presetAmounts.map((preset) => (
@@ -204,7 +204,7 @@ const DonationsTab = () => {
                     type="number"
                     min="1"
                     step="1"
-                    placeholder="Custom amount"
+                    placeholder="Cantidad personalizada"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     required
@@ -215,12 +215,12 @@ const DonationsTab = () => {
               
               <div className="mt-2 text-sm font-medium text-nuevagen-blue flex items-center">
                 <CalendarCheck className="mr-1" size={16} />
-                You will earn {pointsEarned} points with this donation
+                Ganarás {pointsEarned} puntos con esta donación
               </div>
             </div>
             
             <div>
-              <Label htmlFor="receiptUpload">Upload Receipt</Label>
+              <Label htmlFor="receiptUpload">Subir Recibo</Label>
               <div className="mt-1 flex items-center">
                 <Input
                   id="receiptUpload"
@@ -232,15 +232,15 @@ const DonationsTab = () => {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Please upload a screenshot of your donation receipt
+                Por favor sube una captura de pantalla de tu recibo de donación
               </p>
             </div>
             
             <div>
-              <Label htmlFor="note" className="block">Note (Optional)</Label>
+              <Label htmlFor="note" className="block">Nota (Opcional)</Label>
               <Textarea
                 id="note"
-                placeholder="Add a note about your donation"
+                placeholder="Agrega una nota sobre tu donación"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 className="mt-1"
@@ -253,11 +253,11 @@ const DonationsTab = () => {
                 disabled={isSubmitting}
                 className="w-full btn-primary py-6"
               >
-                {isSubmitting ? "Submitting..." : "Submit Donation for Verification"}
+                {isSubmitting ? "Enviando..." : "Enviar Donación para Verificación"}
               </Button>
               <p className="text-center text-sm mt-3 text-gray-600">
                 <CalendarCheck className="inline-block mr-1" size={16} />
-                Earn 1 point for every dollar donated
+                Gana 1 punto por cada dólar donado
               </p>
             </div>
           </form>
@@ -268,7 +268,7 @@ const DonationsTab = () => {
       <Dialog open={showQRScanner} onOpenChange={setShowQRScanner}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Scan Donation QR Code</DialogTitle>
+            <DialogTitle>Escanear Código QR de Donación</DialogTitle>
           </DialogHeader>
           <QRScanner 
             onSuccess={handleQRScanSuccess}

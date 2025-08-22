@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Award, User, Users, Calendar, Clock } from 'lucide-react';
+import { Trophy, Award, User, Users, Calendar, Clock, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCompetitionsStore } from '@/store/competitionsStore';
 import UserProfileModal from '@/components/UserProfileModal';
@@ -66,7 +66,6 @@ const LeaderboardTab = () => {
               </div>
               <div>
                 <h3 className="font-bold">{user?.name}</h3>
-                <p className="text-sm opacity-90">Tus Estadísticas</p>
               </div>
             </div>
             <div className="text-right">
@@ -171,12 +170,10 @@ const LeaderboardTab = () => {
               </div>
               
               <div className="ml-3 flex-1">
-                <p className={`font-medium ${isUser ? 'text-primary' : ''}`}>
+                <p className={`font-medium ${isUser ? 'text-primary' : ''} flex items-center`}>
                   {entry.name}
                   {isClickable && (
-                    <span className="ml-1 text-xs text-muted-foreground">
-                      (click para ver)
-                    </span>
+                    <Eye size={14} className="ml-2 text-muted-foreground" />
                   )}
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -208,11 +205,11 @@ const LeaderboardTab = () => {
         <TabsList className="grid grid-cols-2 mb-6">
           <TabsTrigger value="individual" className="flex items-center">
             <User size={16} className="mr-2" />
-            Puntos de Voluntarios
+            Voluntarios
           </TabsTrigger>
           <TabsTrigger value="organization" className="flex items-center">
             <Users size={20} className="mr-2" />
-            Puntos de Organizaciones
+            Organizaciones
           </TabsTrigger>
         </TabsList>
         
