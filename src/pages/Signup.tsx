@@ -109,10 +109,10 @@ const Signup = () => {
             className="h-20 w-auto" 
           />
           <h2 className="mt-2 text-center text-2xl font-bold text-nuevagen-blue">
-            Crea tu Cuenta
+            Create Account
           </h2>
           <p className="text-center text-gray-600 text-sm mt-1">
-            Únete a Nuestra Comunidad de Voluntarios
+            Join our volunteer community
           </p>
         </div>
 
@@ -362,9 +362,9 @@ const Signup = () => {
           </Button>
 
           <div className="text-center text-xs mt-3">
-            <span className="text-gray-600">¿Ya tienes una Cuenta? </span>
+            <span className="text-gray-600">Already have an account? </span>
             <Link to="/login" className="font-medium text-nuevagen-blue hover:text-nuevagen-teal">
-              Log in
+              Login
             </Link>
           </div>
         </form>
