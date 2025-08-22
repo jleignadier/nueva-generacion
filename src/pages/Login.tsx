@@ -86,7 +86,7 @@ const Login = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
+              placeholder="Correo Electrónico"
               required
               className="w-full h-12 text-base"
             />
@@ -97,7 +97,7 @@ const Login = () => {
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
+              placeholder="Contraseña"
               required
               className="w-full h-12 text-base pr-10"
             />
@@ -115,7 +115,7 @@ const Login = () => {
             disabled={isLoading}
             className="w-full h-12 bg-nuevagen-blue hover:bg-opacity-90 text-white font-medium rounded-lg"
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Iniciando Sesión..." : "Iniciar Sesión"}
           </Button>
           
           <div className="text-center text-sm mt-4">
