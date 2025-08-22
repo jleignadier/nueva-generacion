@@ -11,7 +11,7 @@ const tabs = [
     exact: true
   },
   {
-    name: 'Donations',
+    name: 'Donaciones',
     path: '/dashboard/donations',
     icon: Gift
   },
@@ -21,7 +21,7 @@ const tabs = [
     icon: Trophy
   },
   {
-    name: 'Profile',
+    name: 'Perfil',
     path: '/dashboard/profile',
     icon: User
   }

@@ -66,16 +66,16 @@ const LeaderboardTab = () => {
               </div>
               <div>
                 <h3 className="font-bold">{user?.name}</h3>
-                <p className="text-sm opacity-90">Your Stats</p>
+                <p className="text-sm opacity-90">Tus Estadísticas</p>
               </div>
             </div>
             <div className="text-right">
               <div className="flex items-center justify-end text-white/80 text-sm">
                 <Trophy size={14} className="mr-1" />
-                Rank #{rank}
+                Puesto #{rank}
               </div>
               <div className="text-2xl font-bold mt-1">
-                {value} points
+                {value} puntos
               </div>
             </div>
           </div>
@@ -101,13 +101,13 @@ const LeaderboardTab = () => {
               </div>
               <div>
                 <h3 className="font-bold text-lg">{activeCompetition.name}</h3>
-                <p className="text-sm opacity-90">Current Competition</p>
+                <p className="text-sm opacity-90">Competencia Actual</p>
               </div>
             </div>
             <div className="text-right">
               <div className="flex items-center justify-end text-white/80 text-sm">
                 <Calendar size={14} className="mr-1" />
-                {daysLeft > 0 ? `${daysLeft} days left` : 'Ends today!'}
+                {daysLeft > 0 ? `${daysLeft} días restantes` : '¡Termina hoy!'}
               </div>
               <div className="text-lg font-bold mt-1">
                 🏆 {activeCompetition.prize}
@@ -175,12 +175,12 @@ const LeaderboardTab = () => {
                   {entry.name}
                   {isClickable && (
                     <span className="ml-1 text-xs text-muted-foreground">
-                      (click to view)
+                      (click para ver)
                     </span>
                   )}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {entry.value} points
+                  {entry.value} puntos
                 </p>
               </div>
             </CardContent>
@@ -208,11 +208,11 @@ const LeaderboardTab = () => {
         <TabsList className="grid grid-cols-2 mb-6">
           <TabsTrigger value="individual" className="flex items-center">
             <User size={16} className="mr-2" />
-            Volunteer Points
+            Puntos de Voluntarios
           </TabsTrigger>
           <TabsTrigger value="organization" className="flex items-center">
             <Users size={20} className="mr-2" />
-            Organization Points
+            Puntos de Organizaciones
           </TabsTrigger>
         </TabsList>
         
@@ -221,7 +221,7 @@ const LeaderboardTab = () => {
             <CardHeader className="p-4 pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Trophy size={20} className="mr-2 text-nuevagen-yellow" />
-                Top Individual Volunteers
+                Mejores Voluntarios Individuales
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
@@ -235,7 +235,7 @@ const LeaderboardTab = () => {
             <CardHeader className="p-4 pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Trophy size={20} className="mr-2 text-nuevagen-yellow" />
-                Top Organizations
+                Mejores Organizaciones
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
