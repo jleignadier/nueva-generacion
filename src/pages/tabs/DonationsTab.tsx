@@ -19,15 +19,15 @@ const DonationsTab = () => {
   const [showQRScanner, setShowQRScanner] = useState(false);
   const { toast } = useToast();
   
-  const venmoHandle = '@NuevaGeneracion';
+  const yappyHandle = '@NuevaGeneracion';
   
   const presetAmounts = [10, 25, 50, 100];
   
-  const handleCopyVenmoHandle = () => {
-    navigator.clipboard.writeText(venmoHandle);
+  const handleCopyyappyHandle = () => {
+    navigator.clipboard.writeText(yappyHandle);
     toast({
       title: "¡Copiado!",
-      description: "Usuario de Venmo copiado al portapapeles",
+      description: "Usuario de Yappy copiado al portapapeles",
     });
   };
   
@@ -137,7 +137,7 @@ const DonationsTab = () => {
                     : 'bg-gray-100 text-gray-600 rounded-r-lg'
                 }`}
               >
-                Usuario de Venmo
+                Usuario de Yappy
               </button>
             </div>
             
@@ -160,11 +160,11 @@ const DonationsTab = () => {
             ) : (
               <div className="flex flex-col p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
-                  <span className="font-medium text-gray-800">{venmoHandle}</span>
+                  <span className="font-medium text-gray-800">{yappyHandle}</span>
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    onClick={handleCopyVenmoHandle}
+                    onClick={handleCopyyappyHandle}
                     className="flex gap-1 items-center" 
                   >
                     <Copy size={16} />
