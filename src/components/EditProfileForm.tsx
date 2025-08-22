@@ -1,30 +1,36 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useOrganizationsStore } from '@/store/organizationsStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Building } from 'lucide-react';
-import { organizations } from '@/data/organizations';
 
 interface EditProfileFormProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const EditProfileForm = ({ isOpen, onClose }: EditProfileFormProps) => {
-  const { user, login } = useAuth(); // Using login to update user data
+const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) => {
+  const { user, login } = useAuth();
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const { organizations, initializeOrganizations } = useOrganizationsStore();
+
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     accountType: user?.accountType || 'individual',
-    organizationId: user?.organizationId || ''
+    organizationId: user?.organizationId || 'none'
   });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize organizations on component mount
+  React.useEffect(() => {
+    initializeOrganizations();
+  }, [initializeOrganizations]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -38,7 +44,7 @@ const EditProfileForm = ({ isOpen, onClose }: EditProfileFormProps) => {
     setIsSubmitting(true);
 
     try {
-      // Create updated user object
+      // Update user in context
       const updatedUser = {
         ...user!,
         name: formData.name,
@@ -54,15 +60,15 @@ const EditProfileForm = ({ isOpen, onClose }: EditProfileFormProps) => {
       await login(formData.email, 'password'); // Mock password since we're updating existing user
       
       toast({
-        title: "Profile updated!",
-        description: "Your profile information has been successfully updated.",
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
       });
       
       onClose();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
+        title: "Update failed",
+        description: "There was an error updating your profile. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -70,98 +76,86 @@ const EditProfileForm = ({ isOpen, onClose }: EditProfileFormProps) => {
     }
   };
 
+  if (!user) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                required
-                className="pl-10"
-                placeholder="Enter your full name"
-              />
-            </div>
+          <div>
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              required
+            />
           </div>
-
-          <div className="space-y-2">
+          
+          <div>
             <Label htmlFor="email">Email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                required
-                className="pl-10"
-                placeholder="Enter your email"
-              />
-            </div>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              required
+            />
           </div>
-
-          <div className="space-y-2">
+          
+          <div>
             <Label htmlFor="accountType">Account Type</Label>
-            <Select value={formData.accountType} onValueChange={(value) => handleInputChange('accountType', value)}>
-              <SelectTrigger>
+            <Select 
+              value={formData.accountType} 
+              onValueChange={(value) => handleInputChange('accountType', value)}
+            >
+              <SelectTrigger id="accountType">
                 <SelectValue placeholder="Select account type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="individual">Individual</SelectItem>
                 <SelectItem value="organization">Organization</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          {(formData.accountType === 'organization' || formData.accountType === 'individual') && (
-            <div className="space-y-2">
-              <Label htmlFor="organizationId">
-                {formData.accountType === 'organization' ? 'Your Organization' : 'Join Organization (Optional)'}
-              </Label>
-              <Select 
-                value={formData.organizationId} 
-                onValueChange={(value) => handleInputChange('organizationId', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={
-                    formData.accountType === 'organization' 
-                      ? "Select your organization" 
-                      : "Select organization to join"
-                  } />
-                </SelectTrigger>
-                <SelectContent>
-                  {formData.accountType === 'individual' && (
-                    <SelectItem value="none">No organization</SelectItem>
-                  )}
-                  {organizations
-                    .filter(org => org.status === 'Active')
-                    .map((org) => (
-                      <SelectItem key={org.id} value={org.id}>
-                        {org.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          <DialogFooter className="gap-2">
+          
+          <div>
+            <Label htmlFor="organizationId">Organization</Label>
+            <Select 
+              value={formData.organizationId} 
+              onValueChange={(value) => handleInputChange('organizationId', value)}
+            >
+              <SelectTrigger id="organizationId">
+                <SelectValue placeholder="Select organization" />
+              </SelectTrigger>
+              <SelectContent>
+                {formData.accountType === 'individual' && (
+                  <SelectItem value="none">No organization</SelectItem>
+                )}
+                {organizations
+                  .filter(org => org.status === 'Active')
+                  .map((org) => (
+                    <SelectItem key={org.id} value={org.id}>
+                      {org.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Updating..." : "Update Profile"}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

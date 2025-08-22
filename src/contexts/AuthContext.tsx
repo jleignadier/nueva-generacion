@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { useOrganizationsStore } from '@/store/organizationsStore';
 
 type User = {
   id: string;
@@ -36,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { addOrganization, initializeOrganizations } = useOrganizationsStore();
 
   // Load user on initial render only
   useEffect(() => {
@@ -46,13 +48,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log("AuthProvider: Found user in localStorage");
         setUser(JSON.parse(savedUser));
       }
+      // Initialize organizations store
+      initializeOrganizations();
     } catch (err) {
       console.error("Error loading user from localStorage:", err);
       localStorage.removeItem('nuevaGen_user');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [initializeOrganizations]);
 
   const login = async (email: string, password: string) => {
     console.log("AuthContext: Attempting login with", email);
@@ -173,6 +177,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(mockUser);
       localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
       
+      // If this is an organization account, also save organization info
+      if (accountType === 'organization' && description) {
+        addOrganization({
+          name,
+          contactEmail: email,
+          description,
+          status: 'Active',
+          points: 0,
+          members: 1
+        });
+      }
+
       const successMessage = orgInfo 
         ? "Your account has been created and you've been added to the organization!"
         : "Your account has been created successfully!";

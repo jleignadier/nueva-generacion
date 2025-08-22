@@ -17,8 +17,7 @@ const ProfileTab = () => {
   // Mock data - in a real app, this would come from an API or store
   const donationStats = {
     total: 1250.00,
-    thisMonth: 85.00,
-    impact: "Helped 12 families"
+    thisMonth: 85.00
   };
 
   // Get actual attended events from localStorage
@@ -40,11 +39,6 @@ const ProfileTab = () => {
   };
 
   const menuItems = [
-    {
-      icon: User,
-      title: 'Account Information',
-      description: 'Update your personal details'
-    },
     {
       icon: Award,
       title: 'Achievements',
@@ -113,7 +107,7 @@ const ProfileTab = () => {
                 </Button>
               </div>
               
-              <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-xs text-gray-600">Total<br />Donated</p>
                   <div className="flex items-center mt-1">
@@ -126,13 +120,6 @@ const ProfileTab = () => {
                   <div className="flex items-center mt-1">
                     <Gift size={16} className="text-nuevagen-blue mr-1" />
                     <span className="text-lg font-semibold">${donationStats.thisMonth}</span>
-                  </div>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <p className="text-xs text-gray-600">Impact</p>
-                  <div className="flex items-center mt-1">
-                    <Trophy size={16} className="text-nuevagen-yellow mr-1" />
-                    <span className="text-xs font-semibold">{donationStats.impact}</span>
                   </div>
                 </div>
               </div>

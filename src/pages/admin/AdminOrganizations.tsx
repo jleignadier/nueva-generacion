@@ -7,19 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { useForm } from 'react-hook-form';
+import { useOrganizationsStore, Organization } from '@/store/organizationsStore';
 
 type SortField = 'name' | 'contactEmail' | 'points' | 'members';
 type SortDirection = 'asc' | 'desc';
-
-interface Organization {
-  id: string;
-  name: string;
-  contactEmail: string;
-  status: string;
-  points: number;
-  members: number;
-  description: string;
-}
 
 interface EditOrganizationForm {
   name: string;
@@ -28,59 +19,18 @@ interface EditOrganizationForm {
 }
 
 const AdminOrganizations = () => {
+  const { organizations, updateOrganization, toggleOrganizationStatus, initializeOrganizations } = useOrganizationsStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  const [organizations, setOrganizations] = useState<Organization[]>([
-    { 
-      id: '1',
-      name: 'Green Future Foundation', 
-      contactEmail: 'contact@greenfuture.org', 
-      status: 'Active', 
-      points: 1250, 
-      members: 45,
-      description: 'Environmental conservation organization'
-    },
-    { 
-      id: '2',
-      name: 'Community Health Initiative', 
-      contactEmail: 'info@healthinit.org', 
-      status: 'Active', 
-      points: 892, 
-      members: 32,
-      description: 'Promoting community health and wellness'
-    },
-    { 
-      id: '3',
-      name: 'Education for All', 
-      contactEmail: 'admin@eduforall.org', 
-      status: 'Active', 
-      points: 2103, 
-      members: 78,
-      description: 'Providing educational resources to underserved communities'
-    },
-    { 
-      id: '4',
-      name: 'Animal Rescue Network', 
-      contactEmail: 'rescue@animalnet.org', 
-      status: 'Inactive', 
-      points: 567, 
-      members: 23,
-      description: 'Animal welfare and rescue operations'
-    },
-    { 
-      id: '5',
-      name: 'Youth Development Center', 
-      contactEmail: 'youth@devcenter.org', 
-      status: 'Active', 
-      points: 1456, 
-      members: 56,
-      description: 'Supporting youth development programs'
-    },
-  ]);
   const [editingOrganization, setEditingOrganization] = useState<Organization | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Initialize organizations on component mount
+  React.useEffect(() => {
+    initializeOrganizations();
+  }, [initializeOrganizations]);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
@@ -92,14 +42,14 @@ const AdminOrganizations = () => {
   };
 
   const handleToggleStatus = (organizationId: string) => {
-    setOrganizations(organizations.map(org => 
-      org.id === organizationId 
-        ? { ...org, status: org.status === 'Active' ? 'Inactive' : 'Active' }
-        : org
-    ));
+    const org = organizations.find(o => o.id === organizationId);
+    const newStatus = org?.status === 'Active' ? 'Inactive' : 'Active';
+    
+    toggleOrganizationStatus(organizationId);
+    
     toast({
       title: "Organization status updated",
-      description: "The organization's status has been successfully changed.",
+      description: `Organization ${newStatus === 'Active' ? 'enabled' : 'disabled'} successfully`,
     });
   };
 
@@ -111,22 +61,17 @@ const AdminOrganizations = () => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<EditOrganizationForm>();
 
   const onSubmitEdit = (data: EditOrganizationForm) => {
-    if (!editingOrganization) return;
-    
-    setOrganizations(organizations.map(org => 
-      org.id === editingOrganization.id 
-        ? { ...org, ...data }
-        : org
-    ));
-    
-    toast({
-      title: "Organization updated successfully",
-      description: "The organization's information has been updated.",
-    });
-    
-    setIsEditDialogOpen(false);
-    setEditingOrganization(null);
-    reset();
+    if (editingOrganization) {
+      updateOrganization(editingOrganization.id, data);
+      
+      toast({
+        title: "Organization updated",
+        description: "Organization details updated successfully",
+      });
+      
+      setIsEditDialogOpen(false);
+      setEditingOrganization(null);
+    }
   };
 
   const sortedAndFilteredOrganizations = useMemo(() => {

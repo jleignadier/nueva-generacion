@@ -12,15 +12,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-
-// Mock data for existing organizations - in a real app, this would come from an API
-const mockOrganizations = [
-  { id: '1', name: 'Eco Guardians' },
-  { id: '2', name: 'Ocean Defenders' },
-  { id: '3', name: 'Wildlife Protectors' },
-  { id: '4', name: 'Community Builders' },
-  { id: '5', name: 'Tech for Good' },
-];
+import { useOrganizationsStore } from '@/store/organizationsStore';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -42,6 +34,14 @@ const Signup = () => {
   const { signup, error } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { getActiveOrganizations, initializeOrganizations } = useOrganizationsStore();
+
+  // Initialize organizations and get active ones
+  React.useEffect(() => {
+    initializeOrganizations();
+  }, [initializeOrganizations]);
+
+  const activeOrganizations = getActiveOrganizations();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -294,7 +294,7 @@ const Signup = () => {
                         <SelectValue placeholder="Select an organization" />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockOrganizations.map(org => (
+                        {activeOrganizations.map(org => (
                           <SelectItem key={org.id} value={org.id}>
                             {org.name}
                           </SelectItem>
