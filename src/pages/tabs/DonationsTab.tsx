@@ -14,7 +14,7 @@ const DonationsTab = () => {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [donationMethod, setDonationMethod] = useState<'qrcode' | 'venmo'>('qrcode');
+  const [donationMethod, setDonationMethod] = useState<'qrcode' | 'yappy'>('qrcode');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
   const { toast } = useToast();
@@ -39,8 +39,8 @@ const DonationsTab = () => {
 
   const handleQRScanSuccess = (result: string) => {
     // In a real app, this would be a donation URL
-    // For now, we'll open a mock Venmo donation link
-    const donationUrl = `https://venmo.com/u/NuevaGeneracion?txn=pay&amount=${amount || '10'}&note=Donation`;
+    // For now, we'll open a mock Yappy donation link
+    const donationUrl = `https://yappy.com.pa/u/NuevaGeneracion?txn=pay&amount=${amount || '10'}&note=Donation`;
     window.open(donationUrl, '_blank');
     setShowQRScanner(false);
     toast({
@@ -130,9 +130,9 @@ const DonationsTab = () => {
               </button>
               <button
                 type="button"
-                onClick={() => setDonationMethod('venmo')}
+                onClick={() => setDonationMethod('yappy')}
                 className={`flex-1 py-2 text-center transition-colors ${
-                  donationMethod === 'venmo' 
+                  donationMethod === 'yappy' 
                     ? 'bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white font-medium rounded-r-lg' 
                     : 'bg-gray-100 text-gray-600 rounded-r-lg'
                 }`}
@@ -172,7 +172,7 @@ const DonationsTab = () => {
                   </Button>
                 </div>
                 <p className="mt-3 text-sm text-gray-600">
-                  Envía tu donación a este usuario de Venmo
+                  Envía tu donación a este usuario de Yappy
                 </p>
               </div>
             )}
