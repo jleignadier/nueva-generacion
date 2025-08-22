@@ -5,14 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { Edit, LogOut, User, Award, Bell, Settings, Gift, ChevronRight, CircleDollarSign, Calendar, Trophy } from 'lucide-react';
+import { Edit, LogOut, User, Award, Settings, Gift, ChevronRight, CircleDollarSign, Calendar, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import EditProfileForm from '@/components/EditProfileForm';
+import DonationHistoryModal from '@/components/DonationHistoryModal';
+import EventHistoryModal from '@/components/EventHistoryModal';
+import AchievementsModal from '@/components/AchievementsModal';
+import UserSettingsModal from '@/components/UserSettingsModal';
 
 const ProfileTab = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showDonationHistory, setShowDonationHistory] = useState(false);
+  const [showEventHistory, setShowEventHistory] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Mock data - in a real app, this would come from an API or store
   const donationStats = {
@@ -41,18 +49,15 @@ const ProfileTab = () => {
   const menuItems = [
     {
       icon: Award,
-      title: 'Achievements',
-      description: 'View your volunteer badges and rewards'
-    },
-    {
-      icon: Bell,
-      title: 'Notifications',
-      description: 'Manage your notification preferences'
+      title: 'Logros',
+      description: 'Ve tus insignias y recompensas de voluntario',
+      onClick: () => setShowAchievements(true)
     },
     {
       icon: Settings,
-      title: 'Settings',
-      description: 'Adjust app settings'
+      title: 'Configuración',
+      description: 'Ajustar configuración de la aplicación',
+      onClick: () => setShowSettings(true)
     }
   ];
 
@@ -102,8 +107,13 @@ const ProfileTab = () => {
                   </div>
                   <h3 className="text-lg font-semibold">Your Donations</h3>
                 </div>
-                <Button variant="ghost" size="sm" className="text-nuevagen-blue">
-                  See All
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-primary hover:text-primary/80"
+                  onClick={() => setShowDonationHistory(true)}
+                >
+                  Ver Todas
                 </Button>
               </div>
               
@@ -143,8 +153,13 @@ const ProfileTab = () => {
               </div>
               <h3 className="text-lg font-semibold">Events Attended</h3>
             </div>
-            <Button variant="ghost" size="sm" className="text-nuevagen-blue">
-              See All
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-primary hover:text-primary/80"
+              onClick={() => setShowEventHistory(true)}
+            >
+              Ver Todos
             </Button>
           </div>
           
@@ -191,16 +206,20 @@ const ProfileTab = () => {
 
       <div className="space-y-2">
         {menuItems.map((item, index) => (
-          <Card key={index} className="overflow-hidden hover:bg-gray-50">
+          <Card 
+            key={index} 
+            className="overflow-hidden hover:bg-muted/50 cursor-pointer transition-colors"
+            onClick={item.onClick}
+          >
             <CardContent className="p-4 flex items-center">
-              <div className="w-10 h-10 rounded-full bg-nuevagen-blue bg-opacity-10 flex items-center justify-center text-nuevagen-blue">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <item.icon size={20} />
               </div>
               <div className="ml-3 flex-1">
                 <p className="font-medium">{item.title}</p>
-                <p className="text-sm text-gray-600">{item.description}</p>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
               </div>
-              <Edit size={16} className="text-gray-400" />
+              <ChevronRight size={16} className="text-muted-foreground" />
             </CardContent>
           </Card>
         ))}
@@ -217,10 +236,26 @@ const ProfileTab = () => {
         Logout
       </Button>
 
-      {/* Edit Profile Dialog */}
+      {/* Modals */}
       <EditProfileForm 
         isOpen={showEditProfile} 
         onClose={() => setShowEditProfile(false)} 
+      />
+      <DonationHistoryModal 
+        isOpen={showDonationHistory} 
+        onClose={() => setShowDonationHistory(false)} 
+      />
+      <EventHistoryModal 
+        isOpen={showEventHistory} 
+        onClose={() => setShowEventHistory(false)} 
+      />
+      <AchievementsModal 
+        isOpen={showAchievements} 
+        onClose={() => setShowAchievements(false)} 
+      />
+      <UserSettingsModal 
+        isOpen={showSettings} 
+        onClose={() => setShowSettings(false)} 
       />
     </div>
   );
