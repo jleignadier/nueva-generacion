@@ -76,7 +76,7 @@ const Login = () => {
             Bienvenido
           </h2>
           <p className="text-center text-gray-600 mt-2">
-            Haz Log In a tu Cuenta
+            Haz Login a tu Cuenta
           </p>
         </div>
 
