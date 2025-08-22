@@ -177,7 +177,7 @@ const LeaderboardTab = () => {
                   )}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {entry.value} puntos
+                  {isUser ? `${entry.value} puntos` : 'Puntos privados'}
                 </p>
               </div>
             </CardContent>
