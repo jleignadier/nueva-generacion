@@ -173,7 +173,7 @@ const Signup = () => {
           {isAdmin && (
             <div className="mt-3">
               <Label htmlFor="admin-key" className="text-xs text-gray-500 mb-1 block">
-                Admin Key
+                Clave de Administrador
               </Label>
               <Input
                 id="admin-key"
@@ -181,11 +181,11 @@ const Signup = () => {
                 value={adminKey}
                 onChange={(e) => setAdminKey(e.target.value)}
                 required={isAdmin}
-                placeholder="Enter admin key"
+                placeholder="Ingrese clave de administrador"
                 className="text-sm h-8"
               />
               <p className="text-xs text-gray-400 mt-1">
-                For demo use: "admin2024"
+                Para demo usar: "admin2024"
               </p>
             </div>
           )}
@@ -195,7 +195,7 @@ const Signup = () => {
           <div>
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="Correo Electrónico"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -207,7 +207,7 @@ const Signup = () => {
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
-                placeholder="Password"
+                placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -224,7 +224,7 @@ const Signup = () => {
             <div>
               <Input
                 type="password"
-                placeholder="Confirm Password"
+                placeholder="Confirmar Contraseña"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -239,7 +239,7 @@ const Signup = () => {
                 <div>
                   <Input
                     type="text"
-                    placeholder="First Name"
+                    placeholder="Nombre"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required={!isAdmin && accountType === 'individual'}
@@ -249,7 +249,7 @@ const Signup = () => {
                 <div>
                   <Input
                     type="text"
-                    placeholder="Last Name"
+                    placeholder="Apellido"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required={!isAdmin && accountType === 'individual'}
@@ -261,7 +261,7 @@ const Signup = () => {
               <div className="relative">
                 <Input
                   type="text"
-                  placeholder="mm/dd/yyyy"
+                  placeholder="dd/mm/yyyy"
                   value={birthdate}
                   onChange={(e) => setBirthdate(e.target.value)}
                   className="w-full h-10 text-sm"
@@ -291,7 +291,7 @@ const Signup = () => {
                       onValueChange={setSelectedOrgId}
                     >
                       <SelectTrigger id="org-select" className="w-full h-9 text-sm">
-                        <SelectValue placeholder="Select an organization" />
+                        <SelectValue placeholder="Seleccionar una organización" />
                       </SelectTrigger>
                       <SelectContent>
                         {activeOrganizations.map(org => (
@@ -313,7 +313,7 @@ const Signup = () => {
               <div>
                 <Input
                   type="text"
-                  placeholder="Organization Name"
+                  placeholder="Nombre de la Organización"
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                   required={!isAdmin && accountType === 'organization'}
@@ -322,7 +322,7 @@ const Signup = () => {
               </div>
               <div>
                 <Textarea
-                  placeholder="Brief description of your organization (optional)"
+                  placeholder="Breve descripción de su organización (opcional)"
                   value={orgDescription}
                   onChange={(e) => setOrgDescription(e.target.value)}
                   className="w-full text-sm resize-none"
@@ -334,7 +334,7 @@ const Signup = () => {
             <div>
               <Input
                 type="text"
-                placeholder="Admin Name"
+                placeholder="Nombre del Administrador"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required={isAdmin}
@@ -346,7 +346,7 @@ const Signup = () => {
           <div>
             <Input
               type="tel"
-              placeholder="Phone Number"
+              placeholder="Número de Teléfono"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full h-10 text-sm"
@@ -358,13 +358,13 @@ const Signup = () => {
             disabled={isLoading || (joinOrg && !selectedOrgId)}
             className={`w-full h-10 ${isAdmin ? 'bg-purple-600 hover:bg-purple-700' : 'bg-nuevagen-blue hover:bg-opacity-90'} text-white font-medium rounded-lg text-sm`}
           >
-            {isLoading ? "Creating Account..." : "Sign Up"}
+            {isLoading ? "Creando Cuenta..." : "Registrarse"}
           </Button>
 
           <div className="text-center text-xs mt-3">
             <span className="text-gray-600">¿Ya Tienes una Cuenta? </span>
             <Link to="/login" className="font-medium text-nuevagen-blue hover:text-nuevagen-teal">
-              Login
+              Iniciar Sesión
             </Link>
           </div>
         </form>
