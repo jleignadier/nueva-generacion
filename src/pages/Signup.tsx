@@ -364,7 +364,7 @@ const Signup = () => {
           <div className="text-center text-xs mt-3">
             <span className="text-gray-600">¿Ya Tienes una Cuenta? </span>
             <Link to="/login" className="font-medium text-nuevagen-blue hover:text-nuevagen-teal">
-              Login
+              Iniciar Sesión
             </Link>
           </div>
         </form>
