@@ -19,7 +19,6 @@ interface UserSettings {
   };
   privacy: {
     profileVisible: boolean;
-    donationsVisible: boolean;
   };
   theme: 'light' | 'dark' | 'auto';
 }
@@ -31,8 +30,7 @@ const defaultSettings: UserSettings = {
     general: false
   },
   privacy: {
-    profileVisible: true,
-    donationsVisible: false
+    profileVisible: true
   },
   theme: 'light'
 };
@@ -150,25 +148,12 @@ const UserSettingsModal: React.FC<UserSettingsModalProps> = ({ isOpen, onClose }
                 <div>
                   <p className="font-medium">Perfil Visible</p>
                   <p className="text-sm text-muted-foreground">
-                    Permitir que otros vean tu perfil
+                    Permitir que otros vean tu perfil en el ranking
                   </p>
                 </div>
                 <Switch
                   checked={settings.privacy.profileVisible}
                   onCheckedChange={(checked) => updatePrivacySetting('profileVisible', checked)}
-                />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Donaciones Visibles</p>
-                  <p className="text-sm text-muted-foreground">
-                    Mostrar tus donaciones en el ranking
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.privacy.donationsVisible}
-                  onCheckedChange={(checked) => updatePrivacySetting('donationsVisible', checked)}
                 />
               </div>
             </CardContent>

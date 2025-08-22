@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Award, User, Users, Calendar, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCompetitionsStore } from '@/store/competitionsStore';
+import UserProfileModal from '@/components/UserProfileModal';
 
 interface LeaderboardEntry {
   id: number;
@@ -17,6 +18,8 @@ const LeaderboardTab = () => {
   const { user } = useAuth();
   const { getActiveCompetition } = useCompetitionsStore();
   const [currentTab, setCurrentTab] = useState('individual');
+  const [selectedUser, setSelectedUser] = useState<LeaderboardEntry | null>(null);
+  const [showUserProfile, setShowUserProfile] = useState(false);
   
   const activeCompetition = getActiveCompetition();
 
@@ -116,19 +119,40 @@ const LeaderboardTab = () => {
     );
   };
 
+  // Helper function to check if profile is clickable
+  const isProfileClickable = (entry: LeaderboardEntry) => {
+    // Don't make current user's profile clickable
+    if (entry.name === user?.name) return false;
+    
+    // For demo purposes, make all leaderboard users clickable
+    // In real app, would check individual user privacy settings
+    return true;
+  };
+
+  const handleUserClick = (entry: LeaderboardEntry) => {
+    if (!isProfileClickable(entry)) return;
+    
+    setSelectedUser(entry);
+    setShowUserProfile(true);
+  };
+
   const renderLeaderboard = (entries: LeaderboardEntry[]) => (
     <div className="space-y-2">
       {entries.map((entry) => {
         const isUser = entry.name === user?.name;
         const isTop3 = entry.rank <= 3;
+        const isClickable = isProfileClickable(entry);
         
         return (
           <Card 
             key={entry.id} 
-            className={`${isUser ? 'border-nuevagen-blue bg-blue-50' : ''}`}
+            className={`${isUser ? 'border-primary bg-primary/5' : ''} ${
+              isClickable ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''
+            }`}
+            onClick={() => isClickable && handleUserClick(entry)}
           >
             <CardContent className="p-3 flex items-center">
-              <div className="w-8 flex justify-center font-semibold text-gray-600">
+              <div className="w-8 flex justify-center font-semibold text-muted-foreground">
                 {entry.rank}
               </div>
               
@@ -139,7 +163,7 @@ const LeaderboardTab = () => {
                     : entry.rank === 2 
                       ? 'bg-gray-400' 
                       : 'bg-amber-700'
-                  : 'bg-nuevagen-purple'
+                  : 'bg-primary'
                 }`}
               >
                 {isTop3 && <Trophy size={16} />}
@@ -147,10 +171,15 @@ const LeaderboardTab = () => {
               </div>
               
               <div className="ml-3 flex-1">
-                <p className={`font-medium ${isUser ? 'text-nuevagen-blue' : ''}`}>
+                <p className={`font-medium ${isUser ? 'text-primary' : ''}`}>
                   {entry.name}
+                  {isClickable && (
+                    <span className="ml-1 text-xs text-muted-foreground">
+                      (click to view)
+                    </span>
+                  )}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   {entry.value} points
                 </p>
               </div>
@@ -215,6 +244,21 @@ const LeaderboardTab = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* User Profile Modal */}
+      {selectedUser && (
+        <UserProfileModal
+          isOpen={showUserProfile}
+          onClose={() => {
+            setShowUserProfile(false);
+            setSelectedUser(null);
+          }}
+          userName={selectedUser.name}
+          userAvatar={selectedUser.avatar}
+          userPoints={selectedUser.value}
+          userRank={selectedUser.rank}
+        />
+      )}
     </div>
   );
 };
