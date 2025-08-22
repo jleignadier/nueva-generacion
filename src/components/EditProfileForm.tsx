@@ -60,15 +60,15 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
       await login(formData.email, 'password'); // Mock password since we're updating existing user
       
       toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+        title: "Perfil actualizado",
+        description: "Tu perfil ha sido actualizado exitosamente.",
       });
       
       onClose();
     } catch (error) {
       toast({
-        title: "Update failed",
-        description: "There was an error updating your profile. Please try again.",
+        title: "Actualización fallida",
+        description: "Hubo un error al actualizar tu perfil. Por favor intenta de nuevo.",
         variant: "destructive"
       });
     } finally {
@@ -82,12 +82,12 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogTitle>Editar Perfil</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Nombre</Label>
             <Input
               id="name"
               value={formData.name}
@@ -97,7 +97,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
           </div>
           
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Correo Electrónico</Label>
             <Input
               id="email"
               type="email"
@@ -108,34 +108,34 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
           </div>
           
           <div>
-            <Label htmlFor="accountType">Account Type</Label>
+            <Label htmlFor="accountType">Tipo de Cuenta</Label>
             <Select 
               value={formData.accountType} 
               onValueChange={(value) => handleInputChange('accountType', value)}
             >
               <SelectTrigger id="accountType">
-                <SelectValue placeholder="Select account type" />
+                <SelectValue placeholder="Seleccionar tipo de cuenta" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="individual">Individual</SelectItem>
-                <SelectItem value="organization">Organization</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="organization">Organización</SelectItem>
+                <SelectItem value="admin">Administrador</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
           <div>
-            <Label htmlFor="organizationId">Organization</Label>
+            <Label htmlFor="organizationId">Organización</Label>
             <Select 
               value={formData.organizationId} 
               onValueChange={(value) => handleInputChange('organizationId', value)}
             >
               <SelectTrigger id="organizationId">
-                <SelectValue placeholder="Select organization" />
+                <SelectValue placeholder="Seleccionar organización" />
               </SelectTrigger>
               <SelectContent>
                 {formData.accountType === 'individual' && (
-                  <SelectItem value="none">No organization</SelectItem>
+                  <SelectItem value="none">Sin organización</SelectItem>
                 )}
                 {organizations
                   .filter(org => org.status === 'Active')
@@ -150,10 +150,10 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
           
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Updating..." : "Update Profile"}
+              {isSubmitting ? "Actualizando..." : "Actualizar Perfil"}
             </Button>
           </div>
         </form>

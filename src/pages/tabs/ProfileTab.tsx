@@ -64,7 +64,7 @@ const ProfileTab = () => {
   return (
     <div className="app-container">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Profile</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Perfil</h1>
       </div>
       
       <Card className="mb-6">
@@ -92,7 +92,7 @@ const ProfileTab = () => {
             onClick={() => setShowEditProfile(true)}
           >
             <Edit size={16} className="mr-2" />
-            Edit Profile
+            Editar Perfil
           </Button>
         </CardContent>
       </Card>
@@ -105,7 +105,7 @@ const ProfileTab = () => {
                   <div className="w-10 h-10 rounded-full bg-nuevagen-green bg-opacity-10 flex items-center justify-center text-nuevagen-green mr-3">
                     <Gift size={20} />
                   </div>
-                  <h3 className="text-lg font-semibold">Your Donations</h3>
+                  <h3 className="text-lg font-semibold">Tus Donaciones</h3>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -119,14 +119,14 @@ const ProfileTab = () => {
               
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="bg-gray-50 p-3 rounded-lg">
-                  <p className="text-xs text-gray-600">Total<br />Donated</p>
+                  <p className="text-xs text-gray-600">Total<br />Donado</p>
                   <div className="flex items-center mt-1">
                     <CircleDollarSign size={16} className="text-nuevagen-green mr-1" />
                     <span className="text-lg font-semibold">${donationStats.total}</span>
                   </div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
-                  <p className="text-xs text-gray-600">This<br />Month</p>
+                  <p className="text-xs text-gray-600">Este<br />Mes</p>
                   <div className="flex items-center mt-1">
                     <Gift size={16} className="text-nuevagen-blue mr-1" />
                     <span className="text-lg font-semibold">${donationStats.thisMonth}</span>
@@ -134,10 +134,10 @@ const ProfileTab = () => {
                 </div>
               </div>
 
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Recent Donations</h4>
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Donaciones Recientes</h4>
               <div className="space-y-3">
                 <div className="text-center py-4 text-gray-500">
-                  <p className="text-sm">Donation history will appear here</p>
+                  <p className="text-sm">El historial de donaciones aparecerá aquí</p>
                 </div>
               </div>
             </CardContent>
@@ -151,7 +151,7 @@ const ProfileTab = () => {
               <div className="w-10 h-10 rounded-full bg-nuevagen-purple bg-opacity-10 flex items-center justify-center text-nuevagen-purple mr-3">
                 <Calendar size={20} />
               </div>
-              <h3 className="text-lg font-semibold">Events Attended</h3>
+              <h3 className="text-lg font-semibold">Eventos Asistidos</h3>
             </div>
             <Button 
               variant="ghost" 
@@ -165,21 +165,21 @@ const ProfileTab = () => {
           
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Events<br />Attended</p>
+              <p className="text-xs text-gray-600">Eventos<br />Asistidos</p>
               <div className="flex items-center mt-1">
                 <Calendar size={16} className="text-nuevagen-purple mr-1" />
                 <span className="text-lg font-semibold">{eventStats.attended}</span>
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Hours<br />Volunteered</p>
+              <p className="text-xs text-gray-600">Horas de<br />Voluntariado</p>
               <div className="flex items-center mt-1">
                 <Award size={16} className="text-nuevagen-teal mr-1" />
                 <span className="text-lg font-semibold">{eventStats.hours}</span>
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Points<br />Earned</p>
+              <p className="text-xs text-gray-600">Puntos<br />Ganados</p>
               <div className="flex items-center mt-1">
                 <Trophy size={16} className="text-nuevagen-yellow mr-1" />
                 <span className="text-lg font-semibold">{eventStats.points}</span>
@@ -187,17 +187,17 @@ const ProfileTab = () => {
             </div>
           </div>
 
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Recent Events</h4>
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Eventos Recientes</h4>
           <div className="space-y-3">
             {eventStats.attended > 0 ? (
               <div className="text-center py-4 text-gray-500">
-                <p className="text-sm">Event history will appear here</p>
-                <p className="text-xs">QR scan events to track your participation</p>
+                <p className="text-sm">El historial de eventos aparecerá aquí</p>
+                <p className="text-xs">Escanea códigos QR en eventos para rastrear tu participación</p>
               </div>
             ) : (
               <div className="text-center py-4 text-gray-500">
-                <p className="text-sm">No events attended yet</p>
-                <p className="text-xs">Scan QR codes at events to earn volunteer hours</p>
+                <p className="text-sm">Aún no has asistido a eventos</p>
+                <p className="text-xs">Escanea códigos QR en eventos para ganar horas de voluntariado</p>
               </div>
             )}
           </div>
@@ -233,7 +233,7 @@ const ProfileTab = () => {
         onClick={handleLogout}
       >
         <LogOut size={16} className="mr-2" />
-        Logout
+        Cerrar Sesión
       </Button>
 
       {/* Modals */}
