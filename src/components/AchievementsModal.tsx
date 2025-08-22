@@ -28,7 +28,7 @@ const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, onClose }
     const donations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
     const attendedEventIds = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
     
-    const totalDonated = donations.reduce((sum: number, d: any) => sum + d.amount, 0);
+    const totalDonated = donations.reduce((sum: number, d: any) => sum + Number(d.amount), 0);
     const eventsAttended = attendedEventIds.length;
     const pointsEarned = eventsAttended * 40; // 40 points per event
 

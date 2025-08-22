@@ -29,7 +29,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
 
   // Calculate stats
   const stats = useMemo(() => {
-    const total = donations.reduce((sum, d) => sum + d.amount, 0);
+    const total = donations.reduce((sum, d) => sum + Number(d.amount), 0);
     const thisMonth = new Date().getMonth();
     const thisYear = new Date().getFullYear();
     const monthlyTotal = donations
@@ -37,7 +37,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
         const donationDate = new Date(d.date);
         return donationDate.getMonth() === thisMonth && donationDate.getFullYear() === thisYear;
       })
-      .reduce((sum, d) => sum + d.amount, 0);
+      .reduce((sum, d) => sum + Number(d.amount), 0);
 
     return { total, thisMonth: monthlyTotal };
   }, [donations]);
@@ -128,7 +128,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <p className="font-semibold">${donation.amount.toFixed(2)}</p>
+                          <p className="font-semibold">${Number(donation.amount).toFixed(2)}</p>
                           <p className="text-sm text-muted-foreground">
                             {new Date(donation.date).toLocaleDateString('es-ES')}
                           </p>
