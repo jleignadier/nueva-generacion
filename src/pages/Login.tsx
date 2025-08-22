@@ -73,10 +73,10 @@ const Login = () => {
             className="h-24 w-auto" 
           />
           <h2 className="mt-4 text-center text-3xl font-bold text-nuevagen-blue">
-            Welcome Back
+            Bienvenido
           </h2>
           <p className="text-center text-gray-600 mt-2">
-            Sign in to your account
+            Haz Log In a tu Cuenta
           </p>
         </div>
 
@@ -119,9 +119,9 @@ const Login = () => {
           </Button>
           
           <div className="text-center text-sm mt-4">
-            <span className="text-gray-600">Don't have an account? </span>
+            <span className="text-gray-600">¿No tienes cuenta? </span>
             <Link to="/signup" className="font-medium text-nuevagen-blue hover:text-nuevagen-teal">
-              Sign up
+              Regístrate Ya
             </Link>
           </div>
         </form>
