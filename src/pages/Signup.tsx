@@ -48,8 +48,8 @@ const Signup = () => {
     
     if (password !== confirmPassword) {
       toast({
-        title: "Passwords don't match",
-        description: "Please make sure your passwords match",
+        title: "Los Passwords no son iguales",
+        description: "Asegúrese de poner el mismo Password",
         variant: "destructive"
       });
       return;
@@ -57,8 +57,8 @@ const Signup = () => {
 
     if (isAdmin && adminKey !== "admin2024") {
       toast({
-        title: "Invalid Admin Key",
-        description: "The admin key you entered is not valid",
+        title: "Admin Key Inválida",
+        description: "El Admin Key que puso no es válido",
         variant: "destructive"
       });
       return;
@@ -86,8 +86,8 @@ const Signup = () => {
       }
     } catch (err) {
       toast({
-        title: "Signup Failed",
-        description: error || "Please check your information and try again",
+        title: "Registro Fallido",
+        description: error || "Por favor revise su información e intente de nuevo",
         variant: "destructive"
       });
     } finally {
@@ -109,10 +109,10 @@ const Signup = () => {
             className="h-20 w-auto" 
           />
           <h2 className="mt-2 text-center text-2xl font-bold text-nuevagen-blue">
-            Create Account
+            Regístrate Ya
           </h2>
           <p className="text-center text-gray-600 text-sm mt-1">
-            Join our volunteer community
+            Únete a Nuestra Comunidad de Voluntarios
           </p>
         </div>
 
@@ -150,7 +150,7 @@ const Signup = () => {
                   : 'bg-white/80 text-gray-600 hover:bg-white/70'
               } ${isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Organization
+              Organización
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
@@ -160,7 +160,7 @@ const Signup = () => {
             <div className="flex items-center space-x-2">
               <Shield size={16} className={isAdmin ? "text-purple-600" : "text-gray-400"} />
               <Label htmlFor="admin-mode" className="font-medium text-sm">
-                Admin Account
+                Cuenta Administrativa
               </Label>
             </div>
             <Switch 
@@ -272,7 +272,7 @@ const Signup = () => {
               <div className="mt-3 p-3 border border-gray-100 rounded-lg bg-blue-50">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="join-org" className="font-medium text-sm">
-                    Join an Organization
+                    Únete a una Organización
                   </Label>
                   <Switch 
                     id="join-org" 
@@ -284,7 +284,7 @@ const Signup = () => {
                 {joinOrg && (
                   <div className="mt-3">
                     <Label htmlFor="org-select" className="text-xs text-gray-700 mb-1 block">
-                      Select Organization
+                      Selecciona tu Organización
                     </Label>
                     <Select 
                       value={selectedOrgId} 
@@ -302,7 +302,7 @@ const Signup = () => {
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-gray-500 mt-1">
-                      You'll be able to participate in the organization's events
+                      Podrás participar en los eventos de tu organización
                     </p>
                   </div>
                 )}
@@ -362,7 +362,7 @@ const Signup = () => {
           </Button>
 
           <div className="text-center text-xs mt-3">
-            <span className="text-gray-600">Already have an account? </span>
+            <span className="text-gray-600">¿Ya Tienes una Cuenta? </span>
             <Link to="/login" className="font-medium text-nuevagen-blue hover:text-nuevagen-teal">
               Login
             </Link>
