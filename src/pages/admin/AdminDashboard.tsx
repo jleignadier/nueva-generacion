@@ -52,13 +52,13 @@ const AdminDashboard = () => {
         type: 'user',
         title: 'Nuevo Usuario Registrado',
         person: 'Maria Garcia',
-        timeAgo: '5 horas atrás'
+        timeAgo: 'hace 5 horas'
       },
       {
         type: 'event',
         title: 'Evento Creado: Gala de Recaudación',
         person: 'Admin',
-        timeAgo: '1 día atrás'
+        timeAgo: 'hace 1 día'
       }
     ];
     
@@ -99,9 +99,9 @@ const AdminDashboard = () => {
     const diffHours = Math.round(diffMs / 3600000);
     const diffDays = Math.round(diffMs / 86400000);
     
-    if (diffMins < 60) return `${diffMins} min atrás`;
-    if (diffHours < 24) return `${diffHours} horas atrás`;
-    return `${diffDays} días atrás`;
+    if (diffMins < 60) return `hace ${diffMins} min`;
+    if (diffHours < 24) return `hace ${diffHours} horas`;
+    return `hace ${diffDays} días`;
   };
 
   return (
