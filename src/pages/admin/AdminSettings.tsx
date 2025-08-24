@@ -4,14 +4,14 @@ import React from 'react';
 const AdminSettings = () => {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Admin Settings</h1>
+      <h1 className="text-3xl font-bold">Ajustes de Administración (Settings)</h1>
       
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
-        <h2 className="text-xl font-medium mb-6">Platform Configuration</h2>
+        <h2 className="text-xl font-medium mb-6">Configuración de Plataforma</h2>
         
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2">Organization Name</label>
+            <label className="block text-sm font-medium mb-2">Nombre de la Organización</label>
             <input 
               type="text" 
               defaultValue="Nueva Generación"
@@ -20,7 +20,7 @@ const AdminSettings = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium mb-2">Contact Email</label>
+            <label className="block text-sm font-medium mb-2">Contacto de Correo</label>
             <input 
               type="email" 
               defaultValue="contact@ng.org.pa"
@@ -37,12 +37,12 @@ const AdminSettings = () => {
               className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-zinc-600 rounded"
             />
             <label htmlFor="enableNotifications" className="ml-2 block text-sm">
-              Enable Email Notifications
+              Permitir Notificaciones por Correo
             </label>
           </div>
           
           <button className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white mt-4">
-            Save Changes
+            Guardar Cambio
           </button>
         </div>
       </div>
