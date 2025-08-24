@@ -36,11 +36,11 @@ const AdminUsers = () => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [users, setUsers] = useState<User[]>([
-    { id: '1', name: 'John Doe', email: 'john@example.com', role: 'User', status: 'Active', points: 125, phone: '+1234567890', birthdate: '1990-05-15' },
-    { id: '2', name: 'Maria Garcia', email: 'maria@example.com', role: 'User', status: 'Active', points: 89, phone: '+1234567891', birthdate: '1985-10-22' },
-    { id: '3', name: 'Admin User', email: 'admin@ng.org.pa', role: 'Admin', status: 'Active', points: 0, phone: '+1234567892' },
-    { id: '4', name: 'Sarah Johnson', email: 'sarah@example.com', role: 'User', status: 'Active', points: 203, phone: '+1234567893', birthdate: '1992-03-08' },
-    { id: '5', name: 'Carlos Rodriguez', email: 'carlos@example.com', role: 'User', status: 'Inactive', points: 67, phone: '+1234567894', birthdate: '1988-12-01' },
+    { id: '1', name: 'John Doe', email: 'john@example.com', role: 'Usuario', status: 'Activo', points: 125, phone: '+1234567890', birthdate: '1990-05-15' },
+    { id: '2', name: 'Maria Garcia', email: 'maria@example.com', role: 'Usuario', status: 'Activo', points: 89, phone: '+1234567891', birthdate: '1985-10-22' },
+    { id: '3', name: 'Admin User', email: 'admin@ng.org.pa', role: 'Admin', status: 'Activo', points: 0, phone: '+1234567892' },
+    { id: '4', name: 'Sarah Johnson', email: 'sarah@example.com', role: 'Usuario', status: 'Activo', points: 203, phone: '+1234567893', birthdate: '1992-03-08' },
+    { id: '5', name: 'Carlos Rodriguez', email: 'carlos@example.com', role: 'Usuario', status: 'Inactivo', points: 67, phone: '+1234567894', birthdate: '1988-12-01' },
   ]);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -58,12 +58,12 @@ const AdminUsers = () => {
   const handleToggleStatus = (userId: string) => {
     setUsers(users.map(user => 
       user.id === userId 
-        ? { ...user, status: user.status === 'Active' ? 'Inactive' : 'Active' }
+        ? { ...user, status: user.status === 'Activo' ? 'Inactivo' : 'Activo' }
         : user
     ));
     toast({
-      title: "User status updated",
-      description: "The user's status has been successfully changed.",
+      title: "Estado del usuario actualizado",
+      description: "El estado del usuario ha sido cambiado exitosamente.",
     });
   };
 
@@ -84,8 +84,8 @@ const AdminUsers = () => {
     ));
     
     toast({
-      title: "User updated successfully",
-      description: "The user's information has been updated.",
+      title: "Usuario actualizado exitosamente",
+      description: "La información del usuario ha sido actualizada.",
     });
     
     setIsEditDialogOpen(false);
@@ -130,14 +130,14 @@ const AdminUsers = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-white">User Management</h1>
+      <h1 className="text-3xl font-bold text-white">Administración de Usuarios</h1>
       
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <h2 className="text-xl font-medium text-white">All Users</h2>
+          <h2 className="text-xl font-medium text-white">Todos los Usuarios</h2>
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder="Buscar usuarios..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="bg-zinc-700 border border-zinc-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-zinc-400 sm:w-64"
@@ -150,19 +150,19 @@ const AdminUsers = () => {
             <thead>
               <tr className="border-b border-zinc-700">
                 <th className="text-left py-3 px-4 text-zinc-300">
-                  <SortButton field="name">Name</SortButton>
+                  <SortButton field="name">Nombre</SortButton>
                 </th>
                 <th className="text-left py-3 px-4 text-zinc-300">
-                  <SortButton field="email">Email</SortButton>
+                  <SortButton field="email">Correo</SortButton>
                 </th>
                 <th className="text-left py-3 px-4 text-zinc-300">
-                  <SortButton field="role">Role</SortButton>
+                  <SortButton field="role">Rol</SortButton>
                 </th>
                 <th className="text-left py-3 px-4 text-zinc-300">
-                  <SortButton field="points">Points</SortButton>
+                  <SortButton field="points">Puntos</SortButton>
                 </th>
-                <th className="text-left py-3 px-4 text-zinc-300">Status</th>
-                <th className="text-left py-3 px-4 text-zinc-300">Actions</th>
+                <th className="text-left py-3 px-4 text-zinc-300">Estado</th>
+                <th className="text-left py-3 px-4 text-zinc-300">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -182,7 +182,7 @@ const AdminUsers = () => {
                   <td className="py-3 px-4 font-bold text-purple-400">{user.points}</td>
                   <td className="py-3 px-4">
                     <span className={`px-2 py-1 rounded text-xs ${
-                      user.status === 'Active'
+                      user.status === 'Activo'
                         ? 'bg-green-900/30 text-green-400'
                         : 'bg-red-900/30 text-red-400'
                     }`}>
@@ -195,13 +195,13 @@ const AdminUsers = () => {
                         onClick={() => handleEditUser(user)}
                         className="text-purple-400 hover:text-purple-300 text-sm"
                       >
-                        Edit
+                        Editar
                       </button>
                       <button 
                         onClick={() => handleToggleStatus(user.id)}
                         className="text-red-500 hover:text-red-400 text-sm"
                       >
-                        {user.status === 'Active' ? 'Disable' : 'Enable'}
+                        {user.status === 'Activo' ? 'Deshabilitar' : 'Habilitar'}
                       </button>
                     </div>
                   </td>
@@ -216,45 +216,45 @@ const AdminUsers = () => {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
+            <DialogTitle>Editar Usuario</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmitEdit)} className="space-y-4">
             <div>
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">Nombre Completo</Label>
               <Input
                 id="name"
                 defaultValue={editingUser?.name}
-                {...register('name', { required: 'Name is required' })}
+                {...register('name', { required: 'El nombre es requerido' })}
               />
               {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
             </div>
             
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Correo Electrónico</Label>
               <Input
                 id="email"
                 type="email"
                 defaultValue={editingUser?.email}
-                {...register('email', { required: 'Email is required' })}
+                {...register('email', { required: 'El correo electrónico es requerido' })}
               />
               {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
             </div>
             
             <div>
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="role">Rol</Label>
               <Select defaultValue={editingUser?.role} onValueChange={(value) => register('role').onChange({ target: { value } })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
+                  <SelectValue placeholder="Seleccionar rol" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="User">User</SelectItem>
+                  <SelectItem value="Usuario">Usuario</SelectItem>
                   <SelectItem value="Admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">Teléfono</Label>
               <Input
                 id="phone"
                 defaultValue={editingUser?.phone}
@@ -263,7 +263,7 @@ const AdminUsers = () => {
             </div>
             
             <div>
-              <Label htmlFor="birthdate">Birth Date</Label>
+              <Label htmlFor="birthdate">Fecha de Nacimiento</Label>
               <Input
                 id="birthdate"
                 type="date"
@@ -274,9 +274,9 @@ const AdminUsers = () => {
             
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Cancel
+                Cancelar
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit">Guardar Cambios</Button>
             </div>
           </form>
         </DialogContent>

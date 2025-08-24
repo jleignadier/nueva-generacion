@@ -48,8 +48,8 @@ const AdminOrganizations = () => {
     toggleOrganizationStatus(organizationId);
     
     toast({
-      title: "Organization status updated",
-      description: `Organization ${newStatus === 'Active' ? 'enabled' : 'disabled'} successfully`,
+      title: "Estado de organización actualizado",
+      description: `Organización ${newStatus === 'Active' ? 'habilitada' : 'deshabilitada'} exitosamente`,
     });
   };
 
@@ -65,8 +65,8 @@ const AdminOrganizations = () => {
       updateOrganization(editingOrganization.id, data);
       
       toast({
-        title: "Organization updated",
-        description: "Organization details updated successfully",
+        title: "Organización actualizada",
+        description: "Los detalles de la organización fueron actualizados exitosamente",
       });
       
       setIsEditDialogOpen(false);
@@ -112,14 +112,14 @@ const AdminOrganizations = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-white">Organizations Management</h1>
+      <h1 className="text-3xl font-bold text-white">Administración de Organizaciones</h1>
       
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <h2 className="text-xl font-medium text-white">All Organizations</h2>
+          <h2 className="text-xl font-medium text-white">Todas las Organizaciones</h2>
           <input
             type="text"
-            placeholder="Search organizations..."
+            placeholder="Buscar organizaciones..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="bg-zinc-700 border border-zinc-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-zinc-400 sm:w-64"
@@ -132,19 +132,19 @@ const AdminOrganizations = () => {
             <thead>
               <tr className="border-b border-zinc-700">
                 <th className="text-left py-3 px-4 text-zinc-300">
-                  <SortButton field="name">Organization</SortButton>
+                  <SortButton field="name">Organización</SortButton>
                 </th>
                 <th className="text-left py-3 px-4 text-zinc-300">
-                  <SortButton field="contactEmail">Contact Email</SortButton>
+                  <SortButton field="contactEmail">Correo de Contacto</SortButton>
                 </th>
                 <th className="text-left py-3 px-4 text-zinc-300">
-                  <SortButton field="points">Points</SortButton>
+                  <SortButton field="points">Puntos</SortButton>
                 </th>
                 <th className="text-left py-3 px-4 text-zinc-300">
-                  <SortButton field="members">Members</SortButton>
+                  <SortButton field="members">Miembros</SortButton>
                 </th>
-                <th className="text-left py-3 px-4 text-zinc-300">Status</th>
-                <th className="text-left py-3 px-4 text-zinc-300">Actions</th>
+                <th className="text-left py-3 px-4 text-zinc-300">Estado</th>
+                <th className="text-left py-3 px-4 text-zinc-300">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -174,13 +174,13 @@ const AdminOrganizations = () => {
                         onClick={() => handleEditOrganization(org)}
                         className="text-purple-400 hover:text-purple-300 text-sm"
                       >
-                        Edit
+                        Editar
                       </button>
                       <button 
                         onClick={() => handleToggleStatus(org.id)}
                         className="text-red-500 hover:text-red-400 text-sm"
                       >
-                        {org.status === 'Active' ? 'Disable' : 'Enable'}
+                        {org.status === 'Active' ? 'Deshabilitar' : 'Habilitar'}
                       </button>
                     </div>
                   </td>
@@ -195,36 +195,36 @@ const AdminOrganizations = () => {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Organization</DialogTitle>
+            <DialogTitle>Editar Organización</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmitEdit)} className="space-y-4">
             <div>
-              <Label htmlFor="name">Organization Name</Label>
+              <Label htmlFor="name">Nombre de la Organización</Label>
               <Input
                 id="name"
                 defaultValue={editingOrganization?.name}
-                {...register('name', { required: 'Organization name is required' })}
+                {...register('name', { required: 'El nombre de la organización es requerido' })}
               />
               {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
             </div>
             
             <div>
-              <Label htmlFor="contactEmail">Contact Email</Label>
+              <Label htmlFor="contactEmail">Correo de Contacto</Label>
               <Input
                 id="contactEmail"
                 type="email"
                 defaultValue={editingOrganization?.contactEmail}
-                {...register('contactEmail', { required: 'Contact email is required' })}
+                {...register('contactEmail', { required: 'El correo de contacto es requerido' })}
               />
               {errors.contactEmail && <p className="text-sm text-red-500">{errors.contactEmail.message}</p>}
             </div>
             
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Descripción</Label>
               <Textarea
                 id="description"
                 defaultValue={editingOrganization?.description}
-                {...register('description', { required: 'Description is required' })}
+                {...register('description', { required: 'La descripción es requerida' })}
                 rows={3}
               />
               {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
@@ -232,9 +232,9 @@ const AdminOrganizations = () => {
             
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Cancel
+                Cancelar
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit">Guardar Cambios</Button>
             </div>
           </form>
         </DialogContent>
