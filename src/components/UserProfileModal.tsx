@@ -151,7 +151,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <CardContent className="p-4 text-center">
               <Gift size={20} className="mx-auto mb-2 text-green-500" />
               <p className="text-sm text-muted-foreground">Donado</p>
-              <p className="text-lg font-semibold">${userProfile.totalDonated}</p>
+              <p className="text-lg font-semibold">Privado</p>
             </CardContent>
           </Card>
         </div>

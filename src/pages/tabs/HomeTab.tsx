@@ -58,16 +58,16 @@ const HomeTab = () => {
     const isRegistered = registeredEvents.includes(eventId);
     const hasAttended = attendedEvents.includes(eventId);
     
-    if (hasAttended) return { status: 'attended', text: 'Attended ✓' };
-    if (isRegistered) return { status: 'registered', text: 'Registered' };
-    return { status: 'available', text: 'View Details' };
+    if (hasAttended) return { status: 'attended', text: 'Asistido ✓' };
+    if (isRegistered) return { status: 'registered', text: 'Registrado' };
+    return { status: 'available', text: 'Ver Detalles' };
   };
 
   return (
     <div className="app-container">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">
-          Hello, {user?.name}
+          Hola, {user?.name}
         </h1>
         <div className="h-10 w-10 rounded-full bg-nuevagen-purple text-white flex items-center justify-center font-medium">
           {user?.name.charAt(0).toUpperCase()}
@@ -75,7 +75,7 @@ const HomeTab = () => {
       </div>
       
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-3">Next Event</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-3">Próximo Evento</h2>
         {nextEvent ? (
           <Card key={nextEvent.id} className="overflow-hidden mb-6 border-l-4 border-nuevagen-pink bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
             <CardHeader className="p-4 pb-2">
@@ -109,20 +109,20 @@ const HomeTab = () => {
         ) : (
           <Card className="mb-6 border-l-4 border-nuevagen-pink bg-gray-100">
             <CardContent className="p-4">
-              <p className="text-center text-gray-500 py-4">No upcoming events</p>
+              <p className="text-center text-gray-500 py-4">No hay eventos próximos</p>
             </CardContent>
           </Card>
         )}
 
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-xl font-semibold text-gray-800">Upcoming Events</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Próximos Eventos</h2>
           <Button 
             variant="ghost" 
             className="text-sm text-nuevagen-blue flex items-center"
             size="sm"
             onClick={() => navigate('/events')}
           >
-            See All
+            Ver Todos
             <ChevronRight size={16} />
           </Button>
         </div>
@@ -163,7 +163,7 @@ const HomeTab = () => {
           ) : (
             <Card className="border-l-4 border-nuevagen-teal bg-gray-100">
               <CardContent className="p-4">
-                <p className="text-center text-gray-500 py-4">No additional upcoming events</p>
+                <p className="text-center text-gray-500 py-4">No hay eventos adicionales próximos</p>
               </CardContent>
             </Card>
           )}

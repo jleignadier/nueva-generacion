@@ -39,6 +39,13 @@ const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, onClose }
     };
   }, []);
 
+  // Check if user won any competition
+  const hasWonCompetition = useMemo(() => {
+    // Check localStorage for competition wins
+    const competitionWins = JSON.parse(localStorage.getItem('competitionWins') || '[]');
+    return competitionWins.length > 0;
+  }, []);
+
   // Define achievements
   const achievements: Achievement[] = useMemo(() => [
     {
@@ -75,6 +82,17 @@ const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, onClose }
       color: 'text-purple-500'
     },
     {
+      id: 'competition-winner',
+      title: 'Ganador del Desafío',
+      description: 'Gana una competencia de voluntariado',
+      icon: Crown,
+      requirement: 1,
+      type: 'points',
+      earned: hasWonCompetition,
+      progress: hasWonCompetition ? 1 : 0,
+      color: 'text-gold-500'
+    },
+    {
       id: 'event-volunteer',
       title: 'Voluntario de Eventos',
       description: 'Asiste a 5 eventos',
@@ -107,7 +125,7 @@ const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, onClose }
       progress: Math.min(userStats.eventsAttended, 15),
       color: 'text-pink-500'
     }
-  ], [userStats]);
+  ], [userStats, hasWonCompetition]);
 
   const earnedAchievements = achievements.filter(a => a.earned);
   const lockedAchievements = achievements.filter(a => !a.earned);
