@@ -42,7 +42,7 @@ const AdminSettings = () => {
           </div>
           
           <button className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white mt-4">
-            Guardar Cambio
+            Guardar Cambios
           </button>
         </div>
       </div>
