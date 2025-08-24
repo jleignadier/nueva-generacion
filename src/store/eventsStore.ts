@@ -21,12 +21,12 @@ export interface Event {
 const initialEvents: Event[] = [
   {
     id: '1',
-    title: 'Beach Cleanup',
-    location: 'Santa Monica Beach',
+    title: 'Limpieza de Playa',
+    location: 'Playa Santa Mónica',
     date: '2025-08-26',
     time: '09:00',
     endTime: '12:00',
-    description: "Join us for a community beach cleanup! We will be removing trash and debris from the shoreline to protect marine life and keep our beaches beautiful.",
+    description: "¡Únete a nosotros para una limpieza comunitaria de playa! Estaremos removiendo basura y desechos de la orilla para proteger la vida marina y mantener nuestras playas hermosas.",
     participantCount: 24,
     pointsEarned: 50,
     volunteerHours: 4, // Higher than actual 3 hours due to physical effort
@@ -35,12 +35,12 @@ const initialEvents: Event[] = [
   },
   {
     id: '2',
-    title: 'Food Drive',
-    location: 'Central Park',
+    title: 'Recolección de Alimentos',
+    location: 'Parque Central',
     date: '2025-08-28',
     time: '10:00',
     endTime: '14:00',
-    description: 'Help us collect food donations for local food banks. Bring non-perishable items to support families in need in our community.',
+    description: 'Ayúdanos a recolectar donaciones de alimentos para bancos de alimentos locales. Trae artículos no perecederos para apoyar a familias necesitadas en nuestra comunidad.',
     participantCount: 18,
     pointsEarned: 40,
     volunteerHours: 5, // Higher than actual 4 hours due to organization required
@@ -49,12 +49,12 @@ const initialEvents: Event[] = [
   },
   {
     id: '3',
-    title: 'Tutoring Session',
-    location: 'Public Library',
+    title: 'Sesión de Tutoría',
+    location: 'Biblioteca Pública',
     date: '2025-08-30',
     time: '16:00',
     endTime: '18:00',
-    description: 'Volunteer to tutor students in math, science, and reading. Help young students improve their academic skills and confidence.',
+    description: 'Ofrécete como voluntario para dar tutoría a estudiantes en matemáticas, ciencias y lectura. Ayuda a estudiantes jóvenes a mejorar sus habilidades académicas y confianza.',
     participantCount: 12,
     pointsEarned: 30,
     volunteerHours: 3, // Higher than actual 2 hours due to preparation and expertise required
@@ -63,12 +63,12 @@ const initialEvents: Event[] = [
   },
   {
     id: '4',
-    title: 'Earth Day Festival',
-    location: 'Downtown Square',
+    title: 'Festival del Día de la Tierra',
+    location: 'Plaza del Centro',
     date: '2025-04-22',
     time: '12:00',
     endTime: '18:00',
-    description: 'Help plant and maintain our community garden. Learn about sustainable gardening practices while beautifying our neighborhood.',
+    description: 'Ayuda a plantar y mantener nuestro jardín comunitario. Aprende sobre prácticas de jardinería sostenible mientras embelleces nuestro vecindario.',
     participantCount: 156,
     pointsEarned: 60,
     volunteerHours: 8, // Higher than actual 6 hours due to educational value and leadership

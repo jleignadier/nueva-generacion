@@ -39,14 +39,14 @@ const EventDetail = () => {
   if (!event) {
     return (
       <div className="app-container p-4">
-        <h1 className="text-xl font-bold">Event not found</h1>
+        <h1 className="text-xl font-bold">Evento no encontrado</h1>
         <Button 
           variant="outline" 
           className="mt-4" 
           onClick={() => navigate('/dashboard')}
         >
           <ArrowLeft size={16} className="mr-2" />
-          Return to Home
+          Volver al Inicio
         </Button>
       </div>
     );
@@ -73,8 +73,8 @@ const EventDetail = () => {
     
     // Show success toast
     toast({
-      title: "Registered for reminder!",
-      description: `Calendar event added for ${event.title}. Remember to scan the QR code on event day for attendance.`,
+      title: "¡Registrado para recordatorio!",
+      description: `Evento de calendario agregado para ${event.title}. Recuerda escanear el código QR el día del evento para confirmar asistencia.`,
     });
   };
 
@@ -82,8 +82,8 @@ const EventDetail = () => {
     // Only allow QR scanning on the event day
     if (!event || !isEventToday(event.date)) {
       toast({
-        title: "QR scanning not available",
-        description: "QR code scanning is only available on the day of the event.",
+        title: "Escaneo de QR no disponible",
+        description: "El escaneo de código QR solo está disponible el día del evento.",
         variant: "destructive"
       });
       return;
@@ -108,14 +108,14 @@ const EventDetail = () => {
       
       // Show success toast
       toast({
-        title: "Attendance recorded!",
-        description: `You've successfully checked in to ${event.title}. Points and volunteer hours have been awarded.`,
+        title: "¡Asistencia registrada!",
+        description: `Te has registrado exitosamente en ${event.title}. Se han otorgado puntos y horas de voluntariado.`,
       });
     } else {
       // Invalid QR code
       toast({
-        title: "Invalid QR Code",
-        description: "The scanned QR code is not valid for this event.",
+        title: "Código QR Inválido",
+        description: "El código QR escaneado no es válido para este evento.",
         variant: "destructive"
       });
     }
@@ -124,8 +124,8 @@ const EventDetail = () => {
   const handleShare = () => {
     // In a real app, this would open a proper share dialog
     toast({
-      title: "Share feature",
-      description: "Sharing functionality would be implemented here",
+      title: "Función de compartir",
+      description: "La funcionalidad para compartir se implementaría aquí",
     });
   };
 
@@ -162,7 +162,7 @@ const EventDetail = () => {
         onClick={handleBack}
       >
         <ArrowLeft size={16} className="mr-2" />
-        Back
+        Volver
       </Button>
       
       <div className="rounded-lg overflow-hidden mb-4">
@@ -193,28 +193,28 @@ const EventDetail = () => {
             </div>
             <div className="flex items-center">
               <Users size={16} className="mr-2 text-nuevagen-purple" />
-              <span>{event.participantCount} participants</span>
+              <span>{event.participantCount} participantes</span>
             </div>
             <div className="flex items-center">
               <Award size={16} className="mr-2 text-nuevagen-yellow" />
-              <span>{event.volunteerHours} volunteer hours</span>
+              <span>{event.volunteerHours} horas de voluntariado</span>
             </div>
           </div>
           
           <div className="border-t border-b py-4 my-4">
-            <h3 className="font-medium mb-2">About this event</h3>
+            <h3 className="font-medium mb-2">Acerca de este evento</h3>
             <p className="text-gray-600">{event.description}</p>
           </div>
           
           <div className="flex items-center justify-between mb-4">
             <div className="grid grid-cols-2 gap-4 w-full">
               <div>
-                <p className="text-sm text-gray-600">Points for participation</p>
-                <p className="font-medium text-lg text-nuevagen-blue">{event.pointsEarned} points</p>
+                <p className="text-sm text-gray-600">Puntos por participación</p>
+                <p className="font-medium text-lg text-nuevagen-blue">{event.pointsEarned} puntos</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Volunteer hours credit</p>
-                <p className="font-medium text-lg text-nuevagen-yellow">{event.volunteerHours} hours</p>
+                <p className="text-sm text-gray-600">Crédito de horas de voluntariado</p>
+                <p className="font-medium text-lg text-nuevagen-yellow">{event.volunteerHours} horas</p>
               </div>
             </div>
           </div>
@@ -223,7 +223,7 @@ const EventDetail = () => {
             {registrationStatus.hasAttended ? (
               <Button className="flex-1" disabled variant="secondary">
                 <CheckCircle size={16} className="mr-2" />
-                Attended ✓
+                Asistido ✓
               </Button>
             ) : registrationStatus.canScanQR ? (
               <Button 
@@ -231,7 +231,7 @@ const EventDetail = () => {
                 onClick={handleScanQR}
               >
                 <ScanQrCode size={16} className="mr-2" />
-                Scan QR for Attendance
+                Escanear QR para Asistencia
               </Button>
             ) : registrationStatus.canRegister ? (
               <Button 
@@ -240,16 +240,16 @@ const EventDetail = () => {
                 variant="outline"
               >
                 <Calendar size={16} className="mr-2" />
-                Register for Reminder
+                Registrarse para Recordatorio
               </Button>
             ) : registrationStatus.isRegistered && !registrationStatus.hasAttended ? (
               <Button className="flex-1" disabled>
                 <Calendar size={16} className="mr-2" />
-                {registrationStatus.canScanQR ? 'Registered - Scan QR Today' : 'Registered'}
+                {registrationStatus.canScanQR ? 'Registrado - Escanear QR Hoy' : 'Registrado'}
               </Button>
             ) : (
               <Button className="flex-1" disabled>
-                Event Completed
+                Evento Completado
               </Button>
             )}
             <Button 
@@ -266,12 +266,12 @@ const EventDetail = () => {
       <Dialog open={scannerOpen} onOpenChange={setScannerOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Scan Event QR Code for Attendance</DialogTitle>
+            <DialogTitle>Escanear Código QR del Evento para Asistencia</DialogTitle>
           </DialogHeader>
           <div className="mb-4 p-3 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground">
-              Scanning this QR code will mark your attendance and award you {event?.pointsEarned} points 
-              and {event?.volunteerHours} volunteer hours.
+              Escanear este código QR marcará tu asistencia y te otorgará {event?.pointsEarned} puntos 
+              y {event?.volunteerHours} horas de voluntariado.
             </p>
           </div>
           <QRScanner onSuccess={handleQRSuccess} onClose={() => setScannerOpen(false)} />

@@ -55,9 +55,9 @@ const Events = () => {
     const isRegistered = registeredEvents.includes(eventId);
     const hasAttended = attendedEvents.includes(eventId);
     
-    if (hasAttended) return { status: 'attended', text: 'Attended ✓' };
-    if (isRegistered) return { status: 'registered', text: 'Registered' };
-    return { status: 'available', text: 'View Details' };
+    if (hasAttended) return { status: 'attended', text: 'Asistido ✓' };
+    if (isRegistered) return { status: 'registered', text: 'Registrado' };
+    return { status: 'available', text: 'Ver Detalles' };
   };
 
   return (
@@ -70,9 +70,9 @@ const Events = () => {
           className="mr-3"
         >
           <ArrowLeft size={16} className="mr-1" />
-          Back
+          Volver
         </Button>
-        <h1 className="text-2xl font-bold text-gray-800">All Events</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Todos los Eventos</h1>
       </div>
       
       <div className="space-y-4">
@@ -102,7 +102,7 @@ const Events = () => {
                 <div className="flex justify-between items-center">
                   <div className="text-xs text-gray-500">
                     <span className="bg-nuevagen-blue bg-opacity-10 text-nuevagen-blue px-2 py-1 rounded-full">
-                      {event.volunteerHours}h volunteer hours
+                      {event.volunteerHours}h horas de voluntariado
                     </span>
                   </div>
                   <Button 
@@ -121,7 +121,7 @@ const Events = () => {
         ) : (
           <Card className="border-l-4 border-nuevagen-teal bg-gray-100">
             <CardContent className="p-6">
-              <p className="text-center text-gray-500 py-8">No upcoming events available</p>
+              <p className="text-center text-gray-500 py-8">No hay eventos próximos disponibles</p>
             </CardContent>
           </Card>
         )}
