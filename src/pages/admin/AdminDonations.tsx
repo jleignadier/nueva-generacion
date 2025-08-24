@@ -26,7 +26,7 @@ interface Donation {
   name: string;
   amount: string;
   date: string;
-  status: 'Pendiente' | 'Verificada' | 'Rechazada' | 'Completada';
+  status: 'Pendiente' | 'Verificada' | 'Rechazada' | 'Completada' | 'Pending' | 'Verified' | 'Rejected' | 'Completed';
   receipt?: string;
   note?: string;
 }
@@ -201,7 +201,7 @@ const AdminDonations = () => {
             <TableHeader>
               <TableRow className="border-b border-zinc-700">
                 <TableHead className="text-white">Donante</TableHead>
-                <TableHead className="text-white">Cantidad</TableHead>
+                <TableHead className="text-white">Monto</TableHead>
                 <TableHead className="text-white">Fecha</TableHead>
                 <TableHead className="text-white">Estado</TableHead>
                 <TableHead className="text-white">Acciones</TableHead>
@@ -228,7 +228,7 @@ const AdminDonations = () => {
                         Detalles
                       </Button>
                       
-                      {donation.status === 'Pendiente' && (
+                      {(donation.status === 'Pendiente' || donation.status === 'Pending') && (
                         <>
                           <Button 
                             variant="outline" 
@@ -280,7 +280,7 @@ const AdminDonations = () => {
                   <p>{selectedDonation.name}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Cantidad</p>
+                  <p className="text-sm font-medium text-gray-500">Monto</p>
                   <p>{selectedDonation.amount}</p>
                 </div>
                 <div>
@@ -325,7 +325,7 @@ const AdminDonations = () => {
               Cerrar
             </Button>
             
-            {selectedDonation && selectedDonation.status === 'Pendiente' && (
+            {selectedDonation && (selectedDonation.status === 'Pendiente' || selectedDonation.status === 'Pending') && (
               <div className="flex space-x-2">
                 <Button 
                   variant="default"
