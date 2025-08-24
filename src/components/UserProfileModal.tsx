@@ -139,19 +139,12 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
         </Card>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="mb-4">
           <Card>
             <CardContent className="p-4 text-center">
               <Calendar size={20} className="mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">Eventos</p>
               <p className="text-lg font-semibold">{userProfile.eventsAttended}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Gift size={20} className="mx-auto mb-2 text-green-500" />
-              <p className="text-sm text-muted-foreground">Donado</p>
-              <p className="text-lg font-semibold">Privado</p>
             </CardContent>
           </Card>
         </div>
