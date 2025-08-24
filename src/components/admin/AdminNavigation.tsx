@@ -31,7 +31,7 @@ const navItems = [
     icon: Building2
   },
   {
-    name: 'Settings',
+    name: 'Ajustes',
     path: '/admin/settings',
     icon: Settings
   }
@@ -96,7 +96,7 @@ export const AdminNavigation: React.FC = () => {
               className="flex items-center px-3 py-2 w-full text-sm text-zinc-400 hover:bg-zinc-700 hover:text-white rounded-md transition-colors"
             >
               <LogOut className="h-4 w-4 mr-3" />
-              <span>Logout</span>
+              <span>Cerrar Sesión</span>
             </button>
           </nav>
         </div>
@@ -146,7 +146,7 @@ export const AdminNavigation: React.FC = () => {
             className="flex items-center px-4 py-3 w-full text-sm text-zinc-400 hover:bg-zinc-700 hover:text-white rounded-md transition-colors"
           >
             <LogOut className="h-5 w-5 mr-3" />
-            <span>Logout</span>
+            <span>Cerrar Sesión</span>
           </button>
         </div>
       </div>

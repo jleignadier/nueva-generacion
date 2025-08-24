@@ -247,6 +247,22 @@ const ProfileTab = () => {
 
       <Separator className="my-6" />
       
+      {/* Contact Support Section */}
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <div className="text-center">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">¿Necesitas ayuda?</h4>
+            <p className="text-xs text-gray-600 mb-3">Contáctanos para soporte técnico o consultas</p>
+            <a 
+              href="mailto:contact@ng.org.pa"
+              className="text-sm text-primary hover:text-primary/80 underline"
+            >
+              contact@ng.org.pa
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+      
       <Button 
         variant="outline" 
         className="w-full border-red-200 text-red-500 hover:text-red-600 hover:bg-red-50"
