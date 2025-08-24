@@ -11,12 +11,12 @@ const navItems = [
     exact: true
   },
   {
-    name: 'Events',
+    name: 'Eventos',
     path: '/admin/events',
     icon: Calendar
   },
   {
-    name: 'Donations',
+    name: 'Donaciones',
     path: '/admin/donations',
     icon: Trophy
   },
