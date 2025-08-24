@@ -204,7 +204,7 @@ const LeaderboardTab = () => {
       >
         <TabsList className="grid grid-cols-2 mb-6">
           <TabsTrigger value="individual" className="flex items-center">
-            <User size={16} className="mr-2" />
+            <User size={20} className="mr-2" />
             Voluntarios
           </TabsTrigger>
           <TabsTrigger value="organization" className="flex items-center">
