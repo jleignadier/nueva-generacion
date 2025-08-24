@@ -184,7 +184,7 @@ const AdminDonations = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Administración de Donaciones</h1>
-      <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
+      <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg min-h-[600px]">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <h2 className="text-xl font-medium text-white">Todas las Donaciones</h2>
           <input

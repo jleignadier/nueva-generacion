@@ -144,7 +144,7 @@ const AdminUsers = () => {
           />
         </div>
 
-        <div className="max-h-96 overflow-y-auto">
+        <div className="min-h-[600px] overflow-y-auto">
           <div className="overflow-x-auto">
             <table className="w-full">
             <thead>
