@@ -116,10 +116,10 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 </AvatarFallback>
               </Avatar>
               <div className="ml-4 flex-1">
-                <div className="flex items-center">
+                <div className="flex items-center flex-wrap gap-2">
                   <h2 className="text-xl font-semibold">{userProfile.name}</h2>
                   {userProfile.isVerified && (
-                    <Badge className="ml-2 bg-blue-500 text-white">
+                    <Badge className="bg-blue-500 text-white text-xs whitespace-nowrap shrink-0">
                       ✓ Verificado
                     </Badge>
                   )}
