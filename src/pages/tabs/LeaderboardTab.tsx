@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Award, User, Users, Calendar, Clock, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCompetitionsStore } from '@/store/competitionsStore';
+import { useEventsStore } from '@/store/eventsStore';
 import UserProfileModal from '@/components/UserProfileModal';
 
 interface LeaderboardEntry {
@@ -23,8 +24,17 @@ const LeaderboardTab = () => {
   
   const activeCompetition = getActiveCompetition();
 
-  // User data
-  const userPoints = 28;
+  // Calculate user's actual points from attended events
+  const getUserPoints = () => {
+    const attendedEventIds = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
+    const events = useEventsStore.getState().events;
+    return attendedEventIds.reduce((total: number, eventId: string) => {
+      const event = events.find(e => e.id === eventId);
+      return total + (event?.pointsEarned || 0);
+    }, 0);
+  };
+
+  const userPoints = getUserPoints();
   const userRank = 12;
   const organizationPoints = 35;
   const organizationRank = 18;

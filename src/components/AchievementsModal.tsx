@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Award, Gift, Calendar, Crown, Star, Users, Lock } from 'lucide-react';
+import { useEventsStore } from '@/store/eventsStore';
 
 interface AchievementsModalProps {
   isOpen: boolean;
@@ -28,9 +29,15 @@ const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, onClose }
     const donations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
     const attendedEventIds = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
     
+    // Calculate points based on actual events attended
+    const { events } = useEventsStore.getState();
+    const pointsEarned = attendedEventIds.reduce((total: number, eventId: string) => {
+      const event = events.find(e => e.id === eventId);
+      return total + (event?.pointsEarned || 0);
+    }, 0);
+    
     const totalDonated = donations.reduce((sum: number, d: any) => sum + Number(d.amount), 0);
     const eventsAttended = attendedEventIds.length;
-    const pointsEarned = eventsAttended * 40; // 40 points per event
 
     return {
       totalDonated,

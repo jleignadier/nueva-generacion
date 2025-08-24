@@ -12,6 +12,7 @@ import DonationHistoryModal from '@/components/DonationHistoryModal';
 import EventHistoryModal from '@/components/EventHistoryModal';
 import AchievementsModal from '@/components/AchievementsModal';
 import UserSettingsModal from '@/components/UserSettingsModal';
+import { useEventsStore } from '@/store/eventsStore';
 
 const ProfileTab = () => {
   const { user, logout } = useAuth();
@@ -31,11 +32,18 @@ const ProfileTab = () => {
   // Get actual attended events from localStorage
   const getAttendedEventsStats = () => {
     const attendedEventIds = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
-    // Mock calculation - in real app, would calculate from actual events
+    
+    // Calculate points based on actual events attended
+    const { events } = useEventsStore.getState();
+    const points = attendedEventIds.reduce((total: number, eventId: string) => {
+      const event = events.find(e => e.id === eventId);
+      return total + (event?.pointsEarned || 0);
+    }, 0);
+    
     return {
       attended: attendedEventIds.length,
       hours: attendedEventIds.length * 3, // Rough estimate
-      points: attendedEventIds.length * 40 // Rough estimate
+      points: points
     };
   };
 
