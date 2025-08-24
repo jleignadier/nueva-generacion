@@ -165,7 +165,7 @@ const AdminOrganizations = () => {
                         ? 'bg-green-900/30 text-green-400'
                         : 'bg-red-900/30 text-red-400'
                     }`}>
-                      {org.status}
+                      {org.status === 'Activo' ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
                   <td className="py-3 px-4">
