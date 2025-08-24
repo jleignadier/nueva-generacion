@@ -306,8 +306,8 @@ const AdminEvents = () => {
             </ToggleGroupItem>
           </ToggleGroup>
           
-          <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-            <div className="relative w-full lg:w-64">
+          <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+            <div className="relative w-full sm:w-48">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={18} />
               <Input 
                 placeholder="Buscar eventos..." 
@@ -317,7 +317,7 @@ const AdminEvents = () => {
               />
             </div>
             <Button 
-              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white w-full sm:w-auto"
+              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white w-full sm:w-auto whitespace-nowrap"
               onClick={() => navigate('/admin/events/create')}
             >
               Crear Nuevo Evento
