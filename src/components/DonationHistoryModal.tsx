@@ -109,10 +109,10 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
         {/* Filter Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">Todas</TabsTrigger>
-            <TabsTrigger value="pending">Pendientes</TabsTrigger>
-            <TabsTrigger value="verified">Verificadas</TabsTrigger>
-            <TabsTrigger value="rejected">Rechazadas</TabsTrigger>
+            <TabsTrigger value="all" className="text-xs">Todas</TabsTrigger>
+            <TabsTrigger value="pending" className="text-xs">Pendientes</TabsTrigger>
+            <TabsTrigger value="verified" className="text-xs">Verificadas</TabsTrigger>
+            <TabsTrigger value="rejected" className="text-xs">Rechazadas</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-4">

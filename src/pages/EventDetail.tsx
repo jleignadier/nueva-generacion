@@ -254,7 +254,9 @@ const EventDetail = () => {
             )}
             <Button 
               variant="outline" 
+              size="sm"
               onClick={handleShare}
+              className="shrink-0"
             >
               <Share2 size={16} />
             </Button>

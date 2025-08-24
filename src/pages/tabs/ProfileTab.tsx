@@ -105,7 +105,7 @@ const ProfileTab = () => {
                   <div className="w-10 h-10 rounded-full bg-nuevagen-green bg-opacity-10 flex items-center justify-center text-nuevagen-green mr-3">
                     <Gift size={20} />
                   </div>
-                  <h3 className="text-lg font-semibold">Tus Donaciones</h3>
+                  <h3 className="text-base font-semibold">Tus Donaciones</h3>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -151,7 +151,7 @@ const ProfileTab = () => {
               <div className="w-10 h-10 rounded-full bg-nuevagen-purple bg-opacity-10 flex items-center justify-center text-nuevagen-purple mr-3">
                 <Calendar size={20} />
               </div>
-              <h3 className="text-lg font-semibold">Eventos Asistidos</h3>
+              <h3 className="text-base font-semibold">Eventos Asistidos</h3>
             </div>
             <Button 
               variant="ghost" 
