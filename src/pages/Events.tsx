@@ -102,7 +102,7 @@ const Events = () => {
                 <div className="flex justify-between items-center">
                   <div className="text-xs text-gray-500">
                     <span className="bg-nuevagen-blue bg-opacity-10 text-nuevagen-blue px-2 py-1 rounded-full">
-                      {event.volunteerHours}h horas de voluntariado
+                      {event.volunteerHours} horas de voluntariado
                     </span>
                   </div>
                   <Button 
