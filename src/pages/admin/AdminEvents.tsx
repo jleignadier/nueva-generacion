@@ -279,7 +279,7 @@ const AdminEvents = () => {
       </div>
 
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
-        <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4 mb-6">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
           <ToggleGroup 
             type="single" 
             value={filter}
@@ -306,8 +306,8 @@ const AdminEvents = () => {
             </ToggleGroupItem>
           </ToggleGroup>
           
-          <div className="flex flex-row gap-2 items-center">
-            <div className="relative w-48">
+          <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+            <div className="relative w-full sm:w-40">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={18} />
               <Input 
                 placeholder="Buscar eventos..." 
@@ -317,7 +317,7 @@ const AdminEvents = () => {
               />
             </div>
             <Button 
-              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white whitespace-nowrap"
+              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white w-full sm:w-auto whitespace-nowrap"
               onClick={() => navigate('/admin/events/create')}
             >
               Crear Nuevo Evento
