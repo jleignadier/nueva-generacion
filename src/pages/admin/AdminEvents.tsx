@@ -29,11 +29,11 @@ const AdminEvents = () => {
 
   // Handle deleting an event
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this event?')) {
+    if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
       deleteEvent(id);
       toast({
-        title: "Event deleted",
-        description: "The event has been successfully removed",
+        title: "Evento eliminado",
+        description: "El evento ha sido eliminado exitosamente",
       });
     }
   };
@@ -44,14 +44,14 @@ const AdminEvents = () => {
     if (editingCompetition) {
       updateCompetition(editingCompetition.id, competitionForm);
       toast({
-        title: "Competition updated",
-        description: "The competition has been successfully updated",
+        title: "Competencia actualizada",
+        description: "La competencia ha sido actualizada exitosamente",
       });
     } else {
       addCompetition(competitionForm);
       toast({
-        title: "Competition created",
-        description: "The competition has been successfully created",
+        title: "Competencia creada",
+        description: "La competencia ha sido creada exitosamente",
       });
     }
     setIsCompetitionDialogOpen(false);
@@ -71,11 +71,11 @@ const AdminEvents = () => {
   };
 
   const handleDeleteCompetition = (id: string) => {
-    if (confirm('Are you sure you want to delete this competition?')) {
+    if (confirm('¿Estás seguro de que quieres eliminar esta competencia?')) {
       deleteCompetition(id);
       toast({
-        title: "Competition deleted",
-        description: "The competition has been successfully removed",
+        title: "Competencia eliminada",
+        description: "La competencia ha sido eliminada exitosamente",
       });
     }
   };
@@ -109,7 +109,7 @@ const AdminEvents = () => {
   // Function to format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' });
   };
 
   // Function to format time for display
@@ -129,12 +129,12 @@ const AdminEvents = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold">Events Management</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Administración de Eventos</h1>
         <Button 
           className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white w-full sm:w-auto"
           onClick={() => navigate('/admin/events/create')}
         >
-          Create New Event
+          Crear Nuevo Evento
         </Button>
       </div>
 
@@ -144,7 +144,7 @@ const AdminEvents = () => {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <h3 className="flex items-center gap-2 text-xl text-white font-semibold">
               <Trophy className="text-yellow-500" size={24} />
-              Competition Management
+              Administración de Competencias
             </h3>
             <Dialog open={isCompetitionDialogOpen} onOpenChange={setIsCompetitionDialogOpen}>
               <DialogTrigger asChild>
@@ -153,40 +153,40 @@ const AdminEvents = () => {
                   onClick={resetCompetitionForm}
                 >
                   <Plus size={16} className="mr-2" />
-                  Create Competition
+                  Crear Competencia
                 </Button>
               </DialogTrigger>
               <DialogContent className="bg-popover border-border">
                 <DialogHeader>
                   <DialogTitle className="text-popover-foreground">
-                    {editingCompetition ? 'Edit Competition' : 'Create New Competition'}
+                    {editingCompetition ? 'Editar Competencia' : 'Crear Nueva Competencia'}
                   </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleCompetitionSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="name" className="text-popover-foreground">Competition Name</Label>
+                    <Label htmlFor="name" className="text-popover-foreground">Nombre de la Competencia</Label>
                     <Input
                       id="name"
                       value={competitionForm.name}
                       onChange={(e) => setCompetitionForm({...competitionForm, name: e.target.value})}
-                      placeholder="Enter competition name"
+                      placeholder="Ingresa el nombre de la competencia"
                       className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="prize" className="text-popover-foreground">Prize</Label>
+                    <Label htmlFor="prize" className="text-popover-foreground">Premio</Label>
                     <Input
                       id="prize"
                       value={competitionForm.prize}
                       onChange={(e) => setCompetitionForm({...competitionForm, prize: e.target.value})}
-                      placeholder="Enter prize description"
+                      placeholder="Ingresa la descripción del premio"
                       className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="endDate" className="text-popover-foreground">End Date</Label>
+                    <Label htmlFor="endDate" className="text-popover-foreground">Fecha de Finalización</Label>
                     <Input
                       id="endDate"
                       type="date"
@@ -202,11 +202,11 @@ const AdminEvents = () => {
                       checked={competitionForm.isActive}
                       onCheckedChange={(checked) => setCompetitionForm({...competitionForm, isActive: checked})}
                     />
-                    <Label htmlFor="isActive" className="text-popover-foreground">Active Competition</Label>
+                    <Label htmlFor="isActive" className="text-popover-foreground">Competencia Activa</Label>
                   </div>
                   <div className="flex gap-2 pt-4">
                     <Button type="submit" className="flex-1">
-                      {editingCompetition ? 'Update' : 'Create'} Competition
+                      {editingCompetition ? 'Actualizar' : 'Crear'} Competencia
                     </Button>
                     <Button 
                       type="button" 
@@ -214,7 +214,7 @@ const AdminEvents = () => {
                       onClick={() => setIsCompetitionDialogOpen(false)}
                       className="border-border text-foreground hover:bg-muted"
                     >
-                      Cancel
+                      Cancelar
                     </Button>
                   </div>
                 </form>
@@ -225,7 +225,7 @@ const AdminEvents = () => {
         <div>
           {competitions.length === 0 ? (
             <div className="text-center py-8 text-zinc-400">
-              No competitions created yet
+              No se han creado competencias aún
             </div>
           ) : (
             <div className="space-y-3">
@@ -237,11 +237,11 @@ const AdminEvents = () => {
                       <div className="text-sm text-zinc-400 space-y-1">
                         <div className="flex items-center gap-2">
                           <Trophy size={14} />
-                          <span>Prize: {competition.prize}</span>
+                          <span>Premio: {competition.prize}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar size={14} />
-                          <span>Ends: {new Date(competition.endDate).toLocaleDateString()}</span>
+                          <span>Termina: {new Date(competition.endDate).toLocaleDateString()}</span>
                         </div>
                       </div>
                     </div>
@@ -252,7 +252,7 @@ const AdminEvents = () => {
                              ? 'bg-green-900/30 text-green-400' 
                              : 'bg-muted text-zinc-400'
                          }`}>
-                          {competition.isActive ? 'Active' : 'Inactive'}
+                          {competition.isActive ? 'Activa' : 'Inactiva'}
                         </span>
                       </div>
                       <div className="flex gap-2">
@@ -263,7 +263,7 @@ const AdminEvents = () => {
                           className="border-border text-white bg-muted/50 hover:bg-muted flex-1 sm:flex-initial"
                         >
                           <Edit size={14} className="mr-1" />
-                          Edit
+                          Editar
                         </Button>
                         <Button 
                           variant="destructive" 
@@ -272,7 +272,7 @@ const AdminEvents = () => {
                           className="flex-1 sm:flex-initial"
                         >
                           <Trash2 size={14} className="mr-1" />
-                          Delete
+                          Eliminar
                         </Button>
                       </div>
                     </div>
@@ -296,26 +296,26 @@ const AdminEvents = () => {
               value="all" 
               className="border-border text-white hover:bg-muted hover:text-white text-xs sm:text-sm"
             >
-              All Events
+              Todos los Eventos
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="upcoming" 
               className="border-border text-white hover:bg-muted hover:text-white text-xs sm:text-sm"
             >
-              Upcoming
+              Próximos
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="completed" 
               className="border-border text-white hover:bg-muted hover:text-white text-xs sm:text-sm"
             >
-              Completed
+              Completados
             </ToggleGroupItem>
           </ToggleGroup>
           
           <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={18} />
             <Input 
-              placeholder="Search events..." 
+              placeholder="Buscar eventos..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-input border-border text-white placeholder:text-zinc-400"
@@ -326,7 +326,7 @@ const AdminEvents = () => {
         <div className="space-y-4 max-h-96 overflow-y-auto">
           {filteredEvents.length === 0 ? (
             <div className="text-center py-8 text-zinc-400">
-              No events found matching your criteria
+              No se encontraron eventos que coincidan con tus criterios
             </div>
           ) : (
             filteredEvents.map((event) => (
@@ -351,13 +351,13 @@ const AdminEvents = () => {
                       </div>
                       <div className="flex items-center">
                         <Users size={14} className="mr-1 flex-shrink-0" />
-                        <span>{event.participantCount} participants</span>
+                        <span>{event.participantCount} participantes</span>
                       </div>
                       <div className="flex items-center">
-                        <span>{event.pointsEarned} points</span>
+                        <span>{event.pointsEarned} puntos</span>
                       </div>
                       <div className="flex items-center">
-                        <span>{event.volunteerHours}h volunteer credit</span>
+                        <span>{event.volunteerHours}h crédito voluntario</span>
                       </div>
                     </div>
                   </div>
@@ -369,7 +369,7 @@ const AdminEvents = () => {
                       onClick={() => navigate(`/admin/events/edit/${event.id}`)}
                     >
                       <Edit size={14} className="mr-1" />
-                      Edit
+                      Editar
                     </Button>
                     <Button 
                       variant="destructive" 
@@ -378,21 +378,21 @@ const AdminEvents = () => {
                       onClick={() => handleDelete(event.id)}
                     >
                       <Trash2 size={14} className="mr-1" />
-                      Delete
+                      Eliminar
                     </Button>
                   </div>
                 </div>
                 {event.status === 'completed' && (
                   <div className="mt-2">
                     <span className="px-2 py-1 bg-green-900/30 text-green-400 text-xs rounded">
-                      Completed
+                      Completado
                     </span>
                   </div>
                 )}
                 {event.status === 'upcoming' && (
                   <div className="mt-2">
                     <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
-                      Upcoming
+                      Próximo
                     </span>
                   </div>
                 )}
