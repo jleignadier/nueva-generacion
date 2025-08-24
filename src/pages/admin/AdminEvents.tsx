@@ -130,12 +130,6 @@ const AdminEvents = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold">Administración de Eventos</h1>
-        <Button 
-          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white w-full sm:w-auto"
-          onClick={() => navigate('/admin/events/create')}
-        >
-          Crear Nuevo Evento
-        </Button>
       </div>
 
       {/* Competition Management Section */}
@@ -312,14 +306,22 @@ const AdminEvents = () => {
             </ToggleGroupItem>
           </ToggleGroup>
           
-          <div className="relative w-full lg:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={18} />
-            <Input 
-              placeholder="Buscar eventos..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-input border-border text-white placeholder:text-zinc-400"
-            />
+          <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+            <div className="relative w-full lg:w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={18} />
+              <Input 
+                placeholder="Buscar eventos..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-input border-border text-white placeholder:text-zinc-400"
+              />
+            </div>
+            <Button 
+              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white w-full sm:w-auto"
+              onClick={() => navigate('/admin/events/create')}
+            >
+              Crear Nuevo Evento
+            </Button>
           </div>
         </div>
         
