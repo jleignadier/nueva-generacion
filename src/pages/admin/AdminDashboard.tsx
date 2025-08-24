@@ -50,15 +50,15 @@ const AdminDashboard = () => {
     const baseActivities: Activity[] = [
       {
         type: 'user',
-        title: 'New User Registered',
+        title: 'Nuevo Usuario Registrado',
         person: 'Maria Garcia',
-        timeAgo: '5 hours ago'
+        timeAgo: '5 horas atrás'
       },
       {
         type: 'event',
-        title: 'Event Created: Fundraising Gala',
+        title: 'Evento Creado: Gala de Recaudación',
         person: 'Admin',
-        timeAgo: '1 day ago'
+        timeAgo: '1 día atrás'
       }
     ];
     
@@ -70,8 +70,8 @@ const AdminDashboard = () => {
     
     const donationActivities = recentDonations.map((donation: any) => ({
       type: 'donation' as const,
-      title: `Donation Verified: ${donation.amount}`,
-      person: donation.name || 'Anonymous',
+      title: `Donación Verificada: ${donation.amount}`,
+      person: donation.name || 'Anónimo',
       timeAgo: getTimeAgo(new Date(donation.date || Date.now()))
     }));
     
@@ -83,8 +83,8 @@ const AdminDashboard = () => {
       
     const pendingActivities = pendingDonations.map((donation: any) => ({
       type: 'donation' as const,
-      title: `New Donation Submitted: ${donation.amount}`,
-      person: donation.name || 'Anonymous',
+      title: `Nueva Donación Enviada: ${donation.amount}`,
+      person: donation.name || 'Anónimo',
       timeAgo: getTimeAgo(new Date(donation.date || Date.now()))
     }));
     
@@ -99,9 +99,9 @@ const AdminDashboard = () => {
     const diffHours = Math.round(diffMs / 3600000);
     const diffDays = Math.round(diffMs / 86400000);
     
-    if (diffMins < 60) return `${diffMins} mins ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    return `${diffDays} days ago`;
+    if (diffMins < 60) return `${diffMins} min atrás`;
+    if (diffHours < 24) return `${diffHours} horas atrás`;
+    return `${diffDays} días atrás`;
   };
 
   return (
@@ -109,25 +109,25 @@ const AdminDashboard = () => {
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
-          <h2 className="text-xl font-medium mb-4">Overview</h2>
+          <h2 className="text-xl font-medium mb-4">Resumen</h2>
           <div className="space-y-4">
             <div>
-              <p className="text-zinc-400">Total Events</p>
+              <p className="text-zinc-400">Total de Eventos</p>
               <p className="text-2xl font-bold">12</p>
             </div>
             <div>
-              <p className="text-zinc-400">Total Donations</p>
+              <p className="text-zinc-400">Total de Donaciones</p>
               <p className="text-2xl font-bold">${totalDonations.toLocaleString()}</p>
             </div>
             <div>
-              <p className="text-zinc-400">Active Users</p>
+              <p className="text-zinc-400">Usuarios Activos</p>
               <p className="text-2xl font-bold">347</p>
             </div>
           </div>
         </div>
         
         <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
-          <h2 className="text-xl font-medium mb-4">Recent Activity</h2>
+          <h2 className="text-xl font-medium mb-4">Actividad Reciente</h2>
           <div className="space-y-4">
             {recentActivities.map((activity, index) => (
               <div 
@@ -136,7 +136,7 @@ const AdminDashboard = () => {
               >
                 <p className="font-medium">{activity.title}</p>
                 <p className="text-sm text-zinc-400">
-                  {activity.type === 'donation' ? 'From: ' : activity.type === 'event' ? 'By: ' : ''}
+                  {activity.type === 'donation' ? 'De: ' : activity.type === 'event' ? 'Por: ' : ''}
                   {activity.person} • {activity.timeAgo}
                 </p>
               </div>
@@ -144,7 +144,7 @@ const AdminDashboard = () => {
             
             {recentActivities.length === 0 && (
               <div>
-                <p className="text-zinc-400">No recent activity</p>
+                <p className="text-zinc-400">Sin actividad reciente</p>
               </div>
             )}
           </div>
