@@ -82,9 +82,9 @@ const AdminDonations = () => {
     const savedMockDonations = JSON.parse(localStorage.getItem('mockDonations') || 'null');
     
     const mockDonations = savedMockDonations || [
-      { id: '1', name: 'John Doe', amount: '$1,000', date: 'May 12, 2023', status: 'Completada' },
-      { id: '2', name: 'Maria Garcia', amount: '$500', date: 'May 10, 2023', status: 'Completada' },
-      { id: '3', name: 'Robert Smith', amount: '$750', date: 'May 8, 2023', status: 'Pendiente' },
+      { id: '1', name: 'John Doe', amount: '$1,000', date: '12 de mayo, 2023', status: 'Completada' },
+      { id: '2', name: 'Maria Garcia', amount: '$500', date: '10 de mayo, 2023', status: 'Completada' },
+      { id: '3', name: 'Robert Smith', amount: '$750', date: '8 de mayo, 2023', status: 'Pendiente' },
     ];
 
     // If mock donations were not in localStorage yet, save them
