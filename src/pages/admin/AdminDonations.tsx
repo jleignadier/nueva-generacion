@@ -26,7 +26,7 @@ interface Donation {
   name: string;
   amount: string;
   date: string;
-  status: 'Pending' | 'Verified' | 'Rejected' | 'Completed';
+  status: 'Pendiente' | 'Verificada' | 'Rechazada' | 'Completada';
   receipt?: string;
   note?: string;
 }
@@ -73,7 +73,7 @@ const AdminDonations = () => {
       name: donation.name || 'User Donation',
       amount: `$${donation.amount}`,
       date: donation.date || new Date().toLocaleDateString(),
-      status: donation.status || 'Pending',
+      status: donation.status || 'Pendiente',
       receipt: donation.receiptFile,
       note: donation.note
     }));
@@ -82,9 +82,9 @@ const AdminDonations = () => {
     const savedMockDonations = JSON.parse(localStorage.getItem('mockDonations') || 'null');
     
     const mockDonations = savedMockDonations || [
-      { id: '1', name: 'John Doe', amount: '$1,000', date: 'May 12, 2023', status: 'Completed' },
-      { id: '2', name: 'Maria Garcia', amount: '$500', date: 'May 10, 2023', status: 'Completed' },
-      { id: '3', name: 'Robert Smith', amount: '$750', date: 'May 8, 2023', status: 'Pending' },
+      { id: '1', name: 'John Doe', amount: '$1,000', date: 'May 12, 2023', status: 'Completada' },
+      { id: '2', name: 'Maria Garcia', amount: '$500', date: 'May 10, 2023', status: 'Completada' },
+      { id: '3', name: 'Robert Smith', amount: '$750', date: 'May 8, 2023', status: 'Pendiente' },
     ];
 
     // If mock donations were not in localStorage yet, save them
@@ -106,7 +106,7 @@ const AdminDonations = () => {
     setFilteredDonations(sortedDonations);
   };
 
-  const handleStatusUpdate = (donationId: string, newStatus: 'Completed' | 'Rejected') => {
+  const handleStatusUpdate = (donationId: string, newStatus: 'Completada' | 'Rechazada') => {
     // Update in state
     const updatedDonations = donations.map(donation => 
       donation.id === donationId 
@@ -147,8 +147,8 @@ const AdminDonations = () => {
     }
 
     toast({
-      title: "Donation updated",
-      description: `Donation status has been updated to ${newStatus}`
+      title: "Donación actualizada",
+      description: `El estado de la donación ha sido actualizado a ${newStatus}`
     });
     
     // Close the modal after updating status
@@ -160,15 +160,19 @@ const AdminDonations = () => {
 
   const getStatusBadge = (status: string) => {
     switch(status) {
+      case 'Completada':
       case 'Completed':
-        return <Badge className="bg-green-600 hover:bg-green-700">Completed</Badge>;
+        return <Badge className="bg-green-600 hover:bg-green-700">Completada</Badge>;
+      case 'Verificada':
       case 'Verified':
-        return <Badge className="bg-green-600 hover:bg-green-700">Completed</Badge>;
+        return <Badge className="bg-green-600 hover:bg-green-700">Completada</Badge>;
+      case 'Rechazada':
       case 'Rejected':
-        return <Badge className="bg-red-600 hover:bg-red-700">Rejected</Badge>;
+        return <Badge className="bg-red-600 hover:bg-red-700">Rechazada</Badge>;
+      case 'Pendiente':
       case 'Pending':
       default:
-        return <Badge className="bg-amber-600 hover:bg-amber-700">Pending</Badge>;
+        return <Badge className="bg-amber-600 hover:bg-amber-700">Pendiente</Badge>;
     }
   };
 
@@ -182,10 +186,10 @@ const AdminDonations = () => {
       <h1 className="text-3xl font-bold">Administración de Donaciones</h1>
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <h2 className="text-xl font-medium text-white">All Donations</h2>
+          <h2 className="text-xl font-medium text-white">Todas las Donaciones</h2>
           <input
             type="text"
-            placeholder="Search by donor, amount, date, or status..."
+            placeholder="Buscar por donante, cantidad, fecha o estado..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="bg-zinc-700 border border-zinc-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-zinc-400 sm:w-80"
@@ -196,11 +200,11 @@ const AdminDonations = () => {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-zinc-700">
-                <TableHead className="text-white">Donor</TableHead>
-                <TableHead className="text-white">Amount</TableHead>
-                <TableHead className="text-white">Date</TableHead>
-                <TableHead className="text-white">Status</TableHead>
-                <TableHead className="text-white">Actions</TableHead>
+                <TableHead className="text-white">Donante</TableHead>
+                <TableHead className="text-white">Cantidad</TableHead>
+                <TableHead className="text-white">Fecha</TableHead>
+                <TableHead className="text-white">Estado</TableHead>
+                <TableHead className="text-white">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -221,26 +225,26 @@ const AdminDonations = () => {
                         onClick={() => handleViewDetails(donation)}
                       >
                         <Eye className="mr-1 h-4 w-4" /> 
-                        Details
+                        Detalles
                       </Button>
                       
-                      {donation.status === 'Pending' && (
+                      {donation.status === 'Pendiente' && (
                         <>
                           <Button 
                             variant="outline" 
                             size="sm" 
                             className="text-green-400 hover:text-green-300 hover:border-green-400"
-                            onClick={() => handleStatusUpdate(donation.id, 'Completed')}
+                            onClick={() => handleStatusUpdate(donation.id, 'Completada')}
                           >
-                            Verify
+                            Verificar
                           </Button>
                           <Button 
                             variant="outline" 
                             size="sm" 
                             className="text-red-400 hover:text-red-300 hover:border-red-400"
-                            onClick={() => handleStatusUpdate(donation.id, 'Rejected')}
+                            onClick={() => handleStatusUpdate(donation.id, 'Rechazada')}
                           >
-                            Reject
+                            Rechazar
                           </Button>
                         </>
                       )}
@@ -252,7 +256,7 @@ const AdminDonations = () => {
               {filteredDonations.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-4 text-zinc-400">
-                    {searchTerm ? 'No donations found matching your search' : 'No donations found'}
+                    {searchTerm ? 'No se encontraron donaciones que coincidan con tu búsqueda' : 'No se encontraron donaciones'}
                   </TableCell>
                 </TableRow>
               )}
@@ -265,45 +269,45 @@ const AdminDonations = () => {
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Donation Details</DialogTitle>
+            <DialogTitle>Detalles de la Donación</DialogTitle>
           </DialogHeader>
           
           {selectedDonation && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Donor</p>
+                  <p className="text-sm font-medium text-gray-500">Donante</p>
                   <p>{selectedDonation.name}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Amount</p>
+                  <p className="text-sm font-medium text-gray-500">Cantidad</p>
                   <p>{selectedDonation.amount}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Date</p>
+                  <p className="text-sm font-medium text-gray-500">Fecha</p>
                   <p>{selectedDonation.date}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Status</p>
+                  <p className="text-sm font-medium text-gray-500">Estado</p>
                   <p>{selectedDonation.status}</p>
                 </div>
               </div>
               
               {selectedDonation.note && (
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Note</p>
+                  <p className="text-sm font-medium text-gray-500">Nota</p>
                   <p className="text-sm mt-1 p-2 bg-gray-100 text-black rounded">{selectedDonation.note}</p>
                 </div>
               )}
               
               {selectedDonation.receipt && (
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Receipt</p>
+                  <p className="text-sm font-medium text-gray-500">Recibo</p>
                   <div className="border rounded-lg overflow-hidden mt-1">
                     <AspectRatio ratio={16/9}>
                       <img 
                         src={selectedDonation.receipt} 
-                        alt="Donation Receipt" 
+                        alt="Recibo de Donación"
                         className="object-contain w-full h-full"
                       />
                     </AspectRatio>
@@ -318,23 +322,23 @@ const AdminDonations = () => {
               variant="outline" 
               onClick={() => setShowDetailsModal(false)}
             >
-              Close
+              Cerrar
             </Button>
             
-            {selectedDonation && selectedDonation.status === 'Pending' && (
+            {selectedDonation && selectedDonation.status === 'Pendiente' && (
               <div className="flex space-x-2">
                 <Button 
                   variant="default"
                   className="bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => handleStatusUpdate(selectedDonation.id, 'Completed')}
+                  onClick={() => handleStatusUpdate(selectedDonation.id, 'Completada')}
                 >
-                  Verify
+                  Verificar
                 </Button>
                 <Button 
                   variant="destructive"
-                  onClick={() => handleStatusUpdate(selectedDonation.id, 'Rejected')}
+                  onClick={() => handleStatusUpdate(selectedDonation.id, 'Rechazada')}
                 >
-                  Reject
+                  Rechazar
                 </Button>
               </div>
             )}
