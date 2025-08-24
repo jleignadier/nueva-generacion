@@ -138,7 +138,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
                   <SelectItem value="none">Sin organización</SelectItem>
                 )}
                 {organizations
-                  .filter(org => org.status === 'Active')
+                  .filter(org => org.status === 'Activo')
                   .map((org) => (
                     <SelectItem key={org.id} value={org.id}>
                       {org.name}

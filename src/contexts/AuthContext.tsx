@@ -183,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name,
           contactEmail: email,
           description,
-          status: 'Active',
+          status: 'Activo',
           points: 0,
           members: 1
         });

@@ -5,7 +5,7 @@ export interface Organization {
   id: string;
   name: string;
   contactEmail: string;
-  status: 'Active' | 'Inactive';
+  status: 'Activo' | 'Inactivo';
   points: number;
   members: number;
   description: string;
@@ -26,7 +26,7 @@ const initialOrganizations: Organization[] = [
     id: '1',
     name: 'Green Future Foundation', 
     contactEmail: 'contact@greenfuture.org', 
-    status: 'Active', 
+    status: 'Activo',
     points: 1250, 
     members: 45,
     description: 'Environmental conservation organization'
@@ -35,7 +35,7 @@ const initialOrganizations: Organization[] = [
     id: '2',
     name: 'Community Health Initiative', 
     contactEmail: 'info@healthinit.org', 
-    status: 'Active', 
+    status: 'Activo',
     points: 892, 
     members: 32,
     description: 'Promoting community health and wellness'
@@ -44,7 +44,7 @@ const initialOrganizations: Organization[] = [
     id: '3',
     name: 'Education for All', 
     contactEmail: 'admin@eduforall.org', 
-    status: 'Active', 
+    status: 'Activo',
     points: 2103, 
     members: 78,
     description: 'Providing educational resources to underserved communities'
@@ -53,7 +53,7 @@ const initialOrganizations: Organization[] = [
     id: '4',
     name: 'Animal Rescue Network', 
     contactEmail: 'rescue@animalnet.org', 
-    status: 'Inactive', 
+    status: 'Inactivo', 
     points: 567, 
     members: 23,
     description: 'Animal welfare and rescue operations'
@@ -62,7 +62,7 @@ const initialOrganizations: Organization[] = [
     id: '5',
     name: 'Youth Development Center', 
     contactEmail: 'youth@devcenter.org', 
-    status: 'Active', 
+    status: 'Activo',
     points: 1456, 
     members: 56,
     description: 'Supporting youth development programs'
@@ -85,7 +85,7 @@ export const useOrganizationsStore = create<OrganizationsState>()(
         const newOrg: Organization = {
           ...orgData,
           id: `org-${Date.now()}`,
-          status: 'Active',
+          status: 'Activo',
           points: 0,
           members: 1
         };
@@ -107,14 +107,14 @@ export const useOrganizationsStore = create<OrganizationsState>()(
         set((state) => ({
           organizations: state.organizations.map(org =>
             org.id === id 
-              ? { ...org, status: org.status === 'Active' ? 'Inactive' : 'Active' }
+              ? { ...org, status: org.status === 'Activo' ? 'Inactivo' : 'Activo' }
               : org
           )
         }));
       },
       
       getActiveOrganizations: () => {
-        return get().organizations.filter(org => org.status === 'Active');
+        return get().organizations.filter(org => org.status === 'Activo');
       }
     }),
     {

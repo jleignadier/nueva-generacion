@@ -43,13 +43,13 @@ const AdminOrganizations = () => {
 
   const handleToggleStatus = (organizationId: string) => {
     const org = organizations.find(o => o.id === organizationId);
-    const newStatus = org?.status === 'Active' ? 'Inactive' : 'Active';
+    const newStatus = org?.status === 'Activo' ? 'Inactivo' : 'Activo';
     
     toggleOrganizationStatus(organizationId);
     
     toast({
       title: "Estado de organización actualizado",
-      description: `Organización ${newStatus === 'Active' ? 'habilitada' : 'deshabilitada'} exitosamente`,
+      description: `Organización ${newStatus === 'Activo' ? 'habilitada' : 'deshabilitada'} exitosamente`,
     });
   };
 
@@ -161,7 +161,7 @@ const AdminOrganizations = () => {
                   <td className="py-3 px-4 text-white">{org.members}</td>
                   <td className="py-3 px-4">
                     <span className={`px-2 py-1 rounded text-xs ${
-                      org.status === 'Active'
+                      org.status === 'Activo'
                         ? 'bg-green-900/30 text-green-400'
                         : 'bg-red-900/30 text-red-400'
                     }`}>
@@ -180,7 +180,7 @@ const AdminOrganizations = () => {
                         onClick={() => handleToggleStatus(org.id)}
                         className="text-red-500 hover:text-red-400 text-sm"
                       >
-                        {org.status === 'Active' ? 'Deshabilitar' : 'Habilitar'}
+                        {org.status === 'Activo' ? 'Deshabilitar' : 'Habilitar'}
                       </button>
                     </div>
                   </td>

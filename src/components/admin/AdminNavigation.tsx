@@ -21,12 +21,12 @@ const navItems = [
     icon: Trophy
   },
   {
-    name: 'Users',
+    name: 'Usuarios',
     path: '/admin/users',
     icon: User
   },
   {
-    name: 'Organizations',
+    name: 'Organizaciones',
     path: '/admin/organizations',
     icon: Building2
   },
