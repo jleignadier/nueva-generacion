@@ -23,11 +23,23 @@ const ProfileTab = () => {
   const [showAchievements, setShowAchievements] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  // Mock data - in a real app, this would come from an API or store
-  const donationStats = {
-    total: 1250.00,
-    thisMonth: 85.00
+  // Get actual donation stats from localStorage (same as DonationHistoryModal)
+  const getDonationStats = () => {
+    const donations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
+    const total = donations.reduce((sum: number, d: any) => sum + Number(d.amount), 0);
+    const thisMonth = new Date().getMonth();
+    const thisYear = new Date().getFullYear();
+    const monthlyTotal = donations
+      .filter((d: any) => {
+        const donationDate = new Date(d.date);
+        return donationDate.getMonth() === thisMonth && donationDate.getFullYear() === thisYear;
+      })
+      .reduce((sum: number, d: any) => sum + Number(d.amount), 0);
+
+    return { total, thisMonth: monthlyTotal };
   };
+
+  const donationStats = getDonationStats();
 
   // Get actual attended events from localStorage
   const getAttendedEventsStats = () => {
@@ -130,14 +142,14 @@ const ProfileTab = () => {
                   <p className="text-xs text-gray-600">Total<br />Donado</p>
                   <div className="flex items-center mt-1">
                     <CircleDollarSign size={16} className="text-nuevagen-green mr-1" />
-                    <span className="text-lg font-semibold">${donationStats.total}</span>
+                    <span className="text-lg font-semibold">${donationStats.total.toFixed(2)}</span>
                   </div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-xs text-gray-600">Este<br />Mes</p>
                   <div className="flex items-center mt-1">
-                    <Gift size={16} className="text-nuevagen-blue mr-1" />
-                    <span className="text-lg font-semibold">${donationStats.thisMonth}</span>
+                    <Gift size={16} className="text-nuevagen-green mr-1" />
+                    <span className="text-lg font-semibold">${donationStats.thisMonth.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

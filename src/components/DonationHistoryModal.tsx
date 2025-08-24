@@ -85,7 +85,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
           <Card>
             <CardContent className="p-3">
               <div className="flex items-center">
-                <CircleDollarSign size={16} className="text-primary mr-2" />
+                <CircleDollarSign size={16} className="text-nuevagen-green mr-2" />
                 <div>
                   <p className="text-xs text-muted-foreground">Total</p>
                   <p className="font-semibold">${stats.total.toFixed(2)}</p>
@@ -96,7 +96,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
           <Card>
             <CardContent className="p-3">
               <div className="flex items-center">
-                <Gift size={16} className="text-secondary mr-2" />
+                <Gift size={16} className="text-nuevagen-green mr-2" />
                 <div>
                   <p className="text-xs text-muted-foreground">Este Mes</p>
                   <p className="font-semibold">${stats.thisMonth.toFixed(2)}</p>
