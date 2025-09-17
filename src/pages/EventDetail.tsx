@@ -127,7 +127,7 @@ const EventDetail = () => {
         <img 
           src={event.image} 
           alt={event.title}
-          className="w-full h-48 object-cover" 
+          className="w-full h-40 sm:h-48 md:h-56 object-cover" 
         />
       </div>
       
