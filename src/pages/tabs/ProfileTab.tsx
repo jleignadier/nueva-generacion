@@ -172,9 +172,36 @@ const ProfileTab = () => {
 
               <h4 className="text-sm font-medium text-gray-700 mb-3">Donaciones Recientes</h4>
               <div className="space-y-3">
-                <div className="text-center py-4 text-gray-500">
-                  <p className="text-sm">El historial de donaciones aparecerá aquí</p>
-                </div>
+                {(() => {
+                  const submittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
+                  const mockDonations = [
+                    { id: 'mock-1', amount: 25.50, date: '2024-01-15', note: 'Donación mensual', status: 'verified' },
+                    { id: 'mock-2', amount: 50.00, date: '2024-02-15', note: 'Apoyo especial', status: 'verified' },
+                    { id: 'mock-3', amount: 15.75, date: '2024-03-01', note: 'Contribución solidaria', status: 'pending' }
+                  ];
+                  const allDonations = [...submittedDonations, ...mockDonations];
+                  const recentDonations = allDonations.slice(-3).reverse(); // Show last 3 donations
+
+                  return recentDonations.length > 0 ? (
+                    recentDonations.map((donation: any) => (
+                      <div key={donation.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                        <div>
+                          <p className="text-sm font-medium">${Number(donation.amount).toFixed(2)}</p>
+                          <p className="text-xs text-gray-500">{donation.note || 'Donación'}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500">
+                            {new Date(donation.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-gray-500">
+                      <p className="text-sm">No hay donaciones registradas</p>
+                    </div>
+                  );
+                })()}
               </div>
             </CardContent>
           </Card>
