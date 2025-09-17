@@ -21,10 +21,18 @@ interface Donation {
 const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('all');
 
-  // Get donations from localStorage
+  // Get donations from localStorage including mock data
   const donations: Donation[] = useMemo(() => {
     const submittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-    return submittedDonations;
+    
+    // Add mock donations for demonstration
+    const mockDonations = [
+      { id: 'mock-1', amount: 25.50, date: '2024-01-15', note: 'Donación mensual', status: 'verified' },
+      { id: 'mock-2', amount: 50.00, date: '2024-02-15', note: 'Apoyo especial', status: 'verified' },
+      { id: 'mock-3', amount: 15.75, date: '2024-03-01', note: 'Contribución solidaria', status: 'pending' }
+    ];
+    
+    return [...submittedDonations, ...mockDonations];
   }, []);
 
   // Calculate stats

@@ -9,6 +9,7 @@ type User = {
   accountType: 'individual' | 'organization' | 'admin';
   isAdmin: boolean;
   organizationId?: string;
+  profilePicture?: string;
 };
 
 type OrganizationInfo = {
@@ -28,6 +29,7 @@ type AuthContextType = {
     description?: string
   ) => Promise<User>;
   logout: () => void;
+  updateUser: (userData: Partial<User>) => void;
   error: string | null;
 };
 
@@ -213,6 +215,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUser = (userData: Partial<User>) => {
+    if (!user) return;
+    
+    const updatedUser = { ...user, ...userData };
+    setUser(updatedUser);
+    localStorage.setItem('nuevaGen_user', JSON.stringify(updatedUser));
+  };
+
   const logout = () => {
     console.log("AuthContext: Logging out");
     setUser(null);
@@ -224,7 +234,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, error }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, updateUser, error }}>
       {children}
     </AuthContext.Provider>
   );

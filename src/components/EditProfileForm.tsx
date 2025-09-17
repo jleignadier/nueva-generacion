@@ -14,9 +14,10 @@ interface EditProfileFormProps {
 }
 
 const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) => {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const { toast } = useToast();
   const { organizations, initializeOrganizations } = useOrganizationsStore();
+  const [profilePicture, setProfilePicture] = useState<string | null>(user?.profilePicture || null);
 
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -39,25 +40,42 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
     }));
   };
 
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "Archivo muy grande",
+          description: "La imagen debe ser menor a 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setProfilePicture(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Update user in context
-      const updatedUser = {
-        ...user!,
+      // Update user using the new updateUser method
+      const updatedData = {
         name: formData.name,
         email: formData.email,
         accountType: formData.accountType as 'individual' | 'organization' | 'admin',
-        organizationId: formData.accountType === 'organization' ? formData.organizationId : (formData.organizationId === 'none' ? undefined : formData.organizationId)
+        organizationId: formData.accountType === 'organization' ? formData.organizationId : (formData.organizationId === 'none' ? undefined : formData.organizationId),
+        profilePicture: profilePicture || user?.profilePicture
       };
 
-      // Update localStorage
-      localStorage.setItem('nuevaGen_user', JSON.stringify(updatedUser));
-      
-      // Update context (using login method to set user)
-      await login(formData.email, 'password'); // Mock password since we're updating existing user
+      updateUser(updatedData);
       
       toast({
         title: "Perfil actualizado",
@@ -86,6 +104,32 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="profilePicture">Foto de Perfil</Label>
+            <div className="flex items-center space-x-4">
+              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                {profilePicture ? (
+                  <img 
+                    src={profilePicture} 
+                    alt="Profile" 
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xl font-semibold">
+                    {user?.name?.charAt(0)?.toUpperCase() || '?'}
+                  </span>
+                )}
+              </div>
+              <Input
+                id="profilePicture"
+                type="file"
+                accept="image/*"
+                onChange={handleProfilePictureChange}
+                className="flex-1"
+              />
+            </div>
+          </div>
+          
           <div>
             <Label htmlFor="name">Nombre</Label>
             <Input

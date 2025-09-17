@@ -23,20 +23,30 @@ const ProfileTab = () => {
   const [showAchievements, setShowAchievements] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  // Get actual donation stats from localStorage (same as DonationHistoryModal)
+  // Helper function to get donation stats (including mock data for consistency)
   const getDonationStats = () => {
-    const donations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-    const total = donations.reduce((sum: number, d: any) => sum + Number(d.amount), 0);
+    const submittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
+    
+    // Add mock donations for demonstration (same as in DonationHistoryModal)
+    const mockDonations = [
+      { id: 'mock-1', amount: 25.50, date: '2024-01-15', note: 'Donación mensual', status: 'verified' },
+      { id: 'mock-2', amount: 50.00, date: '2024-02-15', note: 'Apoyo especial', status: 'verified' },
+      { id: 'mock-3', amount: 15.75, date: '2024-03-01', note: 'Contribución solidaria', status: 'pending' }
+    ];
+    
+    const allDonations = [...submittedDonations, ...mockDonations];
+    const totalDonated = allDonations.reduce((sum: number, donation: any) => sum + Number(donation.amount), 0);
+    
     const thisMonth = new Date().getMonth();
     const thisYear = new Date().getFullYear();
-    const monthlyTotal = donations
-      .filter((d: any) => {
-        const donationDate = new Date(d.date);
+    const monthlyDonated = allDonations
+      .filter((donation: any) => {
+        const donationDate = new Date(donation.date);
         return donationDate.getMonth() === thisMonth && donationDate.getFullYear() === thisYear;
       })
-      .reduce((sum: number, d: any) => sum + Number(d.amount), 0);
-
-    return { total, thisMonth: monthlyTotal };
+      .reduce((sum: number, donation: any) => sum + Number(donation.amount), 0);
+    
+    return { total: totalDonated, thisMonth: monthlyDonated };
   };
 
   const donationStats = getDonationStats();
@@ -90,11 +100,17 @@ const ProfileTab = () => {
       <Card className="mb-6">
         <CardContent className="p-6">
           <div className="flex items-center">
-            <Avatar className="h-16 w-16">
-              <AvatarFallback className="bg-nuevagen-blue text-white text-xl">
-                {user?.name.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="h-16 w-16 rounded-full bg-nuevagen-blue text-white text-xl flex items-center justify-center overflow-hidden">
+              {user?.profilePicture ? (
+                <img 
+                  src={user.profilePicture} 
+                  alt="Profile" 
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span>{user?.name.charAt(0).toUpperCase()}</span>
+              )}
+            </div>
             <div className="ml-4">
               <h2 className="text-xl font-semibold">{user?.name}</h2>
               <p className="text-sm text-gray-600">{user?.email}</p>

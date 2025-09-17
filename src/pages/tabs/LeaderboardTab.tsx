@@ -5,6 +5,7 @@ import { Trophy, Award, User, Users, Calendar, Clock, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCompetitionsStore } from '@/store/competitionsStore';
 import { useEventsStore } from '@/store/eventsStore';
+import { useOrganizationsStore } from '@/store/organizationsStore';
 import UserProfileModal from '@/components/UserProfileModal';
 
 interface LeaderboardEntry {
@@ -13,6 +14,9 @@ interface LeaderboardEntry {
   rank: number;
   value: number;
   avatar: string;
+  hours?: number;
+  events?: number;
+  organizationName?: string;
 }
 
 const LeaderboardTab = () => {
@@ -24,47 +28,85 @@ const LeaderboardTab = () => {
   
   const activeCompetition = getActiveCompetition();
 
-  // Calculate user's actual points from attended events
-  const getUserPoints = () => {
+  // Calculate user's actual points and stats from attended events
+  const getUserStats = () => {
     const attendedEventIds = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
     const events = useEventsStore.getState().events;
-    return attendedEventIds.reduce((total: number, eventId: string) => {
+    let points = 0;
+    let hours = 0;
+    
+    attendedEventIds.forEach((eventId: string) => {
       const event = events.find(e => e.id === eventId);
-      return total + (event?.pointsEarned || 0);
-    }, 0);
+      if (event) {
+        points += event.pointsEarned || 0;
+        hours += event.volunteerHours || 0;
+      }
+    });
+    
+    return { points, hours, events: attendedEventIds.length };
   };
 
-  const userPoints = getUserPoints();
+  const userStats = getUserStats();
   const userRank = 12;
   const organizationPoints = 35;
   const organizationRank = 18;
 
   const volunteerLeaders: LeaderboardEntry[] = [
-    { id: 1, name: 'Maria Garcia', rank: 1, value: 78, avatar: 'MG' },
-    { id: 2, name: 'James Wilson', rank: 2, value: 64, avatar: 'JW' },
-    { id: 3, name: 'Sarah Johnson', rank: 3, value: 59, avatar: 'SJ' },
-    { id: 4, name: 'David Lee', rank: 4, value: 52, avatar: 'DL' },
-    { id: 5, name: 'Li Wei', rank: 5, value: 47, avatar: 'LW' },
-    { id: 6, name: 'Olivia Martinez', rank: 6, value: 42, avatar: 'OM' },
-    { id: 7, name: 'John Smith', rank: 7, value: 38, avatar: 'JS' },
-    { id: 8, name: user?.name || 'User Name', rank: userRank, value: userPoints, avatar: user?.name?.charAt(0) || '?' },
+    { id: 1, name: 'Maria Garcia', rank: 1, value: 78, avatar: 'MG', hours: 45, events: 12 },
+    { id: 2, name: 'James Wilson', rank: 2, value: 64, avatar: 'JW', hours: 38, events: 10 },
+    { id: 3, name: 'Sarah Johnson', rank: 3, value: 59, avatar: 'SJ', hours: 35, events: 9 },
+    { id: 4, name: 'David Lee', rank: 4, value: 52, avatar: 'DL', hours: 30, events: 8 },
+    { id: 5, name: 'Li Wei', rank: 5, value: 47, avatar: 'LW', hours: 28, events: 7 },
+    { id: 6, name: 'Olivia Martinez', rank: 6, value: 42, avatar: 'OM', hours: 25, events: 6 },
+    { id: 7, name: 'John Smith', rank: 7, value: 38, avatar: 'JS', hours: 22, events: 5 },
+    { id: 8, name: user?.name || 'User Name', rank: userRank, value: userStats.points, avatar: user?.name?.charAt(0) || '?', hours: userStats.hours, events: userStats.events },
   ];
 
-  const organizationLeaders: LeaderboardEntry[] = [
-    { id: 1, name: 'Green Earth Foundation', rank: 1, value: 250, avatar: 'GE' },
-    { id: 2, name: 'Community Helpers', rank: 2, value: 175, avatar: 'CH' },
-    { id: 3, name: 'Tech Solutions Inc.', rank: 3, value: 150, avatar: 'TS' },
-    { id: 4, name: 'Global Outreach', rank: 4, value: 120, avatar: 'GO' },
-    { id: 5, name: 'Global Helpers', rank: 5, value: 115, avatar: 'GH' },
-    { id: 6, name: 'Future Leaders', rank: 6, value: 95, avatar: 'FL' },
-    { id: 7, name: 'Community First', rank: 7, value: 90, avatar: 'CF' },
-    { id: 8, name: user?.name || 'User Organization', rank: organizationRank, value: organizationPoints, avatar: user?.name?.charAt(0) || '?' },
-  ];
+  // Filter organization leaderboard based on user account type and organization membership
+  const getOrganizationLeaders = (): LeaderboardEntry[] => {
+    const baseOrganizations = [
+      { id: 1, name: 'Green Earth Foundation', rank: 1, value: 250, avatar: 'GE' },
+      { id: 2, name: 'Community Helpers', rank: 2, value: 175, avatar: 'CH' },
+      { id: 3, name: 'Tech Solutions Inc.', rank: 3, value: 150, avatar: 'TS' },
+      { id: 4, name: 'Global Outreach', rank: 4, value: 120, avatar: 'GO' },
+      { id: 5, name: 'Global Helpers', rank: 5, value: 115, avatar: 'GH' },
+      { id: 6, name: 'Future Leaders', rank: 6, value: 95, avatar: 'FL' },
+      { id: 7, name: 'Community First', rank: 7, value: 90, avatar: 'CF' },
+    ];
+
+    // Only add user if they belong to an organization
+    if (user?.organizationId && user?.accountType === 'individual') {
+      // Find organization name from store
+      const { organizations } = useOrganizationsStore.getState();
+      const userOrg = organizations.find(org => org.id === user.organizationId);
+      const orgName = userOrg?.name || 'Mi Organización';
+      
+      baseOrganizations.push({
+        id: 8,
+        name: orgName,
+        rank: organizationRank,
+        value: organizationPoints,
+        avatar: orgName.charAt(0)
+      });
+    } else if (user?.accountType === 'organization') {
+      baseOrganizations.push({
+        id: 8,
+        name: user.name,
+        rank: organizationRank,
+        value: organizationPoints,
+        avatar: user.name.charAt(0)
+      });
+    }
+
+    return baseOrganizations;
+  };
+
+  const organizationLeaders = getOrganizationLeaders();
 
   const renderUserStats = () => {
     const isIndividualTab = currentTab === 'individual';
     const rank = isIndividualTab ? userRank : organizationRank;
-    const value = isIndividualTab ? userPoints : organizationPoints;
+    const value = isIndividualTab ? userStats.points : organizationPoints;
     
     return (
       <Card className="mb-4 bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
@@ -186,9 +228,16 @@ const LeaderboardTab = () => {
                     <Eye size={14} className="ml-2 text-muted-foreground" />
                   )}
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  {isUser ? `${entry.value} puntos` : 'Puntos privados'}
-                </p>
+                <div className="text-sm text-muted-foreground">
+                  {isUser ? (
+                    <div>
+                      <div>{entry.value} puntos</div>
+                      {entry.hours && <div>{entry.hours} horas • {entry.events} eventos</div>}
+                    </div>
+                  ) : (
+                    'Puntos privados'
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
