@@ -31,8 +31,8 @@ const QRScanner: React.FC<QRScannerProps> = ({ onSuccess, onClose }) => {
   const startScanning = () => {
     setScanning(true);
     toast({
-      title: "Scanning...",
-      description: "Point your camera at the event QR code",
+      title: "Escaneando...",
+      description: "Apunta tu cámara al código QR del evento",
     });
   };
 
@@ -48,8 +48,8 @@ const QRScanner: React.FC<QRScannerProps> = ({ onSuccess, onClose }) => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full">
-            <p className="text-gray-500 mb-2">Camera preview will appear here</p>
-            <p className="text-sm text-gray-400">Please allow camera access when prompted</p>
+            <p className="text-gray-500 mb-2">La vista previa de la cámara aparecerá aquí</p>
+            <p className="text-sm text-gray-400">Por favor permite el acceso a la cámara cuando se solicite</p>
           </div>
         )}
       </div>
@@ -60,18 +60,18 @@ const QRScanner: React.FC<QRScannerProps> = ({ onSuccess, onClose }) => {
           onClick={startScanning} 
           disabled={scanning}
         >
-          {scanning ? 'Scanning...' : 'Start Scanning'}
+          {scanning ? 'Escaneando...' : 'Iniciar Escaneo'}
         </Button>
         <Button 
           variant="outline" 
           onClick={onClose}
         >
-          Cancel
+          Cancelar
         </Button>
       </div>
       
       <p className="text-sm text-gray-500 mt-4 text-center">
-        Position the QR code within the scanning area
+        Posiciona el código QR dentro del área de escaneo
       </p>
     </div>
   );

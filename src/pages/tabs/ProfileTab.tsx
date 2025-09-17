@@ -13,6 +13,7 @@ import EventHistoryModal from '@/components/EventHistoryModal';
 import AchievementsModal from '@/components/AchievementsModal';
 import UserSettingsModal from '@/components/UserSettingsModal';
 import { useEventsStore } from '@/store/eventsStore';
+import { formatDate } from '@/utils/dateUtils';
 
 const ProfileTab = () => {
   const { user, logout } = useAuth();
@@ -51,21 +52,29 @@ const ProfileTab = () => {
 
   const donationStats = getDonationStats();
 
-  // Get actual attended events from localStorage
+  // Get actual attended events from localStorage and latest attended event
   const getAttendedEventsStats = () => {
     const attendedEventIds = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
     
     // Calculate points based on actual events attended
     const { events } = useEventsStore.getState();
-    const points = attendedEventIds.reduce((total: number, eventId: string) => {
-      const event = events.find(e => e.id === eventId);
+    const attendedEvents = attendedEventIds.map((eventId: string) => {
+      return events.find(e => e.id === eventId);
+    }).filter(Boolean); // Remove undefined events
+    
+    const points = attendedEvents.reduce((total: number, event: any) => {
       return total + (event?.pointsEarned || 0);
     }, 0);
+    
+    // Get latest attended event (most recently added to localStorage)
+    const latestEvent = attendedEventIds.length > 0 ? 
+      events.find(e => e.id === attendedEventIds[attendedEventIds.length - 1]) : null;
     
     return {
       attended: attendedEventIds.length,
       hours: attendedEventIds.length * 3, // Rough estimate
-      points: points
+      points: points,
+      latestEvent: latestEvent
     };
   };
 
@@ -250,9 +259,27 @@ const ProfileTab = () => {
             </div>
           </div>
 
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Eventos Recientes</h4>
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Último Evento Asistido</h4>
           <div className="space-y-3">
-            {eventStats.attended > 0 ? (
+            {eventStats.latestEvent ? (
+              <div className="flex items-center justify-between py-2 border border-gray-200 rounded-lg p-3 bg-gray-50">
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{eventStats.latestEvent.title}</p>
+                  <p className="text-xs text-gray-500 mt-1">{eventStats.latestEvent.location}</p>
+                  <p className="text-xs text-gray-500">{formatDate(eventStats.latestEvent.date)}</p>
+                </div>
+                <div className="text-right ml-2">
+                  <div className="flex items-center text-xs text-green-600">
+                    <Award size={12} className="mr-1" />
+                    <span>+{eventStats.latestEvent.pointsEarned} pts</span>
+                  </div>
+                  <div className="flex items-center text-xs text-blue-600 mt-1">
+                    <Calendar size={12} className="mr-1" />
+                    <span>+{eventStats.latestEvent.volunteerHours}h</span>
+                  </div>
+                </div>
+              </div>
+            ) : eventStats.attended > 0 ? (
               <div className="text-center py-4 text-gray-500">
                 <p className="text-sm">El historial de eventos aparecerá aquí</p>
                 <p className="text-xs">Escanea códigos QR en eventos para rastrear tu participación</p>
