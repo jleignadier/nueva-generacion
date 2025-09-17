@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DollarSign, Heart, Target, Copy, Camera, QrCode, Building2 } from 'lucide-react';
+import { DollarSign, Heart, Target, Copy, Building2 } from 'lucide-react';
 import { useEventsStore } from '@/store/eventsStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrganizationsStore } from '@/store/organizationsStore';
@@ -31,7 +31,7 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
   onClose
 }) => {
   const [donationAmount, setDonationAmount] = useState<string>('');
-  const [donationMethod, setDonationMethod] = useState<'qrcode' | 'yappy'>('yappy');
+  const [donationMethod] = useState<'yappy'>('yappy');
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [donationType, setDonationType] = useState<'individual' | 'organization'>('individual');
   const { addDonation } = useEventsStore();
@@ -140,57 +140,22 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
             </div>
           </div>
 
-          {/* Donation Method Selection */}
+          {/* Yappy Handle */}
           <div className="space-y-3">
-            <Label>Método de Donación</Label>
-            <div className="flex rounded-lg border">
-              <button
+            <Label>Método de Donación - Yappy</Label>
+            <div className="flex items-center justify-between bg-muted p-3 rounded">
+              <span className="font-medium">{yappyHandle}</span>
+              <Button 
                 type="button"
-                onClick={() => setDonationMethod('yappy')}
-                className={`flex-1 py-2 px-4 rounded-l-lg transition-colors ${
-                  donationMethod === 'yappy' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-muted hover:bg-muted/80'
-                }`}
+                variant="ghost" 
+                size="sm"
+                onClick={handleCopyYappyHandle}
+                className="flex gap-1 items-center" 
               >
-                Usuario de Yappy
-              </button>
-              <button
-                type="button"
-                onClick={() => setDonationMethod('qrcode')}
-                className={`flex-1 py-2 px-4 rounded-r-lg transition-colors ${
-                  donationMethod === 'qrcode' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-muted hover:bg-muted/80'
-                }`}
-              >
-                <QrCode className="mx-auto" size={16} />
-                Código QR
-              </button>
+                <Copy size={16} />
+                Copiar
+              </Button>
             </div>
-            
-            {donationMethod === 'yappy' ? (
-              <div className="flex items-center justify-between bg-muted p-3 rounded">
-                <span className="font-medium">{yappyHandle}</span>
-                <Button 
-                  type="button"
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleCopyYappyHandle}
-                  className="flex gap-1 items-center" 
-                >
-                  <Copy size={16} />
-                  Copiar
-                </Button>
-              </div>
-            ) : (
-              <div className="text-center p-4 bg-muted rounded">
-                <Camera className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  Escanea el código QR para donar
-                </p>
-              </div>
-            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

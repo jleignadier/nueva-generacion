@@ -4,14 +4,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, ScanQrCode, Award, Calendar, CheckCircle, DollarSign, Target } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, Award, Calendar, CheckCircle, DollarSign, Target } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useEventsStore } from '@/store/eventsStore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import QRScanner from '@/components/QRScanner';
 import EventParticipants from '@/components/EventParticipants';
 import EventDonationModal from '@/components/EventDonationModal';
-import { getEventRegistrationStatus, registerForEvent, markEventAttended, downloadCalendarFile, isEventToday } from '@/utils/eventUtils';
+import { getEventRegistrationStatus, registerForEvent, downloadCalendarFile } from '@/utils/eventUtils';
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,12 +18,9 @@ const EventDetail = () => {
   const { toast } = useToast();
   const [registrationStatus, setRegistrationStatus] = useState({
     isRegistered: false,
-    hasAttended: false,
-    canScanQR: false,
     canRegister: false,
     isEventPast: false
   });
-  const [scannerOpen, setScannerOpen] = useState(false);
   const [donationModalOpen, setDonationModalOpen] = useState(false);
   
   const { getEvent } = useEventsStore();
@@ -78,52 +74,10 @@ const EventDetail = () => {
     // Show success toast
     toast({
       title: "¡Registrado para recordatorio!",
-      description: `Evento de calendario agregado para ${event.title}. Recuerda escanear el código QR el día del evento para confirmar asistencia.`,
+      description: `Evento de calendario agregado para ${event.title}.`,
     });
   };
 
-  const handleScanQR = () => {
-    // Only allow QR scanning on the event day
-    if (!event || !isEventToday(event.date)) {
-      toast({
-        title: "Escaneo de QR no disponible",
-        description: "El escaneo de código QR solo está disponible el día del evento.",
-        variant: "destructive"
-      });
-      return;
-    }
-    setScannerOpen(true);
-  };
-
-  const handleQRSuccess = (result: string) => {
-    if (!event || !id) return;
-    
-    // Close the scanner
-    setScannerOpen(false);
-
-    // Validate the QR code - in a real app this would verify if the QR code 
-    // matches the event ID or contains a valid participation token
-    if (result.includes(event.id) || result === 'valid-qr-code') {
-      // Mark attendance
-      markEventAttended(id);
-      
-      // Update local state
-      setRegistrationStatus(prev => ({ ...prev, hasAttended: true, canScanQR: false }));
-      
-      // Show success toast
-      toast({
-        title: "¡Asistencia registrada!",
-        description: `Te has registrado exitosamente en ${event.title}. Se han otorgado puntos y horas de voluntariado.`,
-      });
-    } else {
-      // Invalid QR code
-      toast({
-        title: "Código QR Inválido",
-        description: "El código QR escaneado no es válido para este evento.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleShare = () => {
     // In a real app, this would open a proper share dialog
@@ -271,20 +225,7 @@ const EventDetail = () => {
           </div>
           
           <div className="flex gap-2">
-            {registrationStatus.hasAttended ? (
-              <Button className="flex-1" disabled variant="secondary">
-                <CheckCircle size={16} className="mr-2" />
-                Asistido ✓
-              </Button>
-            ) : registrationStatus.canScanQR ? (
-              <Button 
-                className="flex-1" 
-                onClick={handleScanQR}
-              >
-                <ScanQrCode size={16} className="mr-2" />
-                Escanear QR para Asistencia
-              </Button>
-            ) : registrationStatus.canRegister ? (
+            {registrationStatus.canRegister ? (
               <Button 
                 className="flex-1" 
                 onClick={handleRegisterForReminder}
@@ -293,10 +234,10 @@ const EventDetail = () => {
                 <Calendar size={16} className="mr-2" />
                 Registrarse para Recordatorio
               </Button>
-            ) : registrationStatus.isRegistered && !registrationStatus.hasAttended ? (
+            ) : registrationStatus.isRegistered ? (
               <Button className="flex-1" disabled>
                 <Calendar size={16} className="mr-2" />
-                {registrationStatus.canScanQR ? 'Registrado - Escanear QR Hoy' : 'Registrado'}
+                Registrado
               </Button>
             ) : (
               <Button className="flex-1" disabled>
@@ -315,21 +256,6 @@ const EventDetail = () => {
         </CardContent>
       </Card>
 
-      {/* QR Scanner Dialog */}
-      <Dialog open={scannerOpen} onOpenChange={setScannerOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Escanear Código QR del Evento para Asistencia</DialogTitle>
-          </DialogHeader>
-          <div className="mb-4 p-3 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              Escanear este código QR marcará tu asistencia y te otorgará {event?.pointsEarned} puntos 
-              y {event?.volunteerHours} horas de voluntariado.
-            </p>
-          </div>
-          <QRScanner onSuccess={handleQRSuccess} onClose={() => setScannerOpen(false)} />
-        </DialogContent>
-      </Dialog>
 
       {/* Donation Modal */}
       {event.fundingRequired && (
