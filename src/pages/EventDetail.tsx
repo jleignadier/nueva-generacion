@@ -185,7 +185,7 @@ const EventDetail = () => {
             </div>
             <div className="flex items-center">
               <Clock size={16} className="mr-2 text-nuevagen-pink" />
-              <span>{formatTime(event.time, event.endTime)}</span>
+              <span className="whitespace-nowrap">{formatTime(event.time, event.endTime)}</span>
             </div>
             <div className="flex items-center">
               <MapPin size={16} className="mr-2 text-nuevagen-green" />
