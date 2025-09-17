@@ -4,13 +4,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, Award, Calendar, CheckCircle, DollarSign, Target } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, Award, Calendar, CheckCircle, DollarSign, Target, QrCode } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useEventsStore } from '@/store/eventsStore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import EventParticipants from '@/components/EventParticipants';
 import EventDonationModal from '@/components/EventDonationModal';
-import { getEventRegistrationStatus, registerForEvent, downloadCalendarFile } from '@/utils/eventUtils';
+import QRScanner from '@/components/QRScanner';
+import { getEventRegistrationStatus, registerForEvent, downloadCalendarFile, markEventAttended } from '@/utils/eventUtils';
+import { formatDate, formatEventTime } from '@/utils/dateUtils';
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,9 +21,12 @@ const EventDetail = () => {
   const [registrationStatus, setRegistrationStatus] = useState({
     isRegistered: false,
     canRegister: false,
-    isEventPast: false
+    isEventPast: false,
+    canScanQR: false,
+    hasAttended: false
   });
   const [donationModalOpen, setDonationModalOpen] = useState(false);
+  const [qrScannerOpen, setQrScannerOpen] = useState(false);
   
   const { getEvent } = useEventsStore();
   
@@ -31,7 +36,7 @@ const EventDetail = () => {
   // Check registration and attendance status
   useEffect(() => {
     if (id && event) {
-      const status = getEventRegistrationStatus(id, event.date);
+      const status = getEventRegistrationStatus(id, event.date, event.time, event.endTime);
       setRegistrationStatus(status);
     }
   }, [id, event]);
@@ -79,6 +84,27 @@ const EventDetail = () => {
   };
 
 
+  const handleQRScanSuccess = (result: string) => {
+    if (!event || !id) return;
+    
+    // Mark attendance
+    markEventAttended(id);
+    
+    // Update local state
+    setRegistrationStatus(prev => ({ 
+      ...prev, 
+      hasAttended: true, 
+      canScanQR: false 
+    }));
+    
+    setQrScannerOpen(false);
+    
+    toast({
+      title: "¡Asistencia registrada!",
+      description: `Has ganado ${event.pointsEarned} puntos y ${event.volunteerHours} horas de voluntariado.`,
+    });
+  };
+
   const handleShare = () => {
     // In a real app, this would open a proper share dialog
     toast({
@@ -90,26 +116,6 @@ const EventDetail = () => {
   // Use direct route for navigation - maintain the '/dashboard' path
   const handleBack = () => {
     navigate('/dashboard');
-  };
-
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
-
-  // Format time for display
-  const formatTime = (startTime: string, endTime?: string) => {
-    const formatTimeString = (timeStr: string) => {
-      const [hours, minutes] = timeStr.split(':');
-      const hour = parseInt(hours);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:${minutes} ${ampm}`;
-    };
-    
-    if (!endTime) return formatTimeString(startTime);
-    return `${formatTimeString(startTime)} - ${formatTimeString(endTime)}`;
   };
 
   return (
@@ -143,7 +149,7 @@ const EventDetail = () => {
             </div>
             <div className="flex items-center">
               <Clock size={16} className="mr-2 text-nuevagen-pink" />
-              <span>{formatTime(event.time, event.endTime)}</span>
+              <span>{formatEventTime(event.time, event.endTime)}</span>
             </div>
             <div className="flex items-center">
               <MapPin size={16} className="mr-2 text-nuevagen-green" />
@@ -225,7 +231,20 @@ const EventDetail = () => {
           </div>
           
           <div className="flex gap-2">
-            {registrationStatus.canRegister ? (
+            {registrationStatus.canScanQR ? (
+              <Button 
+                className="flex-1 bg-green-600 hover:bg-green-700" 
+                onClick={() => setQrScannerOpen(true)}
+              >
+                <QrCode size={16} className="mr-2" />
+                Escanear QR para Asistencia
+              </Button>
+            ) : registrationStatus.hasAttended ? (
+              <Button className="flex-1 bg-green-600" disabled>
+                <CheckCircle size={16} className="mr-2" />
+                Asistencia Registrada
+              </Button>
+            ) : registrationStatus.canRegister ? (
               <Button 
                 className="flex-1" 
                 onClick={handleRegisterForReminder}
@@ -256,7 +275,6 @@ const EventDetail = () => {
         </CardContent>
       </Card>
 
-
       {/* Donation Modal */}
       {event.fundingRequired && (
           <EventDonationModal
@@ -269,6 +287,19 @@ const EventDetail = () => {
             onClose={() => setDonationModalOpen(false)}
           />
       )}
+
+      {/* QR Scanner Modal */}
+      <Dialog open={qrScannerOpen} onOpenChange={setQrScannerOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Escanear QR para Registrar Asistencia</DialogTitle>
+          </DialogHeader>
+          <QRScanner
+            onSuccess={handleQRScanSuccess}
+            onClose={() => setQrScannerOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { CalendarCheck, Clock, MapPin, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CalendarCheck, Clock, MapPin, ArrowLeft, Award } from 'lucide-react';
 import { useEventsStore, Event } from '@/store/eventsStore';
-import { format, parseISO } from 'date-fns';
+import { formatDate, formatEventTime, getTodayString } from '@/utils/dateUtils';
 
 const Events = () => {
   const navigate = useNavigate();
@@ -15,34 +15,12 @@ const Events = () => {
   // Filter upcoming events and sort by date (using string-based date comparison)
   const upcomingEvents = events
     .filter(event => {
-      const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD format
+      const today = getTodayString(); // Get YYYY-MM-DD format
       return event.date >= today; // Include today and future events (string comparison)
     })
     .sort((a, b) => a.date.localeCompare(b.date)); // Sort by date string
   
   console.log('Events page - Upcoming events:', upcomingEvents);
-  
-  // Format date from ISO string to readable format
-  const formatDate = (dateString: string) => {
-    const date = parseISO(dateString);
-    return format(date, 'dd/MM/yyyy');
-  };
-  
-  // Format time from 24h to 12h format
-  const formatEventTime = (event: Event) => {
-    if (!event.time) return '';
-    
-    const formatTimeString = (timeStr: string) => {
-      const [hours, minutes] = timeStr.split(':');
-      const hour = parseInt(hours);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:${minutes} ${ampm}`;
-    };
-    
-    if (!event.endTime) return formatTimeString(event.time);
-    return `${formatTimeString(event.time)} - ${formatTimeString(event.endTime)}`;
-  };
   
   // Function to check event status
   const getEventStatus = (eventId: string) => {
@@ -92,7 +70,7 @@ const Events = () => {
                   </div>
                   <div className="flex items-center">
                     <Clock size={14} className="mr-1 text-nuevagen-green" />
-                    <span>{formatEventTime(event)}</span>
+                    <span>{formatEventTime(event.time, event.endTime)}</span>
                   </div>
                 </div>
                 

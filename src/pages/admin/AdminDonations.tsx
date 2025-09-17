@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
 import { Eye, Calendar, Building2, User, DollarSign } from "lucide-react";
 import { useEventsStore } from '@/store/eventsStore';
+import { formatDate } from '@/utils/dateUtils';
 import {
   Table,
   TableBody,
@@ -78,7 +79,7 @@ const AdminDonations = () => {
       id: donation.id || `user-${Math.random().toString(36).substr(2, 9)}`,
       name: donation.name || 'User Donation',
       amount: `$${donation.amount}`,
-      date: donation.date || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      date: donation.date || formatDate(new Date().toISOString().split('T')[0]),
       status: donation.status || 'Pendiente',
       receipt: donation.receiptFile,
       note: donation.note

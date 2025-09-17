@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useEventsStore } from '@/store/eventsStore';
 import { useCompetitionsStore } from '@/store/competitionsStore';
+import { formatDate, formatEventTime, getTodayString } from '@/utils/dateUtils';
 
 const AdminEvents = () => {
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ const AdminEvents = () => {
   // Filter events based on date-based status and search query
   const filteredEvents = events.filter(event => {
     // Determine actual status based on date using string comparison
-    const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD format
+    const today = getTodayString(); // Get YYYY-MM-DD format
     const eventDate = event.date; // Already in YYYY-MM-DD format
     
     let actualStatus: string;
@@ -104,26 +105,6 @@ const AdminEvents = () => {
     return matchesFilter && matchesSearch;
   });
 
-  // Function to format date for display
-  const formatDate = (dateString: string) => {
-    // Parse YYYY-MM-DD string directly to avoid timezone conversion
-    const [year, month, day] = dateString.split('-');
-    return `${day}/${month}/${year}`;
-  };
-
-  // Function to format time for display
-  const formatTime = (startTime: string, endTime?: string) => {
-    const formatTimeString = (timeStr: string) => {
-      const [hours, minutes] = timeStr.split(':');
-      const hour = parseInt(hours);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:${minutes} ${ampm}`;
-    };
-    
-    if (!endTime) return formatTimeString(startTime);
-    return `${formatTimeString(startTime)} - ${formatTimeString(endTime)}`;
-  };
 
   return (
     <div className="space-y-6">
@@ -345,7 +326,7 @@ const AdminEvents = () => {
                       </div>
                       <div className="flex items-center">
                         <Clock size={14} className="mr-1 flex-shrink-0" />
-                        <span className="truncate">{formatTime(event.time, event.endTime)}</span>
+                        <span className="truncate">{formatEventTime(event.time, event.endTime)}</span>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center text-zinc-400 text-sm mt-1 gap-x-4 gap-y-1">

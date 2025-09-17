@@ -1,4 +1,5 @@
-import { isSameDay, parseISO, isBefore, isAfter } from 'date-fns';
+import { parseISO } from 'date-fns';
+import { getTodayString, getCurrentTime, isTimeInRange } from './dateUtils';
 
 export interface EventRegistrationStatus {
   isRegistered: boolean;
@@ -9,19 +10,14 @@ export interface EventRegistrationStatus {
 }
 
 /**
- * Date-based event status functions
+ * Date-based event status functions (using string comparison)
  */
 export const getEventStatus = (eventDate: string): 'upcoming' | 'today' | 'completed' => {
-  const today = new Date();
-  const event = new Date(eventDate);
+  const today = getTodayString(); // Get YYYY-MM-DD format
   
-  // Set both dates to midnight for accurate comparison
-  today.setHours(0, 0, 0, 0);
-  event.setHours(0, 0, 0, 0);
-  
-  if (event.getTime() === today.getTime()) {
+  if (eventDate === today) {
     return 'today';
-  } else if (event > today) {
+  } else if (eventDate > today) {
     return 'upcoming';
   } else {
     return 'completed';
@@ -38,50 +34,76 @@ export const isEventUpcomingOrToday = (eventDate: string): boolean => {
 };
 
 /**
- * Check if current date matches the event date
+ * Check if current date matches the event date (using string comparison)
  */
 export const isEventToday = (eventDate: string): boolean => {
   try {
-    return isSameDay(new Date(), parseISO(eventDate));
+    return eventDate === getTodayString();
   } catch {
     return false;
   }
 };
 
 /**
- * Check if the event date is in the future
+ * Check if the event date is in the future (using string comparison)
  */
 export const isEventUpcoming = (eventDate: string): boolean => {
   try {
-    return isAfter(parseISO(eventDate), new Date());
+    return eventDate > getTodayString();
   } catch {
     return false;
   }
 };
 
 /**
- * Check if the event date is in the past
+ * Check if the event date is in the past (using string comparison)
  */
 export const isEventPast = (eventDate: string): boolean => {
   try {
-    return isBefore(parseISO(eventDate), new Date());
+    return eventDate < getTodayString();
   } catch {
     return false;
   }
+};
+
+/**
+ * Check if QR scanning is available based on current time and event time
+ */
+export const canScanQRAtCurrentTime = (
+  eventId: string, 
+  eventDate: string, 
+  eventStartTime: string, 
+  eventEndTime?: string
+): boolean => {
+  const attendedEvents = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
+  const hasAttended = attendedEvents.includes(eventId);
+  
+  // Must be today and user hasn't attended yet
+  if (!isEventToday(eventDate) || hasAttended) {
+    return false;
+  }
+  
+  const currentTime = getCurrentTime();
+  return isTimeInRange(currentTime, eventStartTime, eventEndTime);
 };
 
 /**
  * Get comprehensive registration status for an event
  */
-export const getEventRegistrationStatus = (eventId: string, eventDate: string): EventRegistrationStatus => {
+export const getEventRegistrationStatus = (
+  eventId: string, 
+  eventDate: string, 
+  eventStartTime?: string, 
+  eventEndTime?: string
+): EventRegistrationStatus => {
   const registeredEvents = JSON.parse(localStorage.getItem('registeredEvents') || '[]');
   const attendedEvents = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
   
   const isRegistered = registeredEvents.includes(eventId);
   const hasAttended = attendedEvents.includes(eventId);
-  const canScanQR = isEventToday(eventDate) && !hasAttended;
+  const canScanQR = eventStartTime ? canScanQRAtCurrentTime(eventId, eventDate, eventStartTime, eventEndTime) : false;
   const canRegister = isEventUpcoming(eventDate) && !isRegistered;
-  const eventIsPast = isEventPast(eventDate) && !isEventToday(eventDate);
+  const eventIsPast = isEventPast(eventDate);
 
   return {
     isRegistered,
