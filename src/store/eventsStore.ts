@@ -9,6 +9,10 @@ export interface EventDonation {
   amount: number;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;
+  donationType?: 'individual' | 'organization';
+  organizationId?: string;
+  receiptFile?: string;
+  donationMethod?: 'qrcode' | 'yappy';
 }
 
 export interface RegisteredParticipant {
@@ -55,9 +59,9 @@ const initialEvents: Event[] = [
     fundingRequired: 500,
     currentFunding: 320,
     donations: [
-      { id: '1', userId: '1', userName: 'María García', amount: 50, status: 'approved', createdAt: '2025-09-15' },
-      { id: '2', userId: '2', userName: 'Juan Pérez', amount: 100, status: 'approved', createdAt: '2025-09-16' },
-      { id: '3', userId: '3', userName: 'Ana López', amount: 75, status: 'pending', createdAt: '2025-09-17' }
+      { id: '1', userId: '1', userName: 'María García', amount: 50, status: 'approved', createdAt: '2025-09-15', donationType: 'individual', receiptFile: 'receipt1.jpg', donationMethod: 'yappy' },
+      { id: '2', userId: '2', userName: 'Juan Pérez', amount: 100, status: 'approved', createdAt: '2025-09-16', donationType: 'individual', receiptFile: 'receipt2.jpg', donationMethod: 'qrcode' },
+      { id: '3', userId: '3', userName: 'Ana López (Green Earth Foundation)', amount: 75, status: 'pending', createdAt: '2025-09-17', donationType: 'organization', organizationId: '1', receiptFile: 'receipt3.jpg', donationMethod: 'yappy' }
     ],
     registeredParticipants: [
       { id: '1', name: 'María García', type: 'user', avatar: 'https://placehold.co/40x40/png?text=MG' },

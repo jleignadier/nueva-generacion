@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
-import { Eye } from "lucide-react";
+import { Eye, Calendar, Building2, User, DollarSign } from "lucide-react";
+import { useEventsStore } from '@/store/eventsStore';
 import {
   Table,
   TableBody,
@@ -29,6 +30,10 @@ interface Donation {
   status: 'Pendiente' | 'Verificada' | 'Rechazada' | 'Completada' | 'Pending' | 'Verified' | 'Rejected' | 'Completed';
   receipt?: string;
   note?: string;
+  eventId?: string;
+  eventTitle?: string;
+  donationType?: 'individual' | 'organization';
+  donationMethod?: 'qrcode' | 'yappy';
 }
 
 const AdminDonations = () => {
@@ -38,10 +43,11 @@ const AdminDonations = () => {
   const { toast } = useToast();
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
+  const { events, approveDonation, rejectDonation } = useEventsStore();
 
   useEffect(() => {
     loadAllDonations();
-  }, []);
+  }, [events]); // Re-load when events change
 
   // Filter donations based on search term
   React.useEffect(() => {
@@ -92,8 +98,29 @@ const AdminDonations = () => {
       localStorage.setItem('mockDonations', JSON.stringify(mockDonations));
     }
 
+    // Get event donations
+    const eventDonations: Donation[] = [];
+    events.forEach(event => {
+      if (event.donations) {
+        event.donations.forEach(donation => {
+          eventDonations.push({
+            id: `event-${event.id}-${donation.id}`,
+            name: donation.userName,
+            amount: `$${donation.amount}`,
+            date: donation.createdAt,
+            status: donation.status === 'approved' ? 'Completada' : donation.status === 'rejected' ? 'Rechazada' : 'Pendiente',
+            receipt: donation.receiptFile,
+            eventId: event.id,
+            eventTitle: event.title,
+            donationType: donation.donationType,
+            donationMethod: donation.donationMethod
+          });
+        });
+      }
+    });
+
     // Combine and sort by date (most recent first)
-    const allDonations = [...formattedUserDonations, ...mockDonations];
+    const allDonations = [...formattedUserDonations, ...mockDonations, ...eventDonations];
     
     // Parse dates for sorting
     const sortedDonations = allDonations.sort((a, b) => {
@@ -107,7 +134,32 @@ const AdminDonations = () => {
   };
 
   const handleStatusUpdate = (donationId: string, newStatus: 'Completada' | 'Rechazada') => {
-    // Update in state
+    // Check if this is an event donation
+    if (donationId.startsWith('event-')) {
+      const [, eventId, originalDonationId] = donationId.split('-');
+      
+      if (newStatus === 'Completada') {
+        approveDonation(eventId, originalDonationId);
+      } else {
+        rejectDonation(eventId, originalDonationId);
+      }
+      
+      // Reload donations to reflect changes
+      setTimeout(() => loadAllDonations(), 100);
+      
+      toast({
+        title: "Donación de evento actualizada",
+        description: `El estado de la donación ha sido actualizado a ${newStatus}`
+      });
+      
+      if (showDetailsModal) {
+        setShowDetailsModal(false);
+        setSelectedDonation(null);
+      }
+      return;
+    }
+    
+    // Handle regular donations (existing logic)
     const updatedDonations = donations.map(donation => 
       donation.id === donationId 
         ? { ...donation, status: newStatus } 
@@ -200,6 +252,7 @@ const AdminDonations = () => {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-zinc-700">
+                <TableHead className="text-white">Tipo</TableHead>
                 <TableHead className="text-white">Donante</TableHead>
                 <TableHead className="text-white">Monto</TableHead>
                 <TableHead className="text-white">Fecha</TableHead>
@@ -210,7 +263,35 @@ const AdminDonations = () => {
             <TableBody>
               {filteredDonations.map((donation) => (
                 <TableRow key={donation.id} className="border-b border-zinc-700">
-                  <TableCell>{donation.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {donation.eventId ? (
+                        <Calendar size={16} className="text-blue-400" />
+                      ) : (
+                        <DollarSign size={16} className="text-green-400" />
+                      )}
+                      <div className="text-xs">
+                        {donation.eventId ? (
+                          <div>
+                            <div className="text-blue-400 font-medium">Evento</div>
+                            <div className="text-zinc-400">{donation.eventTitle}</div>
+                          </div>
+                        ) : (
+                          <div className="text-green-400 font-medium">General</div>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {donation.donationType === 'organization' ? (
+                        <Building2 size={14} className="text-purple-400" />
+                      ) : (
+                        <User size={14} className="text-gray-400" />
+                      )}
+                      <span>{donation.name}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="font-medium">{donation.amount}</TableCell>
                   <TableCell className="text-zinc-400">{donation.date}</TableCell>
                   <TableCell>
@@ -255,7 +336,7 @@ const AdminDonations = () => {
               
               {filteredDonations.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-4 text-zinc-400">
+                  <TableCell colSpan={6} className="text-center py-4 text-zinc-400">
                     {searchTerm ? 'No se encontraron donaciones que coincidan con tu búsqueda' : 'No se encontraron donaciones'}
                   </TableCell>
                 </TableRow>
@@ -292,6 +373,42 @@ const AdminDonations = () => {
                   <p>{selectedDonation.status}</p>
                 </div>
               </div>
+              
+              {selectedDonation.eventId && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Evento</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Calendar size={16} className="text-blue-400" />
+                    <p className="text-blue-600">{selectedDonation.eventTitle}</p>
+                  </div>
+                </div>
+              )}
+              
+              {selectedDonation.donationType && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Tipo de Donación</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {selectedDonation.donationType === 'organization' ? (
+                      <>
+                        <Building2 size={16} className="text-purple-400" />
+                        <p>Organización</p>
+                      </>
+                    ) : (
+                      <>
+                        <User size={16} className="text-gray-400" />
+                        <p>Individual</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {selectedDonation.donationMethod && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Método de Pago</p>
+                  <p className="capitalize">{selectedDonation.donationMethod === 'yappy' ? 'Yappy' : 'Código QR'}</p>
+                </div>
+              )}
               
               {selectedDonation.note && (
                 <div>

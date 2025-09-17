@@ -4,15 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/components/ui/use-toast';
-import { DollarSign, Heart, Target } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DollarSign, Heart, Target, Copy, Camera, QrCode, Building2 } from 'lucide-react';
 import { useEventsStore } from '@/store/eventsStore';
+import { useAuth } from '@/contexts/AuthContext';
+import { useOrganizationsStore } from '@/store/organizationsStore';
 
 interface EventDonationModalProps {
   eventId: string;
   eventTitle: string;
   fundingRequired: number;
   currentFunding: number;
+  pointsEarned: number;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -22,16 +26,39 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
   eventTitle,
   fundingRequired,
   currentFunding,
+  pointsEarned,
   isOpen,
   onClose
 }) => {
   const [donationAmount, setDonationAmount] = useState<string>('');
-  const [donorName, setDonorName] = useState<string>('');
+  const [donationMethod, setDonationMethod] = useState<'qrcode' | 'yappy'>('yappy');
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [donationType, setDonationType] = useState<'individual' | 'organization'>('individual');
   const { addDonation } = useEventsStore();
+  const { user } = useAuth();
+  const { organizations } = useOrganizationsStore();
   const { toast } = useToast();
+
+  const yappyHandle = '@NuevaGeneracion';
+  const userOrganization = user?.organizationId ? organizations.find(org => org.id === user.organizationId) : null;
 
   const fundingProgress = (currentFunding / fundingRequired) * 100;
   const remainingAmount = Math.max(0, fundingRequired - currentFunding);
+  const calculatedPoints = parseFloat(donationAmount) || 0;
+
+  const handleCopyYappyHandle = () => {
+    navigator.clipboard.writeText(yappyHandle);
+    toast({
+      title: "¡Copiado!",
+      description: "Usuario de Yappy copiado al portapapeles",
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setReceiptFile(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,32 +73,42 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
       return;
     }
 
-    if (!donorName.trim()) {
+    if (!receiptFile) {
       toast({
-        title: "Información faltante",
-        description: "Por favor ingresa tu nombre",
+        title: "Recibo requerido",
+        description: "Por favor sube un recibo de tu donación",
         variant: "destructive"
       });
       return;
     }
 
+    // Determine donor name and organization
+    const donorName = user?.name || 'Usuario Anónimo';
+    const organizationName = donationType === 'organization' && userOrganization ? userOrganization.name : undefined;
+    const displayName = organizationName ? `${donorName} (${organizationName})` : donorName;
+
     // Add donation (pending approval)
     addDonation(eventId, {
-      userId: Date.now().toString(), // In real app, this would be the actual user ID
-      userName: donorName.trim(),
+      userId: user?.id || Date.now().toString(),
+      userName: displayName,
       amount,
       status: 'pending',
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString().split('T')[0],
+      donationType: donationType,
+      organizationId: donationType === 'organization' ? user?.organizationId : undefined,
+      receiptFile: receiptFile.name,
+      donationMethod: donationMethod
     });
 
     toast({
       title: "¡Donación enviada!",
-      description: `Tu donación de $${amount} ha sido enviada y está pendiente de aprobación.`,
+      description: `Tu donación de $${amount} ha sido enviada y está pendiente de aprobación. Ganarás ${calculatedPoints} puntos cuando sea aprobada.`,
     });
 
     // Reset form and close modal
     setDonationAmount('');
-    setDonorName('');
+    setReceiptFile(null);
+    setDonationType('individual');
     onClose();
   };
 
@@ -93,6 +130,8 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-3">
               <Target size={16} />
               <span>Meta: ${fundingRequired}</span>
+              <span>•</span>
+              <span>{pointsEarned} puntos por participar</span>
             </div>
             <Progress value={fundingProgress} className="mb-2" />
             <div className="flex justify-between text-sm">
@@ -101,17 +140,80 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="donorName">Tu nombre</Label>
-              <Input
-                id="donorName"
-                value={donorName}
-                onChange={(e) => setDonorName(e.target.value)}
-                placeholder="Ingresa tu nombre"
-                required
-              />
+          {/* Donation Method Selection */}
+          <div className="space-y-3">
+            <Label>Método de Donación</Label>
+            <div className="flex rounded-lg border">
+              <button
+                type="button"
+                onClick={() => setDonationMethod('yappy')}
+                className={`flex-1 py-2 px-4 rounded-l-lg transition-colors ${
+                  donationMethod === 'yappy' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted hover:bg-muted/80'
+                }`}
+              >
+                Usuario de Yappy
+              </button>
+              <button
+                type="button"
+                onClick={() => setDonationMethod('qrcode')}
+                className={`flex-1 py-2 px-4 rounded-r-lg transition-colors ${
+                  donationMethod === 'qrcode' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted hover:bg-muted/80'
+                }`}
+              >
+                <QrCode className="mx-auto" size={16} />
+                Código QR
+              </button>
             </div>
+            
+            {donationMethod === 'yappy' ? (
+              <div className="flex items-center justify-between bg-muted p-3 rounded">
+                <span className="font-medium">{yappyHandle}</span>
+                <Button 
+                  type="button"
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleCopyYappyHandle}
+                  className="flex gap-1 items-center" 
+                >
+                  <Copy size={16} />
+                  Copiar
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center p-4 bg-muted rounded">
+                <Camera className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  Escanea el código QR para donar
+                </p>
+              </div>
+            )}
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Donation Type Selection */}
+            {user && userOrganization && (
+              <div className="space-y-2">
+                <Label>Donar como</Label>
+                <Select value={donationType} onValueChange={(value: 'individual' | 'organization') => setDonationType(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual ({user.name})</SelectItem>
+                    <SelectItem value="organization">
+                      <div className="flex items-center gap-2">
+                        <Building2 size={16} />
+                        {userOrganization.name}
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="amount">Monto de donación</Label>
@@ -129,6 +231,9 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
                   required
                 />
               </div>
+              <div className="text-sm text-green-600 font-medium">
+                Ganarás {calculatedPoints} puntos con esta donación
+              </div>
             </div>
 
             <div className="grid grid-cols-4 gap-2">
@@ -144,6 +249,20 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
                   ${amount}
                 </Button>
               ))}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="receiptUpload">Subir Recibo *</Label>
+              <Input
+                id="receiptUpload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Sube una captura de pantalla de tu recibo de donación
+              </p>
             </div>
 
             <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-700">

@@ -333,14 +333,15 @@ const EventDetail = () => {
 
       {/* Donation Modal */}
       {event.fundingRequired && (
-        <EventDonationModal
-          eventId={event.id}
-          eventTitle={event.title}
-          fundingRequired={event.fundingRequired}
-          currentFunding={event.currentFunding || 0}
-          isOpen={donationModalOpen}
-          onClose={() => setDonationModalOpen(false)}
-        />
+          <EventDonationModal
+            eventId={event.id}
+            eventTitle={event.title}
+            fundingRequired={event.fundingRequired}
+            currentFunding={event.currentFunding || 0}
+            pointsEarned={event.pointsEarned}
+            isOpen={donationModalOpen}
+            onClose={() => setDonationModalOpen(false)}
+          />
       )}
     </div>
   );
