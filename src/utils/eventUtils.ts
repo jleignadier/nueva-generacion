@@ -57,10 +57,11 @@ export const isEventUpcoming = (eventDate: string): boolean => {
 
 /**
  * Check if the event date is in the past (using string comparison)
+ * Events are considered past only after the day has ended (not during the same day)
  */
 export const isEventPast = (eventDate: string): boolean => {
   try {
-    return eventDate < getTodayString();
+    return eventDate < getTodayString(); // Only past if before today (not including today)
   } catch {
     return false;
   }

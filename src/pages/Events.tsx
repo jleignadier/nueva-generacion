@@ -12,11 +12,12 @@ const Events = () => {
   
   console.log('Events page - All events:', events);
   
-  // Filter upcoming events and sort by date (using string-based date comparison)
+  // Filter events to show all upcoming events and today's events (visible until end of day)
   const upcomingEvents = events
     .filter(event => {
       const today = getTodayString(); // Get YYYY-MM-DD format
-      return event.date >= today; // Include today and future events (string comparison)
+      // Show all future events and today's events (remain visible all day regardless of attendance)
+      return event.date >= today;
     })
     .sort((a, b) => a.date.localeCompare(b.date)); // Sort by date string
   
@@ -85,7 +86,6 @@ const Events = () => {
                     size="sm"
                     onClick={() => navigate(`/dashboard/events/${event.id}`)}
                     variant={getEventStatus(event.id).status === 'attended' ? 'secondary' : 'default'}
-                    disabled={getEventStatus(event.id).status === 'attended'}
                   >
                     {getEventStatus(event.id).text}
                   </Button>
