@@ -87,11 +87,9 @@ const AdminEvents = () => {
 
   // Filter events based on date-based status and search query
   const filteredEvents = events.filter(event => {
-    // Determine actual status based on date
-    const today = new Date();
-    const eventDate = new Date(event.date);
-    today.setHours(0, 0, 0, 0);
-    eventDate.setHours(0, 0, 0, 0);
+    // Determine actual status based on date using string comparison
+    const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD format
+    const eventDate = event.date; // Already in YYYY-MM-DD format
     
     let actualStatus: string;
     if (eventDate > today) {
@@ -108,8 +106,9 @@ const AdminEvents = () => {
 
   // Function to format date for display
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    // Parse YYYY-MM-DD string directly to avoid timezone conversion
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
   };
 
   // Function to format time for display
@@ -233,10 +232,13 @@ const AdminEvents = () => {
                           <Trophy size={14} />
                           <span>Premio: {competition.prize}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar size={14} />
-                          <span>Termina: {new Date(competition.endDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
-                        </div>
+                         <div className="flex items-center gap-2">
+                           <Calendar size={14} />
+                           <span>Termina: {(() => {
+                             const [year, month, day] = competition.endDate.split('-');
+                             return `${day}/${month}/${year}`;
+                           })()}</span>
+                         </div>
                       </div>
                     </div>
                     <div className="flex flex-row sm:flex-col gap-2 sm:items-end">
