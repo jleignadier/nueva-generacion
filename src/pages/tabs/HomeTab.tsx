@@ -13,16 +13,13 @@ const HomeTab = () => {
   const navigate = useNavigate();
   const { events } = useEventsStore();
   
-  // Filter upcoming events and sort by date (using date-based status)
+  // Filter upcoming events and sort by date (using string-based date comparison)
   const upcomingEvents = events
     .filter(event => {
-      const today = new Date();
-      const eventDate = new Date(event.date);
-      today.setHours(0, 0, 0, 0);
-      eventDate.setHours(0, 0, 0, 0);
-      return eventDate >= today; // Include today and future events
+      const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD format
+      return event.date >= today; // Include today and future events (string comparison)
     })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    .sort((a, b) => a.date.localeCompare(b.date)); // Sort by date string
   
   
   const nextEvent = upcomingEvents[0];
