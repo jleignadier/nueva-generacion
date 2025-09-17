@@ -187,10 +187,14 @@ const LeaderboardTab = () => {
     setShowUserProfile(true);
   };
 
-  const renderLeaderboard = (entries: LeaderboardEntry[]) => (
+  const renderLeaderboard = (entries: LeaderboardEntry[], isOrgLeaderboard = false) => (
     <div className="space-y-2">
       {entries.map((entry) => {
-        const isUser = entry.name === user?.name;
+        // For individual leaderboard, check if it's the current user
+        // For organization leaderboard, check if it's the user's organization
+        const isUser = isOrgLeaderboard 
+          ? (user?.organizationId && entry.id === 8) || (user?.accountType === 'organization' && entry.name === user.name)
+          : entry.name === user?.name;
         const isTop3 = entry.rank <= 3;
         const isClickable = isProfileClickable(entry);
         
@@ -274,7 +278,7 @@ const LeaderboardTab = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
-              {renderLeaderboard(volunteerLeaders)}
+              {renderLeaderboard(volunteerLeaders, false)}
             </CardContent>
           </Card>
         </TabsContent>
@@ -288,7 +292,7 @@ const LeaderboardTab = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
-              {renderLeaderboard(organizationLeaders)}
+              {renderLeaderboard(organizationLeaders, true)}
             </CardContent>
           </Card>
         </TabsContent>
