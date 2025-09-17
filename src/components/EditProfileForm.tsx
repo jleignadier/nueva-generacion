@@ -156,6 +156,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
             <Select 
               value={formData.accountType} 
               onValueChange={(value) => handleInputChange('accountType', value)}
+              disabled={user?.accountType === 'admin'} // Prevent admins from changing their type
             >
               <SelectTrigger id="accountType">
                 <SelectValue placeholder="Seleccionar tipo de cuenta" />
@@ -163,9 +164,14 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
               <SelectContent>
                 <SelectItem value="individual">Individual</SelectItem>
                 <SelectItem value="organization">Organización</SelectItem>
-                <SelectItem value="admin">Administrador</SelectItem>
+                {/* Remove admin option - admin accounts can only be created during signup */}
               </SelectContent>
             </Select>
+            {user?.accountType === 'admin' && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Las cuentas de administrador no pueden cambiar su tipo
+              </p>
+            )}
           </div>
           
           <div>
