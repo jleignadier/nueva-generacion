@@ -17,6 +17,7 @@ interface LeaderboardEntry {
   hours?: number;
   events?: number;
   organizationName?: string;
+  profilePicture?: string;
 }
 
 const LeaderboardTab = () => {
@@ -59,12 +60,12 @@ const LeaderboardTab = () => {
     { id: 5, name: 'Li Wei', rank: 5, value: 47, avatar: 'LW', hours: 28, events: 7 },
     { id: 6, name: 'Olivia Martinez', rank: 6, value: 42, avatar: 'OM', hours: 25, events: 6 },
     { id: 7, name: 'John Smith', rank: 7, value: 38, avatar: 'JS', hours: 22, events: 5 },
-    { id: 8, name: user?.name || 'User Name', rank: userRank, value: userStats.points, avatar: user?.name?.charAt(0) || '?', hours: userStats.hours, events: userStats.events },
+    { id: 8, name: user?.name || 'User Name', rank: userRank, value: userStats.points, avatar: user?.name?.charAt(0) || '?', hours: userStats.hours, events: userStats.events, profilePicture: user?.profilePicture },
   ];
 
   // Filter organization leaderboard based on user account type and organization membership
   const getOrganizationLeaders = (): LeaderboardEntry[] => {
-    const baseOrganizations = [
+    const baseOrganizations: LeaderboardEntry[] = [
       { id: 1, name: 'Green Earth Foundation', rank: 1, value: 250, avatar: 'GE' },
       { id: 2, name: 'Community Helpers', rank: 2, value: 175, avatar: 'CH' },
       { id: 3, name: 'Tech Solutions Inc.', rank: 3, value: 150, avatar: 'TS' },
@@ -86,7 +87,8 @@ const LeaderboardTab = () => {
         name: orgName,
         rank: organizationRank,
         value: organizationPoints,
-        avatar: orgName.charAt(0)
+        avatar: orgName.charAt(0),
+        profilePicture: user?.profilePicture
       });
     } else if (user?.accountType === 'organization') {
       baseOrganizations.push({
@@ -94,7 +96,8 @@ const LeaderboardTab = () => {
         name: user.name,
         rank: organizationRank,
         value: organizationPoints,
-        avatar: user.name.charAt(0)
+        avatar: user.name.charAt(0),
+        profilePicture: user?.profilePicture
       });
     }
 
@@ -211,18 +214,19 @@ const LeaderboardTab = () => {
                 {entry.rank}
               </div>
               
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center font-medium text-white 
-                ${isTop3 
-                  ? entry.rank === 1 
-                    ? 'bg-yellow-500' 
-                    : entry.rank === 2 
-                      ? 'bg-gray-400' 
-                      : 'bg-amber-700'
-                  : 'bg-primary'
-                }`}
-              >
-                {isTop3 && <Trophy size={16} />}
-                {!isTop3 && entry.avatar}
+              {/* Profile Picture/Avatar */}
+              <div className="h-10 w-10 rounded-full overflow-hidden flex items-center justify-center bg-primary">
+                {entry.profilePicture ? (
+                  <img 
+                    src={entry.profilePicture} 
+                    alt={`${entry.name} profile`} 
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="font-medium text-white text-sm">
+                    {entry.avatar}
+                  </span>
+                )}
               </div>
               
               <div className="ml-3 flex-1">
@@ -236,6 +240,20 @@ const LeaderboardTab = () => {
                   {entry.value} puntos
                 </div>
               </div>
+              
+              {/* Trophy for top 3 on the right */}
+              {isTop3 && (
+                <div className={`flex items-center justify-center w-8 h-8 rounded-full
+                  ${entry.rank === 1 
+                    ? 'bg-yellow-500' 
+                    : entry.rank === 2 
+                      ? 'bg-gray-400' 
+                      : 'bg-amber-700'
+                  }`}
+                >
+                  <Trophy size={16} className="text-white" />
+                </div>
+              )}
             </CardContent>
           </Card>
         );
