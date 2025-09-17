@@ -126,7 +126,7 @@ const DonationsTab = () => {
                 }`}
               >
                 <QrCode className="mx-auto mb-1" size={18} />
-                Escanear Código QR
+                Escanear QR
               </button>
               <button
                 type="button"
