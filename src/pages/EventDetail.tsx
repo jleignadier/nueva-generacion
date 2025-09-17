@@ -225,7 +225,7 @@ const EventDetail = () => {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium flex items-center gap-2">
                   <Target className="text-green-600" size={18} />
-                  Financiamiento del Evento
+                  Financiar Evento
                 </h3>
                 <Button 
                   size="sm" 
