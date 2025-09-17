@@ -17,9 +17,6 @@ interface UserSettings {
     donations: boolean;
     general: boolean;
   };
-  privacy: {
-    profileVisible: boolean;
-  };
 }
 
 const defaultSettings: UserSettings = {
@@ -27,9 +24,6 @@ const defaultSettings: UserSettings = {
     events: true,
     donations: true,
     general: false
-  },
-  privacy: {
-    profileVisible: true
   }
 };
 
@@ -55,17 +49,6 @@ const UserSettingsModal: React.FC<UserSettingsModalProps> = ({ isOpen, onClose }
       ...settings,
       notifications: {
         ...settings.notifications,
-        [key]: value
-      }
-    };
-    saveSettings(newSettings);
-  };
-
-  const updatePrivacySetting = (key: keyof UserSettings['privacy'], value: boolean) => {
-    const newSettings = {
-      ...settings,
-      privacy: {
-        ...settings.privacy,
         [key]: value
       }
     };
@@ -128,30 +111,6 @@ const UserSettingsModal: React.FC<UserSettingsModalProps> = ({ isOpen, onClose }
                 <Switch
                   checked={settings.notifications.general}
                   onCheckedChange={(checked) => updateNotificationSetting('general', checked)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Privacy Settings */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center">
-                <Shield size={18} className="mr-2 text-primary" />
-                Privacidad
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Perfil Visible</p>
-                  <p className="text-sm text-muted-foreground">
-                    Permitir que otros vean tu perfil en el ranking
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.privacy.profileVisible}
-                  onCheckedChange={(checked) => updatePrivacySetting('profileVisible', checked)}
                 />
               </div>
             </CardContent>

@@ -229,14 +229,8 @@ const LeaderboardTab = () => {
                   )}
                 </p>
                 <div className="text-sm text-muted-foreground">
-                  {isUser ? (
-                    <div>
-                      <div>{entry.value} puntos</div>
-                      {entry.hours && <div>{entry.hours} horas • {entry.events} eventos</div>}
-                    </div>
-                  ) : (
-                    'Puntos privados'
-                  )}
+                  <div>{entry.value} puntos</div>
+                  {entry.hours && <div>{entry.hours} horas • {entry.events} eventos</div>}
                 </div>
               </div>
             </CardContent>
@@ -313,6 +307,8 @@ const LeaderboardTab = () => {
           userAvatar={selectedUser.avatar}
           userPoints={selectedUser.value}
           userRank={selectedUser.rank}
+          userHours={selectedUser.hours}
+          userEvents={selectedUser.events}
         />
       )}
     </div>
