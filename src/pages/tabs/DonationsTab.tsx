@@ -147,10 +147,10 @@ const DonationsTab = () => {
                   <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <Button 
                     onClick={() => setShowQRScanner(true)}
-                    className="w-full flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2 text-sm px-2 py-2"
                   >
-                    <QrCode size={20} />
-                    Escanear Código QR de Donación
+                    <QrCode size={16} />
+                    Escanear QR
                   </Button>
                 </div>
                 <p className="mt-4 text-sm text-gray-600">
