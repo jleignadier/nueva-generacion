@@ -229,8 +229,7 @@ const LeaderboardTab = () => {
                   )}
                 </p>
                 <div className="text-sm text-muted-foreground">
-                  <div>{entry.value} puntos</div>
-                  {entry.hours && <div>{entry.hours} horas • {entry.events} eventos</div>}
+                  {entry.value} puntos
                 </div>
               </div>
             </CardContent>
