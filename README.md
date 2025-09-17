@@ -24,9 +24,11 @@ A comprehensive web application designed to connect volunteers, organizations, a
 - Points-based achievement system
 
 #### 💝 Donation Management
-- Donation tracking and history
-- Integration with volunteer activities
-- Transparency in fund allocation and impact
+- Advanced donation tracking with sorting capabilities (most recent, oldest, amount)
+- Comprehensive search functionality for donation types ("Evento", "General") and event titles
+- Integration with volunteer activities and event participation
+- Standardized date formatting (dd/mm/yyyy) across all donation records
+- Transparency in fund allocation and impact tracking
 
 #### 👤 Profile Management
 - Comprehensive user profiles with personal information
@@ -38,7 +40,8 @@ A comprehensive web application designed to connect volunteers, organizations, a
 - Responsive design optimized for mobile devices
 - Tab-based navigation (Home, Events, Donations, Leaderboard, Profile)
 - Touch-friendly interface with intuitive navigation
-- QR code scanner for mobile event check-ins
+- QR code scanner for mobile event check-ins with Spanish language support
+- Latest event attendance display in user profiles
 
 ### Administrative Features
 
@@ -69,6 +72,13 @@ A comprehensive web application designed to connect volunteers, organizations, a
 - Real-time event participation tracking
 - Instant notification system
 - Dynamic content updates
+- Standardized date formatting (dd/mm/yyyy) across all components
+
+### Data & Persistence
+- **LocalStorage Integration**: Demo data persistence using browser localStorage
+- **Mock Data System**: Comprehensive mock data for testing and demonstration
+- **Date Standardization**: Consistent dd/mm/yyyy format across all date displays
+- **User State Management**: Persistent authentication and user preferences
 
 ## 🚀 Getting Started
 
@@ -176,7 +186,11 @@ Compatible with Vercel, Netlify, GitHub Pages, and other static hosting provider
 - `npm run lint` - Run ESLint
 
 ### Environment Setup
-No environment variables required for basic functionality. The app uses localStorage for demo data persistence.
+No environment variables required for basic functionality. The app uses localStorage for demo data persistence and includes:
+- Mock user accounts and organizations
+- Sample events and donation data  
+- Persistent user authentication state
+- Standardized dd/mm/yyyy date formatting throughout the application
 
 ### Contributing
 1. Fork the repository
@@ -202,8 +216,10 @@ This project is built with Lovable and follows standard web development practice
 - [ ] Advanced analytics dashboard
 - [ ] Mobile app companion
 - [ ] Integration with payment processors
-- [ ] Multi-language support
+- [x] Partial multi-language support (Spanish elements implemented)
+- [ ] Complete multi-language internationalization
 - [ ] Advanced reporting features
+- [ ] Enhanced donation tracking and analytics
 
 ---
 
