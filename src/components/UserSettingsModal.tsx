@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Settings, Bell, Shield, Palette } from 'lucide-react';
+import { Settings, Bell, Shield } from 'lucide-react';
 
 interface UserSettingsModalProps {
   isOpen: boolean;
@@ -20,7 +20,6 @@ interface UserSettings {
   privacy: {
     profileVisible: boolean;
   };
-  theme: 'light' | 'dark' | 'auto';
 }
 
 const defaultSettings: UserSettings = {
@@ -31,8 +30,7 @@ const defaultSettings: UserSettings = {
   },
   privacy: {
     profileVisible: true
-  },
-  theme: 'light'
+  }
 };
 
 const UserSettingsModal: React.FC<UserSettingsModalProps> = ({ isOpen, onClose }) => {
@@ -159,26 +157,6 @@ const UserSettingsModal: React.FC<UserSettingsModalProps> = ({ isOpen, onClose }
             </CardContent>
           </Card>
 
-          {/* Theme Settings (placeholder for future) */}
-          <Card className="opacity-50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center">
-                <Palette size={18} className="mr-2 text-primary" />
-                Apariencia
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Tema</p>
-                  <p className="text-sm text-muted-foreground">
-                    Próximamente - Modo claro/oscuro
-                  </p>
-                </div>
-                <Switch disabled checked={false} />
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         <Button onClick={onClose} className="w-full mt-6">
