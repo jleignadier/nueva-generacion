@@ -25,11 +25,11 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
   const donations: Donation[] = useMemo(() => {
     const submittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
     
-    // Add mock donations for demonstration
+    // Add mock donations for demonstration  
     const mockDonations = [
-      { id: 'mock-1', amount: 25.50, date: '2024-01-15', note: 'Donación mensual', status: 'verified' },
-      { id: 'mock-2', amount: 50.00, date: '2024-02-15', note: 'Apoyo especial', status: 'verified' },
-      { id: 'mock-3', amount: 15.75, date: '2024-03-01', note: 'Contribución solidaria', status: 'pending' }
+      { id: 'mock-1', amount: 25.50, date: '15/01/2024', note: 'Donación mensual', status: 'verified' },
+      { id: 'mock-2', amount: 50.00, date: '15/02/2024', note: 'Apoyo especial', status: 'verified' },
+      { id: 'mock-3', amount: 15.75, date: '01/03/2024', note: 'Contribución solidaria', status: 'pending' }
     ];
     
     return [...submittedDonations, ...mockDonations];
@@ -138,7 +138,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
                         <div>
                           <p className="font-semibold">${Number(donation.amount).toFixed(2)}</p>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(donation.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            {donation.date}
                           </p>
                         </div>
                         <div className="flex items-center">

@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { QrCode, Copy, CalendarCheck, DollarSign, Camera } from 'lucide-react';
 import QRScanner from '@/components/QRScanner';
+import { useAuth } from '@/contexts/AuthContext';
+import { formatDate, getTodayString } from '@/utils/dateUtils';
 
 const DonationsTab = () => {
   const [amount, setAmount] = useState('');
@@ -18,6 +20,7 @@ const DonationsTab = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const yappyHandle = '@NuevaGeneracion';
   
@@ -78,8 +81,8 @@ const DonationsTab = () => {
       amount: amount,
       note: note,
       receiptFile: receiptFile.name, // In a real app, we'd upload this file to storage
-      date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-      name: "Current User", // In a real app, get this from user profile
+      date: formatDate(getTodayString()),
+      name: user?.name || "Usuario Anónimo",
       status: "Pending"
     };
     

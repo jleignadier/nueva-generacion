@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
-import { Eye, Calendar, Building2, User, DollarSign } from "lucide-react";
+import { Eye, Calendar, Building2, User, DollarSign, ArrowUpDown } from "lucide-react";
 import { useEventsStore } from '@/store/eventsStore';
 import { formatDate } from '@/utils/dateUtils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -41,6 +42,7 @@ const AdminDonations = () => {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [filteredDonations, setFilteredDonations] = useState<Donation[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc'>('date-desc');
   const { toast } = useToast();
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
@@ -50,25 +52,66 @@ const AdminDonations = () => {
     loadAllDonations();
   }, [events]); // Re-load when events change
 
-  // Filter donations based on search term
+  // Filter and sort donations based on search term and sorting
   React.useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredDonations(donations);
-      return;
-    }
-
-    const filtered = donations.filter(donation => {
+    let filtered = donations;
+    
+    // Apply search filter
+    if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase();
-      return (
-        donation.name.toLowerCase().includes(searchLower) ||
-        donation.amount.toLowerCase().includes(searchLower) ||
-        donation.date.toLowerCase().includes(searchLower) ||
-        donation.status.toLowerCase().includes(searchLower)
-      );
+      filtered = donations.filter(donation => {
+        const donationType = donation.eventId ? 'evento' : 'general';
+        const eventTitle = donation.eventTitle?.toLowerCase() || '';
+        
+        return (
+          donation.name.toLowerCase().includes(searchLower) ||
+          donation.amount.toLowerCase().includes(searchLower) ||
+          donation.date.toLowerCase().includes(searchLower) ||
+          donation.status.toLowerCase().includes(searchLower) ||
+          donationType.includes(searchLower) ||
+          eventTitle.includes(searchLower)
+        );
+      });
+    }
+    
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'date-desc':
+          return parseDateForSorting(b.date) - parseDateForSorting(a.date);
+        case 'date-asc':
+          return parseDateForSorting(a.date) - parseDateForSorting(b.date);
+        case 'amount-desc':
+          return parseAmountForSorting(b.amount) - parseAmountForSorting(a.amount);
+        case 'amount-asc':
+          return parseAmountForSorting(a.amount) - parseAmountForSorting(b.amount);
+        default:
+          return 0;
+      }
     });
 
-    setFilteredDonations(filtered);
-  }, [searchTerm, donations]);
+    setFilteredDonations(sorted);
+  }, [searchTerm, donations, sortBy]);
+  
+  // Helper functions for sorting
+  const parseDateForSorting = (dateStr: string): number => {
+    // Handle different date formats
+    if (dateStr.includes('/')) {
+      // dd/mm/yyyy format
+      const [day, month, year] = dateStr.split('/');
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).getTime();
+    } else if (dateStr.includes(' de ')) {
+      // Spanish format like "12 de mayo, 2023"
+      return new Date(dateStr).getTime() || 0;
+    } else {
+      // ISO or other formats
+      return new Date(dateStr).getTime() || 0;
+    }
+  };
+  
+  const parseAmountForSorting = (amountStr: string): number => {
+    return parseFloat(amountStr.replace(/[$,]/g, '')) || 0;
+  };
 
   const loadAllDonations = () => {
     // Load mock donations and any user-submitted donations from localStorage
@@ -89,9 +132,9 @@ const AdminDonations = () => {
     const savedMockDonations = JSON.parse(localStorage.getItem('mockDonations') || 'null');
     
     const mockDonations = savedMockDonations || [
-      { id: '1', name: 'John Doe', amount: '$1,000', date: '12 de mayo, 2023', status: 'Completada' },
-      { id: '2', name: 'Maria Garcia', amount: '$500', date: '10 de mayo, 2023', status: 'Completada' },
-      { id: '3', name: 'Robert Smith', amount: '$750', date: '8 de mayo, 2023', status: 'Pendiente' },
+      { id: '1', name: 'John Doe', amount: '$1,000', date: formatDate('2023-05-12'), status: 'Completada' },
+      { id: '2', name: 'Maria Garcia', amount: '$500', date: formatDate('2023-05-10'), status: 'Completada' },
+      { id: '3', name: 'Robert Smith', amount: '$750', date: formatDate('2023-05-08'), status: 'Pendiente' },
     ];
 
     // If mock donations were not in localStorage yet, save them
@@ -108,7 +151,7 @@ const AdminDonations = () => {
             id: `event-${event.id}-${donation.id}`,
             name: donation.userName,
             amount: `$${donation.amount}`,
-            date: donation.createdAt,
+            date: formatDate(donation.createdAt),
             status: donation.status === 'approved' ? 'Completada' : donation.status === 'rejected' ? 'Rechazada' : 'Pendiente',
             receipt: donation.receiptFile,
             eventId: event.id,
@@ -120,18 +163,11 @@ const AdminDonations = () => {
       }
     });
 
-    // Combine and sort by date (most recent first)
+    // Combine all donations
     const allDonations = [...formattedUserDonations, ...mockDonations, ...eventDonations];
-    
-    // Parse dates for sorting
-    const sortedDonations = allDonations.sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return dateB - dateA; // Sort by most recent first
-    });
 
-    setDonations(sortedDonations);
-    setFilteredDonations(sortedDonations);
+    setDonations(allDonations);
+    setFilteredDonations(allDonations);
   };
 
   const handleStatusUpdate = (donationId: string, newStatus: 'Completada' | 'Rechazada') => {
@@ -238,15 +274,30 @@ const AdminDonations = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Administración de Donaciones</h1>
       <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg min-h-[600px]">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <h2 className="text-xl font-medium text-white">Todas las Donaciones</h2>
-          <input
-            type="text"
-            placeholder="Buscar por donante, cantidad, fecha o estado..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-zinc-700 border border-zinc-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-zinc-400 sm:w-80"
-          />
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <h2 className="text-xl font-medium text-white">Todas las Donaciones</h2>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                <SelectTrigger className="w-full sm:w-[200px] bg-zinc-700 border-zinc-600 text-white">
+                  <SelectValue placeholder="Ordenar por..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date-desc">Más recientes</SelectItem>
+                  <SelectItem value="date-asc">Más antiguos</SelectItem>
+                  <SelectItem value="amount-desc">Monto mayor</SelectItem>
+                  <SelectItem value="amount-asc">Monto menor</SelectItem>
+                </SelectContent>
+              </Select>
+              <input
+                type="text"
+                placeholder="Buscar por donante, tipo, evento..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-zinc-700 border border-zinc-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-zinc-400 sm:w-80"
+              />
+            </div>
+          </div>
         </div>
         
         <div className="overflow-x-auto">
