@@ -3,11 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, ScanQrCode, Award, Calendar, CheckCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, ScanQrCode, Award, Calendar, CheckCircle, DollarSign, Target } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useEventsStore } from '@/store/eventsStore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import QRScanner from '@/components/QRScanner';
+import EventParticipants from '@/components/EventParticipants';
+import EventDonationModal from '@/components/EventDonationModal';
 import { getEventRegistrationStatus, registerForEvent, markEventAttended, downloadCalendarFile, isEventToday } from '@/utils/eventUtils';
 
 const EventDetail = () => {
@@ -22,6 +25,7 @@ const EventDetail = () => {
     isEventPast: false
   });
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [donationModalOpen, setDonationModalOpen] = useState(false);
   
   const { getEvent } = useEventsStore();
   
@@ -193,7 +197,16 @@ const EventDetail = () => {
             </div>
             <div className="flex items-center">
               <Users size={16} className="mr-2 text-nuevagen-purple" />
-              <span>{event.participantCount} participantes</span>
+              <div className="flex-1">
+                {event.registeredParticipants && event.registeredParticipants.length > 0 ? (
+                  <EventParticipants 
+                    participants={event.registeredParticipants} 
+                    totalCount={event.participantCount} 
+                  />
+                ) : (
+                  <span>{event.participantCount} participantes</span>
+                )}
+              </div>
             </div>
             <div className="flex items-center">
               <Award size={16} className="mr-2 text-nuevagen-yellow" />
@@ -205,6 +218,44 @@ const EventDetail = () => {
             <h3 className="font-medium mb-2">Acerca de este evento</h3>
             <p className="text-gray-600">{event.description}</p>
           </div>
+          
+          {/* Funding Section */}
+          {event.fundingRequired && (
+            <div className="border rounded-lg p-4 mb-4 bg-gradient-to-r from-green-50 to-blue-50">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium flex items-center gap-2">
+                  <Target className="text-green-600" size={18} />
+                  Financiamiento del Evento
+                </h3>
+                <Button 
+                  size="sm" 
+                  onClick={() => setDonationModalOpen(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <DollarSign size={16} className="mr-1" />
+                  Donar
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-green-700 font-medium">
+                    ${event.currentFunding || 0} recaudado
+                  </span>
+                  <span className="text-gray-600">
+                    Meta: ${event.fundingRequired}
+                  </span>
+                </div>
+                <Progress 
+                  value={((event.currentFunding || 0) / event.fundingRequired) * 100} 
+                  className="h-2"
+                />
+                <p className="text-xs text-gray-600">
+                  ${Math.max(0, event.fundingRequired - (event.currentFunding || 0))} restante para alcanzar la meta
+                </p>
+              </div>
+            </div>
+          )}
           
           <div className="flex items-center justify-between mb-4">
             <div className="grid grid-cols-2 gap-4 w-full">
@@ -279,6 +330,18 @@ const EventDetail = () => {
           <QRScanner onSuccess={handleQRSuccess} onClose={() => setScannerOpen(false)} />
         </DialogContent>
       </Dialog>
+
+      {/* Donation Modal */}
+      {event.fundingRequired && (
+        <EventDonationModal
+          eventId={event.id}
+          eventTitle={event.title}
+          fundingRequired={event.fundingRequired}
+          currentFunding={event.currentFunding || 0}
+          isOpen={donationModalOpen}
+          onClose={() => setDonationModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

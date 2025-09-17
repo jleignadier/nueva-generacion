@@ -2,6 +2,22 @@
 import { create } from 'zustand';
 
 // Define event types
+export interface EventDonation {
+  id: string;
+  userId: string;
+  userName: string;
+  amount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
+export interface RegisteredParticipant {
+  id: string;
+  name: string;
+  type: 'user' | 'organization';
+  avatar?: string;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -15,6 +31,10 @@ export interface Event {
   volunteerHours: number; // Admin-set hours for volunteer credit
   status: 'upcoming' | 'completed';
   image: string;
+  fundingRequired?: number; // Optional funding target
+  currentFunding?: number; // Current amount raised
+  donations?: EventDonation[]; // Donation history
+  registeredParticipants?: RegisteredParticipant[]; // Registered users and organizations
 }
 
 // Initial events data
@@ -31,7 +51,21 @@ const initialEvents: Event[] = [
     pointsEarned: 50,
     volunteerHours: 4, // Higher than actual 3 hours due to physical effort
     status: 'upcoming',
-    image: 'https://placehold.co/600x400/png?text=Beach+Cleanup'
+    image: 'https://placehold.co/600x400/png?text=Beach+Cleanup',
+    fundingRequired: 500,
+    currentFunding: 320,
+    donations: [
+      { id: '1', userId: '1', userName: 'María García', amount: 50, status: 'approved', createdAt: '2025-09-15' },
+      { id: '2', userId: '2', userName: 'Juan Pérez', amount: 100, status: 'approved', createdAt: '2025-09-16' },
+      { id: '3', userId: '3', userName: 'Ana López', amount: 75, status: 'pending', createdAt: '2025-09-17' }
+    ],
+    registeredParticipants: [
+      { id: '1', name: 'María García', type: 'user', avatar: 'https://placehold.co/40x40/png?text=MG' },
+      { id: '2', name: 'Juan Pérez', type: 'user', avatar: 'https://placehold.co/40x40/png?text=JP' },
+      { id: '3', name: 'Green Earth Foundation', type: 'organization', avatar: 'https://placehold.co/40x40/png?text=GE' },
+      { id: '4', name: 'Ana López', type: 'user', avatar: 'https://placehold.co/40x40/png?text=AL' },
+      { id: '5', name: 'Carlos Ruiz', type: 'user', avatar: 'https://placehold.co/40x40/png?text=CR' }
+    ]
   },
   {
     id: '2',
@@ -84,6 +118,9 @@ interface EventsState {
   updateEvent: (id: string, eventData: Partial<Event>) => void;
   deleteEvent: (id: string) => void;
   getEvent: (id: string) => Event | undefined;
+  addDonation: (eventId: string, donation: Omit<EventDonation, 'id'>) => void;
+  approveDonation: (eventId: string, donationId: string) => void;
+  rejectDonation: (eventId: string, donationId: string) => void;
 }
 
 export const useEventsStore = create<EventsState>((set, get) => ({
@@ -110,4 +147,60 @@ export const useEventsStore = create<EventsState>((set, get) => ({
   })),
   
   getEvent: (id) => get().events.find(event => event.id === id),
+  
+  addDonation: (eventId, donationData) => set(state => ({
+    events: state.events.map(event => {
+      if (event.id === eventId) {
+        const newDonation: EventDonation = {
+          ...donationData,
+          id: Date.now().toString(),
+        };
+        const donations = event.donations || [];
+        return {
+          ...event,
+          donations: [...donations, newDonation],
+        };
+      }
+      return event;
+    })
+  })),
+  
+  approveDonation: (eventId, donationId) => set(state => ({
+    events: state.events.map(event => {
+      if (event.id === eventId && event.donations) {
+        const updatedDonations = event.donations.map(donation => {
+          if (donation.id === donationId) {
+            return { ...donation, status: 'approved' as const };
+          }
+          return donation;
+        });
+        const approvedDonation = updatedDonations.find(d => d.id === donationId);
+        const currentFunding = (event.currentFunding || 0) + (approvedDonation?.amount || 0);
+        return {
+          ...event,
+          donations: updatedDonations,
+          currentFunding,
+        };
+      }
+      return event;
+    })
+  })),
+  
+  rejectDonation: (eventId, donationId) => set(state => ({
+    events: state.events.map(event => {
+      if (event.id === eventId && event.donations) {
+        const updatedDonations = event.donations.map(donation => {
+          if (donation.id === donationId) {
+            return { ...donation, status: 'rejected' as const };
+          }
+          return donation;
+        });
+        return {
+          ...event,
+          donations: updatedDonations,
+        };
+      }
+      return event;
+    })
+  })),
 }));

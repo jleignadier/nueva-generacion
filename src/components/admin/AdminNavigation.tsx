@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, Calendar, Trophy, User, Settings, LogOut, Menu, X, Building2 } from 'lucide-react';
+import { Home, Calendar, User, Settings, LogOut, Menu, X, Building2, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
@@ -18,7 +18,7 @@ const navItems = [
   {
     name: 'Donaciones',
     path: '/admin/donations',
-    icon: Trophy
+    icon: DollarSign
   },
   {
     name: 'Usuarios',

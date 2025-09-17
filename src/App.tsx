@@ -12,7 +12,7 @@ import UserLayout from "./layouts/UserLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEvents from "./pages/admin/AdminEvents";
 import EventForm from "./pages/admin/EventForm";
-import AdminDonations from "./pages/admin/AdminDonations";
+import AdminEventDonations from "./pages/admin/AdminEventDonations";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminOrganizations from "./pages/admin/AdminOrganizations";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -60,7 +60,7 @@ const App = () => (
               <Route path="/admin/events" element={<AdminEvents />} />
               <Route path="/admin/events/create" element={<EventForm />} />
               <Route path="/admin/events/edit/:id" element={<EventForm />} />
-              <Route path="/admin/donations" element={<AdminDonations />} />
+              <Route path="/admin/donations" element={<AdminEventDonations />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/organizations" element={<AdminOrganizations />} />
               <Route path="/admin/settings" element={<AdminSettings />} />

@@ -21,6 +21,7 @@ interface EventFormData {
   volunteerHours: number;
   image: string;
   status: 'upcoming' | 'completed';
+  fundingRequired: number;
 }
 
 const EventForm = () => {
@@ -46,7 +47,8 @@ const EventForm = () => {
       pointsEarned: existingEvent.pointsEarned,
       volunteerHours: existingEvent.volunteerHours,
       image: existingEvent.image,
-      status: existingEvent.status
+      status: existingEvent.status,
+      fundingRequired: existingEvent.fundingRequired || 0
     } : {
       title: '',
       location: '',
@@ -57,7 +59,8 @@ const EventForm = () => {
       pointsEarned: 25,
       volunteerHours: 3,
       image: 'https://placehold.co/600x400/png?text=Event+Image',
-      status: 'upcoming'
+      status: 'upcoming',
+      fundingRequired: 0
     }
   );
   
@@ -65,7 +68,7 @@ const EventForm = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'pointsEarned' || name === 'volunteerHours' ? Number(value) : value
+      [name]: name === 'pointsEarned' || name === 'volunteerHours' || name === 'fundingRequired' ? Number(value) : value
     }));
   };
   
@@ -247,6 +250,21 @@ const EventForm = () => {
                     onChange={handleInputChange}
                     className="bg-zinc-700 border-zinc-600 text-white"
                     placeholder="Horas para crédito voluntario"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="fundingRequired" className="text-white">Fondos Requeridos ($)</Label>
+                  <Input
+                    id="fundingRequired"
+                    name="fundingRequired"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={formData.fundingRequired}
+                    onChange={handleInputChange}
+                    className="bg-zinc-700 border-zinc-600 text-white"
+                    placeholder="Monto objetivo (opcional)"
                   />
                 </div>
               </div>
