@@ -130,7 +130,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
                         <div>
                           <p className="font-semibold">${Number(donation.amount).toFixed(2)}</p>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(donation.date).toLocaleDateString('es-ES')}
+                            {new Date(donation.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </p>
                         </div>
                         <div className="flex items-center">

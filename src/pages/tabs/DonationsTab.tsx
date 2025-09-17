@@ -78,7 +78,7 @@ const DonationsTab = () => {
       amount: amount,
       note: note,
       receiptFile: receiptFile.name, // In a real app, we'd upload this file to storage
-      date: new Date().toLocaleDateString(),
+      date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
       name: "Current User", // In a real app, get this from user profile
       status: "Pending"
     };

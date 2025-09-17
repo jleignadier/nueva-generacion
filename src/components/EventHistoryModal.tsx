@@ -98,7 +98,7 @@ const EventHistoryModal: React.FC<EventHistoryModalProps> = ({ isOpen, onClose }
                         {event.location}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(event.date).toLocaleDateString('es-ES')}
+                        {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                       </p>
                     </div>
                     <div className="text-right">

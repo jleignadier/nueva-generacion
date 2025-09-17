@@ -109,7 +109,7 @@ const AdminEvents = () => {
   // Function to format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   // Function to format time for display
@@ -235,7 +235,7 @@ const AdminEvents = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar size={14} />
-                          <span>Termina: {new Date(competition.endDate).toLocaleDateString()}</span>
+                          <span>Termina: {new Date(competition.endDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
                         </div>
                       </div>
                     </div>

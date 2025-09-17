@@ -72,7 +72,7 @@ const AdminDonations = () => {
       id: donation.id || `user-${Math.random().toString(36).substr(2, 9)}`,
       name: donation.name || 'User Donation',
       amount: `$${donation.amount}`,
-      date: donation.date || new Date().toLocaleDateString(),
+      date: donation.date || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
       status: donation.status || 'Pendiente',
       receipt: donation.receiptFile,
       note: donation.note
