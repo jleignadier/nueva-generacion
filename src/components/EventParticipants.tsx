@@ -23,7 +23,7 @@ const EventParticipants: React.FC<EventParticipantsProps> = ({ participants, tot
   };
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex flex-col space-y-1">
       <div className="flex items-center -space-x-2">
         {displayParticipants.map((participant) => {
           const Icon = getParticipantIcon(participant.type);

@@ -353,7 +353,14 @@ const AdminEvents = () => {
                       </div>
                       <div className="flex items-center">
                         <Users size={14} className="mr-1 flex-shrink-0" />
-                        <span>{event.participantCount} participantes</span>
+                        <span>
+                          {event.participantCount} participantes
+                          {event.registeredParticipants && (
+                            <span className="text-xs ml-1">
+                              ({event.registeredParticipants.filter(p => p.type === 'user').length}u, {event.registeredParticipants.filter(p => p.type === 'organization').length}o)
+                            </span>
+                          )}
+                        </span>
                       </div>
                       <div className="flex items-center">
                         <span>{event.pointsEarned} puntos</span>
