@@ -166,9 +166,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
                 <SelectItem value="organization">Organización</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground mt-1">
-              El tipo de cuenta no se puede cambiar después de la creación
-            </p>
           </div>
           
           <div>
