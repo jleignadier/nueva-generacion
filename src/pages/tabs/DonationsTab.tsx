@@ -143,7 +143,7 @@ const DonationsTab = () => {
             
             {donationMethod === 'qrcode' ? (
               <div className="flex flex-col items-center p-4 border border-gray-200 rounded-lg bg-gray-50">
-                <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="bg-white p-4 rounded-lg shadow-sm w-full max-w-xs mx-auto">
                   <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <Button 
                     onClick={() => setShowQRScanner(true)}
