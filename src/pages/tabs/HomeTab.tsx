@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEventsStore, Event } from '@/store/eventsStore';
 import { format, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const HomeTab = () => {
   const { user } = useAuth();
@@ -31,7 +32,7 @@ const HomeTab = () => {
   // Format date from ISO string to readable format
   const formatDate = (dateString: string) => {
     const date = parseISO(dateString);
-    return format(date, 'MMMM d, yyyy');
+    return format(date, 'MMMM d, yyyy', { locale: es });
   };
   
   // Format time from 24h to 12h format

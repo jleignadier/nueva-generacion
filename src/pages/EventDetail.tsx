@@ -137,7 +137,7 @@ const EventDetail = () => {
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' });
   };
 
   // Format time for display
