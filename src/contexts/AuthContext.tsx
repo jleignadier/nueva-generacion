@@ -157,9 +157,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       console.log("AuthContext: Attempting signup for", userData.email);
       
-      // Validate admin key if admin account
-      if (userData.accountType === 'admin' && userData.adminKey !== 'NGAdmin92025') {
-        throw new Error('Invalid admin key');
+      // Validate admin key securely if admin account
+      if (userData.accountType === 'admin' && userData.adminKey) {
+        try {
+          const response = await supabase.functions.invoke('validate-admin', {
+            body: { adminKey: userData.adminKey }
+          });
+          
+          if (response.error) {
+            throw new Error('Admin validation failed');
+          }
+          
+          if (!response.data?.valid) {
+            throw new Error('Invalid admin key');
+          }
+        } catch (error) {
+          throw new Error('Invalid admin key');
+        }
       }
       
       const redirectUrl = `${window.location.origin}/`;

@@ -66,12 +66,10 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
     setIsSubmitting(true);
 
     try {
-      // Update user using the new updateUser method
+      // Security fix: Only allow basic profile updates, prevent role escalation
       const updatedData = {
-        name: formData.name,
-        email: formData.email,
-        accountType: formData.accountType as 'volunteer' | 'organization' | 'admin',
-        organizationId: formData.accountType === 'organization' ? formData.organizationId : (formData.organizationId === 'none' ? undefined : formData.organizationId),
+        firstName: formData.name.split(' ')[0] || '',
+        lastName: formData.name.split(' ').slice(1).join(' ') || '',
         profilePicture: profilePicture || user?.profilePicture
       };
 
@@ -146,35 +144,41 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              required
+              disabled={true}
+              className="bg-muted"
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              El correo electrónico no se puede cambiar por seguridad
+            </p>
           </div>
           
           <div>
             <Label htmlFor="accountType">Tipo de Cuenta</Label>
             <Select 
               value={formData.accountType} 
-              onValueChange={(value) => handleInputChange('accountType', value)}
-              disabled={true} // Completely disable account type changes after creation
+              disabled={true}
             >
-              <SelectTrigger id="accountType">
+              <SelectTrigger id="accountType" className="bg-muted">
                 <SelectValue placeholder="Seleccionar tipo de cuenta" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="volunteer">Voluntario</SelectItem>
                 <SelectItem value="organization">Organización</SelectItem>
+                <SelectItem value="admin">Administrador</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground mt-1">
+              El tipo de cuenta no se puede cambiar después del registro
+            </p>
           </div>
           
           <div>
             <Label htmlFor="organizationId">Organización</Label>
             <Select 
               value={formData.organizationId} 
-              onValueChange={(value) => handleInputChange('organizationId', value)}
+              disabled={true}
             >
-              <SelectTrigger id="organizationId">
+              <SelectTrigger id="organizationId" className="bg-muted">
                 <SelectValue placeholder="Seleccionar organización" />
               </SelectTrigger>
               <SelectContent>
@@ -190,6 +194,9 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
                   ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground mt-1">
+              La organización no se puede cambiar por seguridad. Contacte al administrador si necesita cambiarse.
+            </p>
           </div>
           
           <div className="flex justify-end gap-2">

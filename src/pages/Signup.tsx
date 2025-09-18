@@ -55,10 +55,10 @@ const Signup = () => {
       return;
     }
 
-    if (isAdmin && adminKey !== "admin2024") {
+    if (isAdmin && !adminKey.trim()) {
       toast({
-        title: "Admin Key Inválida",
-        description: "El Admin Key que puso no es válido",
+        title: "Admin Key Requerida",
+        description: "Debe proporcionar una clave de administrador válida",
         variant: "destructive"
       });
       return;
