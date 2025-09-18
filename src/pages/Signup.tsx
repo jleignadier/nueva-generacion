@@ -193,9 +193,6 @@ const Signup = () => {
                 placeholder="Ingrese clave de administrador"
                 className="text-sm h-8"
               />
-              <p className="text-xs text-gray-400 mt-1">
-                Clave requerida: "NGAdmin92025"
-              </p>
             </div>
           )}
         </div>
