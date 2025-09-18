@@ -1,245 +1,268 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from '@/hooks/use-toast';
-import { useOrganizationsStore } from '@/store/organizationsStore';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
-type User = {
+// Define types for our user and auth context
+export interface User {
   id: string;
-  name: string;
   email: string;
-  accountType: 'individual' | 'organization' | 'admin';
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  birthdate?: string;
+  accountType: 'volunteer' | 'organization' | 'admin';
   isAdmin: boolean;
   organizationId?: string;
   profilePicture?: string;
-};
+}
 
-type OrganizationInfo = {
-  organizationId: string;
-};
-
-type AuthContextType = {
+interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
+  session: Session | null;
   login: (email: string, password: string) => Promise<User>;
-  signup: (
-    email: string, 
-    password: string, 
-    name: string, 
-    accountType: 'individual' | 'organization' | 'admin',
-    orgInfo?: OrganizationInfo,
-    description?: string
-  ) => Promise<User>;
+  signup: (userData: SignupData) => Promise<User>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
+  isLoading: boolean;
   error: string | null;
-};
+}
 
+interface SignupData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  birthdate?: string;
+  accountType: 'volunteer' | 'organization' | 'admin';
+  organizationName?: string;
+  joinOrganizationId?: string;
+  adminKey?: string;
+}
+
+// Create the context with undefined default
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// AuthProvider component
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { addOrganization, initializeOrganizations } = useOrganizationsStore();
 
-  // Load user on initial render only
+  // Initialize auth state and listen for changes
   useEffect(() => {
-    console.log("AuthProvider: Initial load");
-    try {
-      const savedUser = localStorage.getItem('nuevaGen_user');
-      if (savedUser) {
-        console.log("AuthProvider: Found user in localStorage");
-        setUser(JSON.parse(savedUser));
-      }
-      // Initialize organizations store
-      initializeOrganizations();
-    } catch (err) {
-      console.error("Error loading user from localStorage:", err);
-      localStorage.removeItem('nuevaGen_user');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [initializeOrganizations]);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        setSession(session);
+        
+        if (session?.user) {
+          // Fetch user profile data
+          setTimeout(async () => {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select(`
+                  *,
+                  user_roles!inner(role)
+                `)
+                .eq('id', session.user.id)
+                .single();
 
-  const login = async (email: string, password: string) => {
-    console.log("AuthContext: Attempting login with", email);
+              if (profile) {
+                const userData: User = {
+                  id: profile.id,
+                  email: session.user.email!,
+                  name: `${profile.first_name} ${profile.last_name}`.trim() || session.user.email!.split('@')[0],
+                  firstName: profile.first_name,
+                  lastName: profile.last_name,
+                  phone: profile.phone,
+                  birthdate: profile.birthdate,
+                  accountType: profile.account_type,
+                  isAdmin: profile.account_type === 'admin',
+                  organizationId: profile.organization_id
+                };
+                setUser(userData);
+              }
+            } catch (error) {
+              console.error('Error fetching user profile:', error);
+              setError('Failed to load user profile');
+            }
+          }, 0);
+        } else {
+          setUser(null);
+        }
+        setIsLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Login function
+  const login = async (email: string, password: string): Promise<User> => {
     setIsLoading(true);
     setError(null);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log("AuthContext: Attempting login for", email);
       
-      if (!email || !password) {
-        throw new Error('Email and password are required');
-      }
-      
-      // Admin login check
-      if (email === 'admin@ng.org.pa' && password === 'admin123') {
-        const adminUser = {
-          id: 'admin-1',
-          name: 'Admin User',
-          email,
-          accountType: 'admin' as const,
-          isAdmin: true
-        };
-        
-        setUser(adminUser);
-        localStorage.setItem('nuevaGen_user', JSON.stringify(adminUser));
-        console.log("AuthContext: Admin login successful");
-        toast({
-          title: "Login Successful",
-          description: "Welcome back, Admin!",
-        });
-        return adminUser;
-      }
-      
-      // Organization login check
-      if (email === 'org@greenfuture.org' && password === 'org123') {
-        const orgUser = {
-          id: 'org-1',
-          name: 'Green Future Foundation',
-          email,
-          accountType: 'organization' as const,
-          isAdmin: false,
-          organizationId: '1'
-        };
-        
-        setUser(orgUser);
-        localStorage.setItem('nuevaGen_user', JSON.stringify(orgUser));
-        console.log("AuthContext: Organization login successful");
-        toast({
-          title: "Login Successful",
-          description: "Welcome back, Green Future Foundation!",
-        });
-        return orgUser;
-      }
-      
-      // Regular user login - simplified for demo
-      const mockUser = {
-        id: Math.random().toString(36).substring(2),
-        name: email.split('@')[0],
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        accountType: 'individual' as const,
+        password
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (!data.user) {
+        throw new Error('No user data returned');
+      }
+      
+      // User data will be set via the auth state change listener
+      // Return a placeholder that will be updated
+      return {
+        id: data.user.id,
+        email: data.user.email!,
+        name: data.user.email!.split('@')[0],
+        accountType: 'volunteer',
         isAdmin: false
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
-      console.log("AuthContext: User login successful");
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${mockUser.name}!`,
-      });
-      return mockUser;
+      } as User;
       
     } catch (err: any) {
-      console.error("Login error:", err);
-      setError(err.message || 'Failed to login');
-      toast({
-        title: "Login Failed",
-        description: err.message || "Please check your credentials and try again",
-        variant: "destructive"
-      });
-      throw err;
+      const errorMessage = err.message || 'Login failed. Please try again.';
+      setError(errorMessage);
+      console.error("AuthContext: Login error:", err);
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const signup = async (
-    email: string, 
-    password: string, 
-    name: string, 
-    accountType: 'individual' | 'organization' | 'admin',
-    orgInfo?: OrganizationInfo,
-    description?: string
-  ) => {
+  // Signup function
+  const signup = async (userData: SignupData): Promise<User> => {
     setIsLoading(true);
     setError(null);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log("AuthContext: Attempting signup for", userData.email);
       
-      if (!email || !password || !name) {
-        throw new Error('All fields are required');
+      // Validate admin key if admin account
+      if (userData.accountType === 'admin' && userData.adminKey !== 'NGAdmin92025') {
+        throw new Error('Invalid admin key');
       }
       
-      const isAdmin = accountType === 'admin';
+      const redirectUrl = `${window.location.origin}/`;
       
-      const mockUser = {
-        id: Math.random().toString(36).substring(2),
-        name,
-        email,
-        accountType,
-        isAdmin,
-        ...(orgInfo && { organizationId: orgInfo.organizationId })
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem('nuevaGen_user', JSON.stringify(mockUser));
-      
-      // If this is an organization account, also save organization info
-      if (accountType === 'organization' && description) {
-        addOrganization({
-          name,
-          contactEmail: email,
-          description,
-          status: 'Activo',
-          points: 0,
-          members: 1
-        });
-      }
-
-      const successMessage = orgInfo 
-        ? "Your account has been created and you've been added to the organization!"
-        : "Your account has been created successfully!";
-        
-      toast({
-        title: "Account Created",
-        description: successMessage,
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            first_name: userData.firstName,
+            last_name: userData.lastName,
+            phone: userData.phone,
+            birthdate: userData.birthdate,
+            account_type: userData.accountType,
+            organization_name: userData.organizationName,
+            join_organization_id: userData.joinOrganizationId
+          }
+        }
       });
       
-      return mockUser;
+      if (error) {
+        throw error;
+      }
+      
+      if (!data.user) {
+        throw new Error('No user data returned');
+      }
+      
+      // User data will be set via the auth state change listener
+      return {
+        id: data.user.id,
+        email: data.user.email!,
+        name: `${userData.firstName} ${userData.lastName}`.trim(),
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        accountType: userData.accountType,
+        isAdmin: userData.accountType === 'admin'
+      } as User;
+      
     } catch (err: any) {
-      console.error("Signup error:", err);
-      setError(err.message || 'Failed to sign up');
-      toast({
-        title: "Signup Failed",
-        description: err.message || "Please check your information and try again",
-        variant: "destructive"
-      });
-      throw err;
+      const errorMessage = err.message || 'Signup failed. Please try again.';
+      setError(errorMessage);
+      console.error("AuthContext: Signup error:", err);
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateUser = (userData: Partial<User>) => {
+  // Update user function
+  const updateUser = async (userData: Partial<User>) => {
     if (!user) return;
     
-    const updatedUser = { ...user, ...userData };
-    setUser(updatedUser);
-    localStorage.setItem('nuevaGen_user', JSON.stringify(updatedUser));
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          phone: userData.phone,
+          birthdate: userData.birthdate
+        })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      setUser({ ...user, ...userData });
+      console.log("AuthContext: User updated");
+    } catch (error) {
+      console.error("Error updating user:", error);
+      setError('Failed to update user profile');
+    }
   };
 
-  const logout = () => {
-    console.log("AuthContext: Logging out");
+  // Logout function
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('nuevaGen_user');
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out",
-    });
+    setSession(null);
+    console.log("AuthContext: User logged out");
+  };
+
+  // Context value
+  const value: AuthContextType = {
+    user,
+    session,
+    login,
+    signup,
+    logout,
+    updateUser,
+    isLoading,
+    error
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, updateUser, error }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

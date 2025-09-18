@@ -76,7 +76,7 @@ const LeaderboardTab = () => {
     ];
 
     // Only add user if they belong to an organization
-    if (user?.organizationId && user?.accountType === 'individual') {
+    if (user?.organizationId && user?.accountType === 'volunteer') {
       // Find organization name from store
       const { organizations } = useOrganizationsStore.getState();
       const userOrg = organizations.find(org => org.id === user.organizationId);

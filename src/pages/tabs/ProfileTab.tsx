@@ -125,7 +125,7 @@ const ProfileTab = () => {
               <p className="text-sm text-gray-600">{user?.email}</p>
               <div className="flex items-center mt-1">
                 <span className="text-xs bg-nuevagen-green bg-opacity-20 text-nuevagen-green px-2 py-0.5 rounded-full">
-                  {user?.accountType === 'individual' ? 'Voluntario' : user?.accountType === 'organization' ? 'Organización' : user?.accountType}
+                  {user?.accountType === 'volunteer' ? 'Voluntario' : user?.accountType === 'organization' ? 'Organización' : user?.accountType}
                 </span>
               </div>
             </div>

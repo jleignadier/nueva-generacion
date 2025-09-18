@@ -22,7 +22,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    accountType: user?.accountType || 'individual',
+    accountType: user?.accountType || 'volunteer',
     organizationId: user?.organizationId || 'none'
   });
   
@@ -70,7 +70,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
       const updatedData = {
         name: formData.name,
         email: formData.email,
-        accountType: formData.accountType as 'individual' | 'organization' | 'admin',
+        accountType: formData.accountType as 'volunteer' | 'organization' | 'admin',
         organizationId: formData.accountType === 'organization' ? formData.organizationId : (formData.organizationId === 'none' ? undefined : formData.organizationId),
         profilePicture: profilePicture || user?.profilePicture
       };
@@ -162,7 +162,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
                 <SelectValue placeholder="Seleccionar tipo de cuenta" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="individual">Individual</SelectItem>
+                <SelectItem value="volunteer">Voluntario</SelectItem>
                 <SelectItem value="organization">Organización</SelectItem>
               </SelectContent>
             </Select>
@@ -178,7 +178,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
                 <SelectValue placeholder="Seleccionar organización" />
               </SelectTrigger>
               <SelectContent>
-                {formData.accountType === 'individual' && (
+                {formData.accountType === 'volunteer' && (
                   <SelectItem value="none">Sin organización</SelectItem>
                 )}
                 {organizations

@@ -24,7 +24,7 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [birthdate, setBirthdate] = useState('');
-  const [accountType, setAccountType] = useState<'individual' | 'organization'>('individual');
+  const [accountType, setAccountType] = useState<'volunteer' | 'organization'>('volunteer');
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminKey, setAdminKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -67,18 +67,27 @@ const Signup = () => {
     setIsLoading(true);
     
     try {
-      const name = accountType === 'individual' 
+      const name = accountType === 'volunteer' 
         ? `${firstName} ${lastName}` 
         : orgName;
         
       const finalAccountType = isAdmin ? 'admin' : accountType;
       
-      // Include organization info if the user is joining an org
-      const orgInfo = joinOrg && accountType === 'individual' && selectedOrgId 
-        ? { organizationId: selectedOrgId } 
-        : undefined;
+      // Prepare signup data
+      const signupData = {
+        email,
+        password,
+        firstName,
+        lastName,
+        phone: phone,
+        birthdate: birthdate,
+        accountType: finalAccountType as 'volunteer' | 'organization' | 'admin',
+        organizationName: accountType === 'organization' ? orgName : undefined,
+        joinOrganizationId: joinOrg && accountType === 'volunteer' && selectedOrgId ? selectedOrgId : undefined,
+        adminKey: isAdmin ? adminKey : undefined
+      };
         
-      const user = await signup(email, password, name, finalAccountType as any, orgInfo, accountType === 'organization' ? orgDescription : undefined);
+      const user = await signup(signupData);
       if (user.isAdmin) {
         navigate('/admin');
       } else {
@@ -122,7 +131,7 @@ const Signup = () => {
             value={accountType}
             onValueChange={(value) => {
               if (value && !isAdmin) {
-                setAccountType(value as 'individual' | 'organization');
+                setAccountType(value as 'volunteer' | 'organization');
                 // Reset join org option when switching to organization account type
                 if (value === 'organization') {
                   setJoinOrg(false);
@@ -133,14 +142,14 @@ const Signup = () => {
             disabled={isAdmin}
           >
             <ToggleGroupItem 
-              value="individual"
+              value="volunteer"
               className={`flex-1 py-2 text-center transition-colors rounded-none ${
-                accountType === 'individual' && !isAdmin
+                accountType === 'volunteer' && !isAdmin
                   ? 'text-white font-bold' 
                   : 'bg-white/80 text-gray-600 hover:bg-white/70'
               } ${isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Individual
+              Voluntario
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="organization"
@@ -185,7 +194,7 @@ const Signup = () => {
                 className="text-sm h-8"
               />
               <p className="text-xs text-gray-400 mt-1">
-                Para demo usar: "admin2024"
+                Clave requerida: "NGAdmin92025"
               </p>
             </div>
           )}
@@ -233,7 +242,7 @@ const Signup = () => {
             </div>
           </div>
 
-          {!isAdmin && accountType === 'individual' ? (
+          {!isAdmin && accountType === 'volunteer' ? (
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -242,7 +251,7 @@ const Signup = () => {
                     placeholder="Nombre"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    required={!isAdmin && accountType === 'individual'}
+                    required={!isAdmin && accountType === 'volunteer'}
                     className="w-full h-10 text-sm"
                   />
                 </div>
@@ -252,7 +261,7 @@ const Signup = () => {
                     placeholder="Apellido"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    required={!isAdmin && accountType === 'individual'}
+                    required={!isAdmin && accountType === 'volunteer'}
                     className="w-full h-10 text-sm"
                   />
                 </div>
