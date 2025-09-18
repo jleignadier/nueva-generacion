@@ -8,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { useForm } from 'react-hook-form';
 import { useOrganizationsStore, Organization } from '@/store/organizationsStore';
+import { useOrganizationSecurity } from '@/hooks/useOrganizationSecurity';
+import { filterOrganizationData } from '@/utils/organizationSecurity';
 
 type SortField = 'name' | 'contactEmail' | 'points' | 'members';
 type SortDirection = 'asc' | 'desc';
@@ -19,18 +21,23 @@ interface EditOrganizationForm {
 }
 
 const AdminOrganizations = () => {
-  const { organizations, updateOrganization, toggleOrganizationStatus, initializeOrganizations } = useOrganizationsStore();
+  const { organizations, updateOrganization, toggleOrganizationStatus, initializeOrganizations, fetchOrganizations } = useOrganizationsStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [editingOrganization, setEditingOrganization] = useState<Organization | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
+  const { canViewContact, isAdmin, loading } = useOrganizationSecurity();
 
   // Initialize organizations on component mount
   React.useEffect(() => {
     initializeOrganizations();
-  }, [initializeOrganizations]);
+    // Also try to fetch from database for admin users
+    if (isAdmin) {
+      fetchOrganizations();
+    }
+  }, [initializeOrganizations, fetchOrganizations, isAdmin]);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
@@ -75,15 +82,24 @@ const AdminOrganizations = () => {
   };
 
   const sortedAndFilteredOrganizations = useMemo(() => {
-    let filtered = organizations.filter(org =>
-      org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      org.contactEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      org.description.toLowerCase().includes(searchTerm.toLowerCase())
+    // Filter organization data based on user permissions
+    const secureOrganizations = organizations.map(org => 
+      filterOrganizationData(org, canViewContact)
     );
 
+    let filtered = secureOrganizations.filter(org => {
+      const nameMatch = org.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const descMatch = org.description.toLowerCase().includes(searchTerm.toLowerCase());
+      // Only include contact email in search if user can view it
+      const emailMatch = canViewContact && 'contactEmail' in org 
+        ? org.contactEmail.toLowerCase().includes(searchTerm.toLowerCase())
+        : false;
+      return nameMatch || descMatch || emailMatch;
+    });
+
     return filtered.sort((a, b) => {
-      let aValue: string | number = a[sortField];
-      let bValue: string | number = b[sortField];
+      let aValue: string | number = a[sortField as keyof typeof a] || '';
+      let bValue: string | number = b[sortField as keyof typeof b] || '';
 
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         aValue = aValue.toLowerCase();
@@ -96,7 +112,7 @@ const AdminOrganizations = () => {
         return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
       }
     });
-  }, [organizations, searchTerm, sortField, sortDirection]);
+  }, [organizations, searchTerm, sortField, sortDirection, canViewContact]);
 
   const SortButton = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
     <button
@@ -134,9 +150,11 @@ const AdminOrganizations = () => {
                 <th className="text-left py-3 px-4 text-zinc-300">
                   <SortButton field="name">Organización</SortButton>
                 </th>
-                <th className="text-left py-3 px-4 text-zinc-300">
-                  <SortButton field="contactEmail">Correo de Contacto</SortButton>
-                </th>
+                {canViewContact && (
+                  <th className="text-left py-3 px-4 text-zinc-300">
+                    <SortButton field="contactEmail">Correo de Contacto</SortButton>
+                  </th>
+                )}
                 <th className="text-left py-3 px-4 text-zinc-300">
                   <SortButton field="points">Puntos</SortButton>
                 </th>
@@ -144,7 +162,9 @@ const AdminOrganizations = () => {
                   <SortButton field="members">Miembros</SortButton>
                 </th>
                 <th className="text-left py-3 px-4 text-zinc-300">Estado</th>
-                <th className="text-left py-3 px-4 text-zinc-300">Acciones</th>
+                {isAdmin && (
+                  <th className="text-left py-3 px-4 text-zinc-300">Acciones</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -156,7 +176,11 @@ const AdminOrganizations = () => {
                       <div className="text-sm text-zinc-400">{org.description}</div>
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-zinc-400">{org.contactEmail}</td>
+                  {canViewContact && (
+                    <td className="py-3 px-4 text-zinc-400">
+                      {'contactEmail' in org ? org.contactEmail : 'N/A'}
+                    </td>
+                  )}
                   <td className="py-3 px-4 font-bold text-purple-400">{org.points}</td>
                   <td className="py-3 px-4 text-white">{org.members}</td>
                   <td className="py-3 px-4">
@@ -168,22 +192,24 @@ const AdminOrganizations = () => {
                       {org.status === 'Activo' ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleEditOrganization(org)}
-                        className="text-purple-400 hover:text-purple-300 text-sm"
-                      >
-                        Editar
-                      </button>
-                      <button 
-                        onClick={() => handleToggleStatus(org.id)}
-                        className="text-red-500 hover:text-red-400 text-sm"
-                      >
-                        {org.status === 'Activo' ? 'Deshabilitar' : 'Habilitar'}
-                      </button>
-                    </div>
-                  </td>
+                  {isAdmin && (
+                    <td className="py-3 px-4">
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleEditOrganization(organizations.find(o => o.id === org.id)!)}
+                          className="text-purple-400 hover:text-purple-300 text-sm"
+                        >
+                          Editar
+                        </button>
+                        <button 
+                          onClick={() => handleToggleStatus(org.id)}
+                          className="text-red-500 hover:text-red-400 text-sm"
+                        >
+                          {org.status === 'Activo' ? 'Deshabilitar' : 'Habilitar'}
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

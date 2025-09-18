@@ -141,6 +141,10 @@ export type Database = {
       }
     }
     Functions: {
+      can_view_organization_contact: {
+        Args: { org_id: string }
+        Returns: boolean
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
@@ -156,6 +160,15 @@ export type Database = {
           name: string
           phone: string
           updated_at: string
+        }[]
+      }
+      get_public_organizations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          description: string
+          id: string
+          name: string
         }[]
       }
       has_role: {

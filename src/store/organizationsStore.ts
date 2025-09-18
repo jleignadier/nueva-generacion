@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Organization {
   id: string;
@@ -18,6 +19,8 @@ interface OrganizationsState {
   toggleOrganizationStatus: (id: string) => void;
   getActiveOrganizations: () => Organization[];
   initializeOrganizations: () => void;
+  fetchOrganizations: () => Promise<void>;
+  syncWithDatabase: () => Promise<void>;
 }
 
 // Initial organizations data
@@ -115,6 +118,44 @@ export const useOrganizationsStore = create<OrganizationsState>()(
       
       getActiveOrganizations: () => {
         return get().organizations.filter(org => org.status === 'Activo');
+      },
+
+      fetchOrganizations: async () => {
+        try {
+          const { data, error } = await supabase
+            .from('organizations')
+            .select('*')
+            .order('name');
+
+          if (error) {
+            console.error('Error fetching organizations:', error);
+            return;
+          }
+
+          if (data) {
+            // Convert database format to store format
+            const formattedOrgs: Organization[] = data.map(org => ({
+              id: org.id,
+              name: org.name || '',
+              contactEmail: org.contact_email || '',
+              status: 'Activo' as const, // Default status since DB doesn't have this field
+              points: 0, // Default points since DB doesn't have this field
+              members: 1, // Default members since DB doesn't have this field
+              description: org.description || ''
+            }));
+
+            set({ organizations: formattedOrgs });
+          }
+        } catch (error) {
+          console.error('Error in fetchOrganizations:', error);
+        }
+      },
+
+      syncWithDatabase: async () => {
+        // For now, we'll keep using the local store data
+        // This method can be enhanced later to sync changes back to database
+        const state = get();
+        console.log('Organizations ready for database sync:', state.organizations.length);
       }
     }),
     {
