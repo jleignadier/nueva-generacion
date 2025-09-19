@@ -186,8 +186,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           data: {
             first_name: userData.firstName,
             last_name: userData.lastName,
-            phone: userData.phone,
-            birthdate: userData.birthdate,
+            phone: userData.phone || '',
+            birthdate: userData.birthdate || null, // Convert empty string to null for database
             account_type: userData.accountType,
             organization_name: userData.organizationName,
             join_organization_id: userData.joinOrganizationId
