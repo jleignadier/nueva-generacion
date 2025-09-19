@@ -31,6 +31,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [joinOrg, setJoinOrg] = useState(false);
   const [selectedOrgId, setSelectedOrgId] = useState<string>('');
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const { signup, error } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -88,11 +89,14 @@ const Signup = () => {
       };
         
       const user = await signup(signupData);
-      if (user.isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      
+      setRegistrationSuccess(true);
+      toast({
+        title: "¡Registro Exitoso!",
+        description: `Bienvenido ${user.name}! Te hemos enviado un correo de confirmación.`,
+      });
+
+      // Don't navigate immediately - wait for email confirmation
     } catch (err) {
       toast({
         title: "Registro Fallido",
@@ -111,19 +115,42 @@ const Signup = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-nuevagen-blue to-nuevagen-teal py-6 px-4 flex items-center justify-center">
       <Card className="w-full max-w-md mx-4 p-5 bg-white rounded-xl shadow-lg">
-        <div className="flex flex-col items-center justify-center mb-4">
-          <img 
-            src="/lovable-uploads/3e471c72-20ba-448a-94e3-4531623f02bc.png" 
-            alt="Nueva Generación Logo" 
-            className="h-20 w-auto" 
-          />
-          <h2 className="mt-2 text-center text-2xl font-bold text-nuevagen-blue">
-            Regístrate Ya
-          </h2>
-          <p className="text-center text-gray-600 text-sm mt-1">
-            Únete a Nuestra Comunidad de Voluntarios
-          </p>
-        </div>
+        {registrationSuccess ? (
+          <div className="flex flex-col items-center justify-center text-center">
+            <img 
+              src="/lovable-uploads/3e471c72-20ba-448a-94e3-4531623f02bc.png" 
+              alt="Nueva Generación Logo" 
+              className="h-20 w-auto mb-4" 
+            />
+            <h2 className="text-2xl font-bold text-nuevagen-blue mb-4">
+              ¡Registro Exitoso!
+            </h2>
+            <p className="text-gray-600 mb-6 text-sm">
+              Te hemos enviado un correo de confirmación a <strong>{email}</strong>. 
+              Por favor revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
+            </p>
+            <Link 
+              to="/login" 
+              className="w-full inline-block text-center px-4 py-2 bg-nuevagen-blue text-white font-medium rounded-lg hover:bg-opacity-90"
+            >
+              Ir al Inicio de Sesión
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col items-center justify-center mb-4">
+              <img 
+                src="/lovable-uploads/3e471c72-20ba-448a-94e3-4531623f02bc.png" 
+                alt="Nueva Generación Logo" 
+                className="h-20 w-auto" 
+              />
+              <h2 className="mt-2 text-center text-2xl font-bold text-nuevagen-blue">
+                Regístrate Ya
+              </h2>
+              <p className="text-center text-gray-600 text-sm mt-1">
+                Únete a Nuestra Comunidad de Voluntarios
+              </p>
+            </div>
 
         <div className="mb-4 rounded-lg overflow-hidden gradient-toggle-container">
           <ToggleGroup
@@ -367,13 +394,15 @@ const Signup = () => {
             {isLoading ? "Creando Cuenta..." : "Registrarse"}
           </Button>
 
-          <div className="text-center text-xs mt-3">
-            <span className="text-gray-600">¿Ya Tienes una Cuenta? </span>
-            <Link to="/login" className="font-medium text-nuevagen-blue hover:text-nuevagen-teal">
-              Iniciar Sesión
-            </Link>
-          </div>
-        </form>
+            <div className="text-center text-xs mt-3">
+              <span className="text-gray-600">¿Ya Tienes una Cuenta? </span>
+              <Link to="/login" className="font-medium text-nuevagen-blue hover:text-nuevagen-teal">
+                Iniciar Sesión
+              </Link>
+            </div>
+          </form>
+          </>
+        )}
       </Card>
     </div>
   );

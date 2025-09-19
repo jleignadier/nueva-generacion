@@ -13,7 +13,9 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, error, user } = useAuth();
+  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const { login, error, user, resendConfirmation } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -42,9 +44,16 @@ const Login = () => {
       }
     } catch (err) {
       console.error("Login form error:", err);
+      const errorMessage = error || "Please check your credentials and try again.";
+      
+      // Show resend confirmation option if email not confirmed
+      if (errorMessage.includes('confirma tu correo') || errorMessage.includes('Email not confirmed')) {
+        setShowResendConfirmation(true);
+      }
+      
       toast({
-        title: "Login Failed",
-        description: error || "Please check your credentials and try again.",
+        title: "Error de Inicio de Sesión",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -54,6 +63,35 @@ const Login = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Por favor ingresa tu correo electrónico primero.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsResending(true);
+    try {
+      await resendConfirmation(email);
+      toast({
+        title: "Correo Enviado",
+        description: "Te hemos enviado un nuevo correo de confirmación. Revisa tu bandeja de entrada.",
+      });
+      setShowResendConfirmation(false);
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "No pudimos enviar el correo de confirmación. Intenta de nuevo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResending(false);
+    }
   };
 
 
@@ -111,6 +149,23 @@ const Login = () => {
           >
             {isLoading ? "Iniciando Sesión..." : "Iniciar Sesión"}
           </Button>
+
+          {showResendConfirmation && (
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800 mb-3">
+                ¿No has recibido el correo de confirmación?
+              </p>
+              <Button
+                type="button"
+                onClick={handleResendConfirmation}
+                disabled={isResending}
+                variant="outline"
+                className="w-full h-10 text-sm"
+              >
+                {isResending ? "Enviando..." : "Reenviar Correo de Confirmación"}
+              </Button>
+            </div>
+          )}
           
           <div className="text-center text-sm mt-4">
             <span className="text-gray-600">¿No tienes cuenta? </span>

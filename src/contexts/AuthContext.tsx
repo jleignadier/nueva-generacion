@@ -24,6 +24,7 @@ interface AuthContextType {
   signup: (userData: SignupData) => Promise<User>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
+  resendConfirmation: (email: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
 }
@@ -122,6 +123,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       
       if (error) {
+        // Handle specific error cases
+        if (error.message.includes('Email not confirmed')) {
+          throw new Error('Por favor confirma tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.');
+        } else if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Credenciales incorrectas. Verifica tu correo y contraseña.');
+        }
         throw error;
       }
       
@@ -196,6 +203,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       
       if (error) {
+        if (error.message.includes('already registered')) {
+          throw new Error('Este correo ya está registrado. Intenta iniciar sesión.');
+        }
         throw error;
       }
       
@@ -249,6 +259,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Resend confirmation email function
+  const resendConfirmation = async (email: string): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+      
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to resend confirmation email';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Logout function
   const logout = async () => {
     await supabase.auth.signOut();
@@ -265,6 +302,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     signup,
     logout,
     updateUser,
+    resendConfirmation,
     isLoading,
     error
   };
