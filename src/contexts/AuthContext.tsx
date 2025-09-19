@@ -183,7 +183,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       }
       
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = window.location.origin;
       
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
@@ -269,7 +269,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: `${window.location.origin}/login`
+          emailRedirectTo: window.location.origin
         }
       });
 
