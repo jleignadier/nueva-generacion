@@ -64,16 +64,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           // Fetch user profile data
           setTimeout(async () => {
             try {
-              const { data: profile } = await supabase
+              const { data: profile, error: profileError } = await supabase
                 .from('profiles')
-                .select(`
-                  *,
-                  user_roles!inner(role)
-                `)
+                .select('*')
                 .eq('id', session.user.id)
                 .single();
 
+              if (profileError) {
+                console.error('Error fetching profile:', profileError);
+                setError('Failed to load user profile');
+                return;
+              }
+
               if (profile) {
+                // Determine admin status from account_type directly
+                const isAdmin = profile.account_type === 'admin';
+                
                 const userData: User = {
                   id: profile.id,
                   email: session.user.email!,
@@ -83,10 +89,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   phone: profile.phone,
                   birthdate: profile.birthdate,
                   accountType: profile.account_type,
-                  isAdmin: profile.account_type === 'admin',
+                  isAdmin: isAdmin,
                   organizationId: profile.organization_id
                 };
                 setUser(userData);
+                console.log('User profile loaded successfully:', userData.email, 'isAdmin:', isAdmin);
               }
             } catch (error) {
               console.error('Error fetching user profile:', error);
