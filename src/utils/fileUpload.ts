@@ -10,22 +10,35 @@ export interface UploadResult {
 export const uploadFile = async (
   bucket: string,
   file: File,
-  folder?: string
+  folder?: string,
+  userId?: string
 ): Promise<UploadResult> => {
   // Validate file size
   if (file.size > MAX_FILE_SIZE) {
     throw new Error(`El archivo excede el tamaño máximo de 8MB`);
   }
 
-  // Create file path
+  // Get current user ID if not provided
+  const { data: { user } } = await supabase.auth.getUser();
+  const effectiveUserId = userId || user?.id;
+
+  if (!effectiveUserId) {
+    throw new Error('Usuario no autenticado');
+  }
+
+  // Create file path with user ID folder for proper RLS
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-  const filePath = folder ? `${folder}/${fileName}` : fileName;
+  const filePath = folder 
+    ? `${folder}/${fileName}` 
+    : `${effectiveUserId}/${fileName}`;
 
-  // Upload file
+  // Upload file with upsert to handle updates
   const { error: uploadError } = await supabase.storage
     .from(bucket)
-    .upload(filePath, file);
+    .upload(filePath, file, {
+      upsert: true
+    });
 
   if (uploadError) {
     throw uploadError;
