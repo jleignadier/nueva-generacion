@@ -44,11 +44,26 @@ export const uploadFile = async (
     throw uploadError;
   }
 
-  // Get public URL
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+  // For private buckets (like donation-receipts), create signed URL
+  // For public buckets, use public URL
+  const publicBuckets = ['event-photos', 'organization-logos', 'user-avatars', 'legal-documents'];
+  
+  let url: string;
+  if (publicBuckets.includes(bucket)) {
+    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+    url = data.publicUrl;
+  } else {
+    // Create a signed URL that expires in 1 year for private buckets
+    const { data, error: signError } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(filePath, 31536000); // 1 year in seconds
+    
+    if (signError) throw signError;
+    url = data?.signedUrl || '';
+  }
 
   return {
-    url: data.publicUrl,
+    url,
     path: filePath,
   };
 };
