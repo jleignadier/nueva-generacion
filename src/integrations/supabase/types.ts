@@ -314,8 +314,11 @@ export type Database = {
           description: string | null
           id: string
           logo_url: string | null
+          members: number
           name: string
           phone: string | null
+          points: number
+          status: string
           updated_at: string
         }
         Insert: {
@@ -325,8 +328,11 @@ export type Database = {
           description?: string | null
           id?: string
           logo_url?: string | null
+          members?: number
           name: string
           phone?: string | null
+          points?: number
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -336,8 +342,11 @@ export type Database = {
           description?: string | null
           id?: string
           logo_url?: string | null
+          members?: number
           name?: string
           phone?: string | null
+          points?: number
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -348,6 +357,7 @@ export type Database = {
           avatar_url: string | null
           birthdate: string | null
           created_at: string
+          email: string | null
           first_name: string | null
           id: string
           last_name: string | null
@@ -360,6 +370,7 @@ export type Database = {
           avatar_url?: string | null
           birthdate?: string | null
           created_at?: string
+          email?: string | null
           first_name?: string | null
           id: string
           last_name?: string | null
@@ -372,6 +383,7 @@ export type Database = {
           avatar_url?: string | null
           birthdate?: string | null
           created_at?: string
+          email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null

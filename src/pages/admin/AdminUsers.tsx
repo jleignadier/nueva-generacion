@@ -64,10 +64,10 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      // Fetch profiles with email from auth.users metadata
+      // Fetch profiles with email
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('*');
+        .select('id, first_name, last_name, email, phone, birthdate');
 
       if (profilesError) throw profilesError;
 
@@ -85,25 +85,17 @@ const AdminUsers = () => {
 
       if (rolesError) throw rolesError;
 
-      // Get auth users to fetch emails
-      const { data, error: authError } = await supabase.auth.admin.listUsers();
-
-      if (authError) throw authError;
-
-      const authUsers = data.users;
-
       // Combine the data
       const usersData: User[] = (profiles || []).map(profile => {
-        const authUser = authUsers?.find((u: any) => u.id === profile.id);
         const points = userPoints?.find(p => p.user_id === profile.id);
         const role = userRoles?.find(r => r.user_id === profile.id);
         
         return {
           id: profile.id,
           name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Sin nombre',
-          email: authUser?.email || 'Sin email',
+          email: profile.email || 'Sin email',
           role: role?.role === 'admin' ? 'Admin' : 'Usuario',
-          status: 'Activo', // Can be extended with actual status from DB
+          status: 'Activo',
           points: points?.points || 0,
           phone: profile.phone || '',
           birthdate: profile.birthdate || ''

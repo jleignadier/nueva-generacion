@@ -129,25 +129,33 @@ export const useOrganizationsStore = create<OrganizationsState>()(
 
           if (error) {
             console.error('Error fetching organizations:', error);
+            // Fallback to seed data on error
+            get().initializeOrganizations();
             return;
           }
 
-          if (data) {
-            // Convert database format to store format
-            const formattedOrgs: Organization[] = data.map(org => ({
-              id: org.id,
-              name: org.name || '',
-              contactEmail: org.contact_email || '',
-              status: 'Activo' as const, // Default status since DB doesn't have this field
-              points: 0, // Default points since DB doesn't have this field
-              members: 1, // Default members since DB doesn't have this field
-              description: org.description || ''
-            }));
-
-            set({ organizations: formattedOrgs });
+          // If database is empty, use seed data as fallback
+          if (!data || data.length === 0) {
+            get().initializeOrganizations();
+            return;
           }
+
+          // Convert database format to store format
+          const formattedOrgs: Organization[] = data.map(org => ({
+            id: org.id,
+            name: org.name || '',
+            contactEmail: org.contact_email || '',
+            status: (org.status || 'Activo') as 'Activo' | 'Inactivo',
+            points: org.points || 0,
+            members: org.members || 0,
+            description: org.description || ''
+          }));
+
+          set({ organizations: formattedOrgs });
         } catch (error) {
           console.error('Error in fetchOrganizations:', error);
+          // Fallback to seed data on error
+          get().initializeOrganizations();
         }
       },
 
