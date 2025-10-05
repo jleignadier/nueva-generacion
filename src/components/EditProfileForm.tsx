@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useOrganizationsStore } from '@/store/organizationsStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { uploadFile } from '@/utils/fileUpload';
 
 interface EditProfileFormProps {
   isOpen: boolean;
@@ -17,7 +18,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
   const { organizations, initializeOrganizations } = useOrganizationsStore();
-  const [profilePicture, setProfilePicture] = useState<string | null>(user?.profilePicture || null);
+  const [profilePicture, setProfilePicture] = useState<string | null>(user?.avatarUrl || null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -43,21 +45,25 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 8 * 1024 * 1024) { // 8MB limit to match uploadFile util
         toast({
           title: "Archivo muy grande",
-          description: "La imagen debe ser menor a 5MB",
+          description: "La imagen debe ser menor a 8MB",
           variant: "destructive"
         });
         return;
       }
 
+      // Show preview
       const reader = new FileReader();
       reader.onload = (event) => {
         const result = event.target?.result as string;
         setProfilePicture(result);
       };
       reader.readAsDataURL(file);
+      
+      // Store file for upload
+      setSelectedFile(file);
     }
   };
 
@@ -66,14 +72,33 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ isOpen, onClose }) =>
     setIsSubmitting(true);
 
     try {
+      let avatarUrl = user?.avatarUrl;
+
+      // Upload new profile picture if selected
+      if (selectedFile) {
+        try {
+          const uploadResult = await uploadFile('user-avatars', selectedFile);
+          avatarUrl = uploadResult.url;
+        } catch (uploadError) {
+          console.error('Error uploading avatar:', uploadError);
+          toast({
+            title: "Error al subir imagen",
+            description: "No se pudo subir la imagen de perfil.",
+            variant: "destructive"
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Security fix: Only allow basic profile updates, prevent role escalation
       const updatedData = {
         firstName: formData.name.split(' ')[0] || '',
         lastName: formData.name.split(' ').slice(1).join(' ') || '',
-        profilePicture: profilePicture || user?.profilePicture
+        avatarUrl: avatarUrl
       };
 
-      updateUser(updatedData);
+      await updateUser(updatedData);
       
       toast({
         title: "Perfil actualizado",

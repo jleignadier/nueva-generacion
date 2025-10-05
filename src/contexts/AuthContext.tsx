@@ -14,7 +14,7 @@ export interface User {
   accountType: 'volunteer' | 'organization' | 'admin';
   isAdmin: boolean;
   organizationId?: string;
-  profilePicture?: string;
+  avatarUrl?: string;
 }
 
 interface AuthContextType {
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             try {
               const { data: profile, error: profileError } = await supabase
                 .from('profiles')
-                .select('*')
+                .select('id, first_name, last_name, phone, birthdate, account_type, organization_id, avatar_url')
                 .eq('id', session.user.id)
                 .single();
 
@@ -90,7 +90,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   birthdate: profile.birthdate,
                   accountType: profile.account_type,
                   isAdmin: isAdmin,
-                  organizationId: profile.organization_id
+                  organizationId: profile.organization_id,
+                  avatarUrl: profile.avatar_url
                 };
                 setUser(userData);
                 console.log('User profile loaded successfully:', userData.email, 'isAdmin:', isAdmin);
@@ -246,23 +247,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) return;
     
     try {
+      const updateData: any = {};
+      
+      if (userData.firstName !== undefined) updateData.first_name = userData.firstName;
+      if (userData.lastName !== undefined) updateData.last_name = userData.lastName;
+      if (userData.phone !== undefined) updateData.phone = userData.phone;
+      if (userData.birthdate !== undefined) updateData.birthdate = userData.birthdate;
+      if (userData.avatarUrl !== undefined) updateData.avatar_url = userData.avatarUrl;
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          first_name: userData.firstName,
-          last_name: userData.lastName,
-          phone: userData.phone,
-          birthdate: userData.birthdate
-        })
+        .update(updateData)
         .eq('id', user.id);
         
       if (error) throw error;
       
-      setUser({ ...user, ...userData });
+      // Update local user state
+      const updatedUser = {
+        ...user,
+        ...userData,
+        name: userData.firstName && userData.lastName 
+          ? `${userData.firstName} ${userData.lastName}`.trim()
+          : user.name
+      };
+      setUser(updatedUser);
       console.log("AuthContext: User updated");
     } catch (error) {
       console.error("Error updating user:", error);
       setError('Failed to update user profile');
+      throw error;
     }
   };
 

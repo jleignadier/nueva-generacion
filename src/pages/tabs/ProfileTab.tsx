@@ -153,9 +153,9 @@ const ProfileTab = () => {
         <CardContent className="p-6">
           <div className="flex items-center">
             <div className="h-16 w-16 rounded-full bg-nuevagen-blue text-white text-xl flex items-center justify-center overflow-hidden">
-              {user?.profilePicture ? (
+              {user?.avatarUrl ? (
                 <img 
-                  src={user.profilePicture} 
+                  src={user.avatarUrl} 
                   alt="Profile" 
                   className="h-full w-full object-cover"
                 />

@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { useForm } from 'react-hook-form';
+import { supabase } from '@/integrations/supabase/client';
 
 type SortField = 'name' | 'email' | 'points' | 'role';
 type SortDirection = 'asc' | 'desc';
@@ -35,16 +36,90 @@ const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  const [users, setUsers] = useState<User[]>([
-    { id: '1', name: 'John Doe', email: 'john@example.com', role: 'Usuario', status: 'Activo', points: 125, phone: '+1234567890', birthdate: '1990-05-15' },
-    { id: '2', name: 'Maria Garcia', email: 'maria@example.com', role: 'Usuario', status: 'Activo', points: 89, phone: '+1234567891', birthdate: '1985-10-22' },
-    { id: '3', name: 'Admin User', email: 'admin@ng.org.pa', role: 'Admin', status: 'Activo', points: 0, phone: '+1234567892' },
-    { id: '4', name: 'Sarah Johnson', email: 'sarah@example.com', role: 'Usuario', status: 'Activo', points: 203, phone: '+1234567893', birthdate: '1992-03-08' },
-    { id: '5', name: 'Carlos Rodriguez', email: 'carlos@example.com', role: 'Usuario', status: 'Inactivo', points: 67, phone: '+1234567894', birthdate: '1988-12-01' },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Fetch users from database
+  useEffect(() => {
+    fetchUsers();
+    
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('profiles-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'profiles'
+      }, () => {
+        fetchUsers();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      // Fetch profiles with email from auth.users metadata
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*');
+
+      if (profilesError) throw profilesError;
+
+      // Fetch user points
+      const { data: userPoints, error: pointsError } = await supabase
+        .from('user_points')
+        .select('user_id, points');
+
+      if (pointsError) throw pointsError;
+
+      // Fetch user roles
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Get auth users to fetch emails
+      const { data, error: authError } = await supabase.auth.admin.listUsers();
+
+      if (authError) throw authError;
+
+      const authUsers = data.users;
+
+      // Combine the data
+      const usersData: User[] = (profiles || []).map(profile => {
+        const authUser = authUsers?.find((u: any) => u.id === profile.id);
+        const points = userPoints?.find(p => p.user_id === profile.id);
+        const role = userRoles?.find(r => r.user_id === profile.id);
+        
+        return {
+          id: profile.id,
+          name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Sin nombre',
+          email: authUser?.email || 'Sin email',
+          role: role?.role === 'admin' ? 'Admin' : 'Usuario',
+          status: 'Activo', // Can be extended with actual status from DB
+          points: points?.points || 0,
+          phone: profile.phone || '',
+          birthdate: profile.birthdate || ''
+        };
+      });
+
+      setUsers(usersData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast({
+        title: "Error al cargar usuarios",
+        description: "Hubo un error al cargar los usuarios desde la base de datos.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
@@ -74,23 +149,48 @@ const AdminUsers = () => {
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<EditUserForm>();
 
-  const onSubmitEdit = (data: EditUserForm) => {
+  const onSubmitEdit = async (data: EditUserForm) => {
     if (!editingUser) return;
     
-    setUsers(users.map(user => 
-      user.id === editingUser.id 
-        ? { ...user, ...data }
-        : user
-    ));
-    
-    toast({
-      title: "Usuario actualizado exitosamente",
-      description: "La información del usuario ha sido actualizada.",
-    });
-    
-    setIsEditDialogOpen(false);
-    setEditingUser(null);
-    reset();
+    try {
+      // Split name into first and last name
+      const nameParts = data.name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Update profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          first_name: firstName,
+          last_name: lastName,
+          phone: data.phone,
+          birthdate: data.birthdate || null
+        })
+        .eq('id', editingUser.id);
+
+      if (profileError) throw profileError;
+
+      // Update role if needed (security-conscious - only admin can change roles)
+      // Note: This would require additional security checks in production
+      
+      toast({
+        title: "Usuario actualizado exitosamente",
+        description: "La información del usuario ha sido actualizada.",
+      });
+      
+      setIsEditDialogOpen(false);
+      setEditingUser(null);
+      reset();
+      fetchUsers(); // Refresh the list
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast({
+        title: "Error al actualizar usuario",
+        description: "Hubo un error al actualizar el usuario.",
+        variant: "destructive"
+      });
+    }
   };
 
   const sortedAndFilteredUsers = useMemo(() => {

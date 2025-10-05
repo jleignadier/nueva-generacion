@@ -30,14 +30,10 @@ const AdminOrganizations = () => {
   const { toast } = useToast();
   const { canViewContact, isAdmin, loading } = useOrganizationSecurity();
 
-  // Initialize organizations on component mount
+  // Fetch organizations from database on component mount
   React.useEffect(() => {
-    initializeOrganizations();
-    // Also try to fetch from database for admin users
-    if (isAdmin) {
-      fetchOrganizations();
-    }
-  }, [initializeOrganizations, fetchOrganizations, isAdmin]);
+    fetchOrganizations();
+  }, [fetchOrganizations]);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
