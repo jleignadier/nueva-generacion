@@ -98,6 +98,15 @@ const LeaderboardTab = () => {
 
   const fetchOrgLeaderboard = async () => {
     try {
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        // User not authenticated - organization leaderboard requires auth
+        setOrgLeaders([]);
+        return;
+      }
+      
       const { data, error } = await supabase.rpc('get_organization_leaderboard', { p_limit: 50 });
       
       if (error) throw error;
@@ -114,6 +123,7 @@ const LeaderboardTab = () => {
       setOrgLeaders(formatted);
     } catch (error) {
       console.error('Error fetching org leaderboard:', error);
+      setOrgLeaders([]);
     }
   };
 
@@ -202,6 +212,14 @@ const LeaderboardTab = () => {
     }
 
     if (entries.length === 0) {
+      if (isOrgLeaderboard && !user) {
+        return (
+          <div className="text-center py-8 text-muted-foreground">
+            <p className="mb-2">Debes iniciar sesión para ver el ranking de organizaciones</p>
+            <p className="text-sm">Esta información solo está disponible para usuarios autenticados</p>
+          </div>
+        );
+      }
       return <div className="text-center py-8 text-muted-foreground">No hay datos disponibles</div>;
     }
 

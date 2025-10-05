@@ -171,8 +171,32 @@ const AdminUsers = () => {
 
       if (profileError) throw profileError;
 
-      // Update role if needed (security-conscious - only admin can change roles)
-      // Note: This would require additional security checks in production
+      // Update role using secure RPC function (prevents privilege escalation)
+      if (data.role) {
+        const roleValue = data.role === 'Admin' ? 'admin' : 'volunteer';
+        const currentRole = editingUser.role === 'Admin' ? 'admin' : 'volunteer';
+        
+        if (roleValue !== currentRole) {
+          const { error: roleError } = await supabase.rpc('update_user_role', {
+            target_user_id: editingUser.id,
+            new_role: roleValue,
+            reason: 'Role changed via admin panel'
+          });
+          
+          if (roleError) {
+            // Handle specific error messages
+            if (roleError.message.includes('cannot change their own role')) {
+              toast({
+                title: "Error de seguridad",
+                description: "No puedes cambiar tu propio rol.",
+                variant: "destructive"
+              });
+              return;
+            }
+            throw roleError;
+          }
+        }
+      }
       
       toast({
         title: "Usuario actualizado exitosamente",
@@ -183,11 +207,11 @@ const AdminUsers = () => {
       setEditingUser(null);
       reset();
       fetchUsers(); // Refresh the list
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating user:', error);
       toast({
         title: "Error al actualizar usuario",
-        description: "Hubo un error al actualizar el usuario.",
+        description: error.message || "Hubo un error al actualizar el usuario.",
         variant: "destructive"
       });
     }

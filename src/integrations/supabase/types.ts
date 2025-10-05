@@ -72,6 +72,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "donations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "donations_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
@@ -139,6 +146,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_attendance_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
             referencedColumns: ["id"]
           },
           {
@@ -449,6 +463,36 @@ export type Database = {
           },
         ]
       }
+      user_role_audit: {
+        Row: {
+          changed_at: string | null
+          changed_by: string | null
+          id: string
+          new_role: Database["public"]["Enums"]["app_role"]
+          old_role: Database["public"]["Enums"]["app_role"] | null
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          new_role: Database["public"]["Enums"]["app_role"]
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          new_role?: Database["public"]["Enums"]["app_role"]
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -469,23 +513,80 @@ export type Database = {
       }
     }
     Views: {
+      events_public: {
+        Row: {
+          created_at: string | null
+          current_funding: number | null
+          date: string | null
+          description: string | null
+          end_time: string | null
+          funding_required: number | null
+          id: string | null
+          image_url: string | null
+          location: string | null
+          points_earned: number | null
+          status: Database["public"]["Enums"]["event_status"] | null
+          time: string | null
+          title: string | null
+          updated_at: string | null
+          volunteer_hours: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_funding?: number | null
+          date?: string | null
+          description?: string | null
+          end_time?: string | null
+          funding_required?: number | null
+          id?: string | null
+          image_url?: string | null
+          location?: string | null
+          points_earned?: number | null
+          status?: Database["public"]["Enums"]["event_status"] | null
+          time?: string | null
+          title?: string | null
+          updated_at?: string | null
+          volunteer_hours?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          current_funding?: number | null
+          date?: string | null
+          description?: string | null
+          end_time?: string | null
+          funding_required?: number | null
+          id?: string | null
+          image_url?: string | null
+          location?: string | null
+          points_earned?: number | null
+          status?: Database["public"]["Enums"]["event_status"] | null
+          time?: string | null
+          title?: string | null
+          updated_at?: string | null
+          volunteer_hours?: number | null
+        }
+        Relationships: []
+      }
       organizations_public: {
         Row: {
           created_at: string | null
           description: string | null
           id: string | null
+          logo_url: string | null
           name: string | null
         }
         Insert: {
           created_at?: string | null
           description?: string | null
           id?: string | null
+          logo_url?: string | null
           name?: string | null
         }
         Update: {
           created_at?: string | null
           description?: string | null
           id?: string | null
+          logo_url?: string | null
           name?: string | null
         }
         Relationships: []
@@ -565,6 +666,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      update_user_role: {
+        Args: {
+          new_role: Database["public"]["Enums"]["app_role"]
+          reason?: string
+          target_user_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

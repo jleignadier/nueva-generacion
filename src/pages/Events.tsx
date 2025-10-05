@@ -1,19 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarCheck, Clock, MapPin, ArrowLeft, Award } from 'lucide-react';
 import { useEventsStore, Event } from '@/store/eventsStore';
 import { formatDate, formatEventTime, getTodayString } from '@/utils/dateUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 const Events = () => {
   const navigate = useNavigate();
   const { events } = useEventsStore();
+  const [publicEvents, setPublicEvents] = useState<Event[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Check authentication status and fetch events
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsAuthenticated(!!user);
+      
+      // If user is not authenticated, fetch from public view
+      if (!user) {
+        const { data, error } = await supabase
+          .from('events_public')
+          .select('*')
+          .gte('date', getTodayString())
+          .order('date', { ascending: true });
+        
+        if (!error && data) {
+          setPublicEvents(data as any);
+        }
+      }
+    };
+    
+    checkAuth();
+  }, []);
   
   console.log('Events page - All events:', events);
   
+  // Use authenticated events if logged in, otherwise use public events
+  const eventsToShow = isAuthenticated ? events : publicEvents;
+  
   // Filter events to show all upcoming events and today's events (visible until end of day)
-  const upcomingEvents = events
+  const upcomingEvents = eventsToShow
     .filter(event => {
       const today = getTodayString(); // Get YYYY-MM-DD format
       // Show all future events and today's events (remain visible all day regardless of attendance)
