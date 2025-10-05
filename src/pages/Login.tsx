@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,6 +16,9 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const { login, error, user, resendConfirmation } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -94,6 +98,43 @@ const Login = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    const emailToReset = resetEmail || email;
+    
+    if (!emailToReset) {
+      toast({
+        title: "Error",
+        description: "Por favor ingresa tu correo electrónico.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsResettingPassword(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(emailToReset, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Correo Enviado",
+        description: "Te hemos enviado un correo con instrucciones para restablecer tu contraseña.",
+      });
+      setShowForgotPassword(false);
+      setResetEmail('');
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "No pudimos enviar el correo de restablecimiento. Intenta de nuevo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResettingPassword(false);
+    }
+  };
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-nuevagen-blue to-nuevagen-teal">
@@ -141,6 +182,16 @@ const Login = () => {
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
+
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(!showForgotPassword)}
+              className="text-sm text-nuevagen-blue hover:text-nuevagen-teal font-medium"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
           
           <Button
             type="submit"
@@ -149,6 +200,29 @@ const Login = () => {
           >
             {isLoading ? "Iniciando Sesión..." : "Iniciar Sesión"}
           </Button>
+
+          {showForgotPassword && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-gray-700 mb-3">
+                Ingresa tu correo electrónico para restablecer tu contraseña
+              </p>
+              <Input
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                placeholder="Correo Electrónico"
+                className="w-full h-10 mb-3"
+              />
+              <Button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={isResettingPassword}
+                className="w-full h-10 text-sm bg-nuevagen-blue hover:bg-opacity-90"
+              >
+                {isResettingPassword ? "Enviando..." : "Enviar Correo de Restablecimiento"}
+              </Button>
+            </div>
+          )}
 
           {showResendConfirmation && (
             <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
