@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Award, User, Users, Calendar, Clock, Eye } from 'lucide-react';
+import { Trophy, Award, User, Users, Calendar, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCompetitionsStore } from '@/store/competitionsStore';
-import { useEventsStore } from '@/store/eventsStore';
-import { useOrganizationsStore } from '@/store/organizationsStore';
 import UserProfileModal from '@/components/UserProfileModal';
+import { supabase } from "@/integrations/supabase/client";
 
 interface LeaderboardEntry {
-  id: number;
+  user_id?: string;
+  organization_id?: string;
+  first_name?: string;
+  last_name?: string;
   name: string;
   rank: number;
   value: number;
@@ -18,6 +20,8 @@ interface LeaderboardEntry {
   events?: number;
   organizationName?: string;
   profilePicture?: string;
+  avatar_url?: string;
+  logo_url?: string;
 }
 
 const LeaderboardTab = () => {
@@ -26,90 +30,98 @@ const LeaderboardTab = () => {
   const [currentTab, setCurrentTab] = useState('individual');
   const [selectedUser, setSelectedUser] = useState<LeaderboardEntry | null>(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
+  const [userLeaders, setUserLeaders] = useState<LeaderboardEntry[]>([]);
+  const [orgLeaders, setOrgLeaders] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const activeCompetition = getActiveCompetition();
 
-  // Calculate user's actual points and stats from attended events
-  const getUserStats = () => {
-    const attendedEventIds = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
-    const events = useEventsStore.getState().events;
-    let points = 0;
-    let hours = 0;
-    
-    attendedEventIds.forEach((eventId: string) => {
-      const event = events.find(e => e.id === eventId);
-      if (event) {
-        points += event.pointsEarned || 0;
-        hours += event.volunteerHours || 0;
-      }
-    });
-    
-    return { points, hours, events: attendedEventIds.length };
-  };
+  // Fetch user leaderboard
+  useEffect(() => {
+    fetchUserLeaderboard();
+    fetchOrgLeaderboard();
 
-  const userStats = getUserStats();
-  const userRank = 12;
-  const organizationPoints = 35;
-  const organizationRank = 18;
+    // Subscribe to real-time updates
+    const userPointsChannel = supabase
+      .channel('user-points-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'user_points'
+      }, () => {
+        fetchUserLeaderboard();
+      })
+      .subscribe();
 
-  const volunteerLeaders: LeaderboardEntry[] = [
-    { id: 1, name: 'Maria Garcia', rank: 1, value: 78, avatar: 'MG', hours: 45, events: 12 },
-    { id: 2, name: 'James Wilson', rank: 2, value: 64, avatar: 'JW', hours: 38, events: 10 },
-    { id: 3, name: 'Sarah Johnson', rank: 3, value: 59, avatar: 'SJ', hours: 35, events: 9 },
-    { id: 4, name: 'David Lee', rank: 4, value: 52, avatar: 'DL', hours: 30, events: 8 },
-    { id: 5, name: 'Li Wei', rank: 5, value: 47, avatar: 'LW', hours: 28, events: 7 },
-    { id: 6, name: 'Olivia Martinez', rank: 6, value: 42, avatar: 'OM', hours: 25, events: 6 },
-    { id: 7, name: 'John Smith', rank: 7, value: 38, avatar: 'JS', hours: 22, events: 5 },
-    { id: 8, name: user?.name || 'User Name', rank: userRank, value: userStats.points, avatar: user?.name?.charAt(0) || '?', hours: userStats.hours, events: userStats.events, profilePicture: user?.profilePicture },
-  ];
+    const orgPointsChannel = supabase
+      .channel('org-points-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'organization_points'
+      }, () => {
+        fetchOrgLeaderboard();
+      })
+      .subscribe();
 
-  // Filter organization leaderboard based on user account type and organization membership
-  const getOrganizationLeaders = (): LeaderboardEntry[] => {
-    const baseOrganizations: LeaderboardEntry[] = [
-      { id: 1, name: 'Green Earth Foundation', rank: 1, value: 250, avatar: 'GE' },
-      { id: 2, name: 'Community Helpers', rank: 2, value: 175, avatar: 'CH' },
-      { id: 3, name: 'Tech Solutions Inc.', rank: 3, value: 150, avatar: 'TS' },
-      { id: 4, name: 'Global Outreach', rank: 4, value: 120, avatar: 'GO' },
-      { id: 5, name: 'Global Helpers', rank: 5, value: 115, avatar: 'GH' },
-      { id: 6, name: 'Future Leaders', rank: 6, value: 95, avatar: 'FL' },
-      { id: 7, name: 'Community First', rank: 7, value: 90, avatar: 'CF' },
-    ];
+    return () => {
+      supabase.removeChannel(userPointsChannel);
+      supabase.removeChannel(orgPointsChannel);
+    };
+  }, []);
 
-    // Only add user if they belong to an organization
-    if (user?.organizationId && user?.accountType === 'volunteer') {
-      // Find organization name from store
-      const { organizations } = useOrganizationsStore.getState();
-      const userOrg = organizations.find(org => org.id === user.organizationId);
-      const orgName = userOrg?.name || 'Mi Organización';
+  const fetchUserLeaderboard = async () => {
+    try {
+      const { data, error } = await supabase.rpc('get_user_leaderboard', { p_limit: 50 });
       
-      baseOrganizations.push({
-        id: 8,
-        name: orgName,
-        rank: organizationRank,
-        value: organizationPoints,
-        avatar: orgName.charAt(0),
-        profilePicture: user?.profilePicture
-      });
-    } else if (user?.accountType === 'organization') {
-      baseOrganizations.push({
-        id: 8,
-        name: user.name,
-        rank: organizationRank,
-        value: organizationPoints,
-        avatar: user.name.charAt(0),
-        profilePicture: user?.profilePicture
-      });
-    }
+      if (error) throw error;
 
-    return baseOrganizations;
+      const formatted: LeaderboardEntry[] = (data || []).map((item: any) => ({
+        user_id: item.user_id,
+        name: `${item.first_name || ''} ${item.last_name || ''}`.trim() || 'Usuario',
+        rank: Number(item.rank),
+        value: item.points || 0,
+        avatar: item.first_name?.charAt(0) || '?',
+        hours: Number(item.total_hours) || 0,
+        events: item.events_attended || 0,
+        organizationName: item.organization_name,
+        avatar_url: item.avatar_url,
+      }));
+
+      setUserLeaders(formatted);
+    } catch (error) {
+      console.error('Error fetching user leaderboard:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const organizationLeaders = getOrganizationLeaders();
+  const fetchOrgLeaderboard = async () => {
+    try {
+      const { data, error } = await supabase.rpc('get_organization_leaderboard', { p_limit: 50 });
+      
+      if (error) throw error;
+
+      const formatted: LeaderboardEntry[] = (data || []).map((item: any) => ({
+        organization_id: item.organization_id,
+        name: item.name || 'Organización',
+        rank: Number(item.rank),
+        value: item.points || 0,
+        avatar: item.name?.charAt(0) || 'O',
+        logo_url: item.logo_url,
+      }));
+
+      setOrgLeaders(formatted);
+    } catch (error) {
+      console.error('Error fetching org leaderboard:', error);
+    }
+  };
 
   const renderUserStats = () => {
     const isIndividualTab = currentTab === 'individual';
-    const rank = isIndividualTab ? userRank : organizationRank;
-    const value = isIndividualTab ? userStats.points : organizationPoints;
+    const currentUserData = userLeaders.find(u => u.user_id === user?.id);
+    const rank = currentUserData?.rank || '-';
+    const value = currentUserData?.value || 0;
     
     return (
       <Card className="mb-4 bg-gradient-to-r from-nuevagen-blue to-nuevagen-teal text-white">
@@ -117,10 +129,10 @@ const LeaderboardTab = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg mr-3">
-                {user?.name.charAt(0).toUpperCase()}
+                {user?.name?.charAt(0).toUpperCase() || '?'}
               </div>
               <div>
-                <h3 className="font-bold">{user?.name}</h3>
+                <h3 className="font-bold">{user?.name || 'Usuario'}</h3>
               </div>
             </div>
             <div className="text-right">
@@ -173,93 +185,92 @@ const LeaderboardTab = () => {
     );
   };
 
-  // Helper function to check if profile is clickable
   const isProfileClickable = (entry: LeaderboardEntry) => {
-    // Don't make current user's profile clickable
-    if (entry.name === user?.name) return false;
-    
-    // For demo purposes, make all leaderboard users clickable
-    // In real app, would check individual user privacy settings
+    if (entry.user_id === user?.id) return false;
     return true;
   };
 
   const handleUserClick = (entry: LeaderboardEntry) => {
     if (!isProfileClickable(entry)) return;
-    
     setSelectedUser(entry);
     setShowUserProfile(true);
   };
 
-  const renderLeaderboard = (entries: LeaderboardEntry[], isOrgLeaderboard = false) => (
-    <div className="space-y-2">
-      {entries.map((entry) => {
-        // For individual leaderboard, check if it's the current user
-        // For organization leaderboard, check if it's the user's organization
-        const isUser = isOrgLeaderboard 
-          ? (user?.organizationId && entry.id === 8) || (user?.accountType === 'organization' && entry.name === user.name)
-          : entry.name === user?.name;
-        const isTop3 = entry.rank <= 3;
-        const isClickable = isProfileClickable(entry);
-        
-        return (
-          <Card 
-            key={entry.id} 
-            className={`${isUser ? 'border-primary bg-primary/5' : ''} ${
-              isClickable ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''
-            }`}
-            onClick={() => isClickable && handleUserClick(entry)}
-          >
-            <CardContent className="p-3 flex items-center">
-              <div className="w-8 flex justify-center font-semibold text-muted-foreground">
-                {entry.rank}
-              </div>
-              
-              {/* Profile Picture/Avatar */}
-              <div className="h-10 w-10 rounded-full overflow-hidden flex items-center justify-center bg-primary">
-                {entry.profilePicture ? (
-                  <img 
-                    src={entry.profilePicture} 
-                    alt={`${entry.name} profile`} 
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="font-medium text-white text-sm">
-                    {entry.avatar}
-                  </span>
-                )}
-              </div>
-              
-              <div className="ml-3 flex-1">
-                <p className={`font-medium ${isUser ? 'text-primary' : ''} flex items-center`}>
-                  {entry.name}
-                  {isClickable && (
-                    <Eye size={14} className="ml-2 text-muted-foreground" />
+  const renderLeaderboard = (entries: LeaderboardEntry[], isOrgLeaderboard = false) => {
+    if (loading) {
+      return <div className="text-center py-8 text-muted-foreground">Cargando...</div>;
+    }
+
+    if (entries.length === 0) {
+      return <div className="text-center py-8 text-muted-foreground">No hay datos disponibles</div>;
+    }
+
+    return (
+      <div className="space-y-2">
+        {entries.map((entry, index) => {
+          const isUser = entry.user_id === user?.id;
+          const isTop3 = entry.rank <= 3;
+          const isClickable = isProfileClickable(entry);
+          
+          return (
+            <Card 
+              key={entry.user_id || entry.organization_id || index} 
+              className={`${isUser ? 'border-primary bg-primary/5' : ''} ${
+                isClickable ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''
+              }`}
+              onClick={() => isClickable && handleUserClick(entry)}
+            >
+              <CardContent className="p-3 flex items-center">
+                <div className="w-8 flex justify-center font-semibold text-muted-foreground">
+                  {entry.rank}
+                </div>
+                
+                <div className="h-10 w-10 rounded-full overflow-hidden flex items-center justify-center bg-primary">
+                  {entry.avatar_url || entry.logo_url ? (
+                    <img 
+                      src={entry.avatar_url || entry.logo_url} 
+                      alt={`${entry.name} profile`} 
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="font-medium text-white text-sm">
+                      {entry.avatar}
+                    </span>
                   )}
-                </p>
-                <div className="text-sm text-muted-foreground">
-                  {entry.value} puntos
                 </div>
-              </div>
-              
-              {/* Trophy for top 3 on the right */}
-              {isTop3 && (
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full
-                  ${entry.rank === 1 
-                    ? 'bg-yellow-500' 
-                    : entry.rank === 2 
-                      ? 'bg-gray-400' 
-                      : 'bg-amber-700'
-                  }`}
-                >
-                  <Trophy size={16} className="text-white" />
+                
+                <div className="ml-3 flex-1">
+                  <p className={`font-medium ${isUser ? 'text-primary' : ''} flex items-center`}>
+                    {entry.name}
+                    {isClickable && (
+                      <Eye size={14} className="ml-2 text-muted-foreground" />
+                    )}
+                  </p>
+                  <div className="text-sm text-muted-foreground">
+                    {entry.value} puntos
+                    {entry.hours !== undefined && ` • ${entry.hours} horas`}
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
-  );
+                
+                {isTop3 && (
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full
+                    ${entry.rank === 1 
+                      ? 'bg-yellow-500' 
+                      : entry.rank === 2 
+                        ? 'bg-gray-400' 
+                        : 'bg-amber-700'
+                    }`}
+                  >
+                    <Trophy size={16} className="text-white" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className="app-container">
@@ -296,7 +307,7 @@ const LeaderboardTab = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
-              {renderLeaderboard(volunteerLeaders, false)}
+              {renderLeaderboard(userLeaders, false)}
             </CardContent>
           </Card>
         </TabsContent>
@@ -310,13 +321,12 @@ const LeaderboardTab = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-2">
-              {renderLeaderboard(organizationLeaders, true)}
+              {renderLeaderboard(orgLeaders, true)}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* User Profile Modal */}
       {selectedUser && (
         <UserProfileModal
           isOpen={showUserProfile}

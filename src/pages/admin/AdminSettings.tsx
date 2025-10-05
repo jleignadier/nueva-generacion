@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { LegalDocumentUpload } from '@/components/admin/LegalDocumentUpload';
 
 const AdminSettings = () => {
   return (
@@ -44,6 +45,25 @@ const AdminSettings = () => {
           <button className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white mt-4">
             Guardar Cambios
           </button>
+        </div>
+      </div>
+
+      {/* Legal Documents Section */}
+      <div className="bg-zinc-800 border border-zinc-700 p-6 rounded-lg">
+        <h2 className="text-xl font-medium mb-6">Documentos Legales</h2>
+        <div className="space-y-6">
+          <LegalDocumentUpload 
+            documentType="terms_of_service"
+            label="Términos de Servicio"
+          />
+          <LegalDocumentUpload 
+            documentType="privacy_policy"
+            label="Política de Privacidad"
+          />
+          <LegalDocumentUpload 
+            documentType="volunteering_rules"
+            label="Reglamento de Voluntariado"
+          />
         </div>
       </div>
     </div>

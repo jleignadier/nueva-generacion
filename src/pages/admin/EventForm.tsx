@@ -68,7 +68,9 @@ const EventForm = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'pointsEarned' || name === 'volunteerHours' || name === 'fundingRequired' ? Number(value) : value
+      [name]: name === 'pointsEarned' || name === 'volunteerHours' || name === 'fundingRequired' 
+        ? (value === '' ? 0 : Number(value))
+        : value
     }));
   };
   
@@ -232,9 +234,10 @@ const EventForm = () => {
                     name="pointsEarned"
                     type="number"
                     min="0"
-                    value={formData.pointsEarned}
+                    value={formData.pointsEarned || ''}
                     onChange={handleInputChange}
                     className="bg-zinc-700 border-zinc-600 text-white"
+                    placeholder="Ej: 25"
                   />
                 </div>
                 
@@ -246,10 +249,10 @@ const EventForm = () => {
                     type="number"
                     min="0"
                     step="0.5"
-                    value={formData.volunteerHours}
+                    value={formData.volunteerHours || ''}
                     onChange={handleInputChange}
                     className="bg-zinc-700 border-zinc-600 text-white"
-                    placeholder="Horas para crédito voluntario"
+                    placeholder="Ej: 3.0"
                   />
                 </div>
                 
@@ -261,24 +264,33 @@ const EventForm = () => {
                     type="number"
                     min="0"
                     step="1"
-                    value={formData.fundingRequired}
+                    value={formData.fundingRequired || ''}
                     onChange={handleInputChange}
                     className="bg-zinc-700 border-zinc-600 text-white"
-                    placeholder="Monto objetivo (opcional)"
+                    placeholder="Ej: 500 (opcional)"
                   />
                 </div>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="image" className="text-white">URL de la Imagen</Label>
+                <Label htmlFor="image" className="text-white">Imagen del Evento</Label>
                 <Input
                   id="image"
                   name="image"
-                  value={formData.image}
-                  onChange={handleInputChange}
-                  placeholder="Ingresa la URL de la imagen"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // For now, just show placeholder - will be uploaded on submit
+                      setFormData(prev => ({ ...prev, image: URL.createObjectURL(file) }));
+                    }
+                  }}
                   className="bg-zinc-700 border-zinc-600 text-white"
                 />
+                {formData.image && (
+                  <img src={formData.image} alt="Preview" className="w-32 h-32 object-cover rounded mt-2" />
+                )}
               </div>
             </div>
             

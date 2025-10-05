@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LegalAcceptanceModal } from "@/components/LegalAcceptanceModal";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ResetPassword from "./pages/ResetPassword";
@@ -40,6 +41,7 @@ const App = () => (
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
+          <LegalAcceptanceModal />
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />

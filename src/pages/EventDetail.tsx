@@ -1,23 +1,27 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, Award, Calendar, CheckCircle, DollarSign, Target, QrCode } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, Award, Calendar, CheckCircle, DollarSign, Target, QrCode, UserPlus } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useEventsStore } from '@/store/eventsStore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import EventParticipants from '@/components/EventParticipants';
 import EventDonationModal from '@/components/EventDonationModal';
 import QRScanner from '@/components/QRScanner';
 import { getEventRegistrationStatus, registerForEvent, downloadCalendarFile, markEventAttended } from '@/utils/eventUtils';
 import { formatDate, formatEventTime } from '@/utils/dateUtils';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [registrationStatus, setRegistrationStatus] = useState({
     isRegistered: false,
     canRegister: false,
@@ -27,19 +31,147 @@ const EventDetail = () => {
   });
   const [donationModalOpen, setDonationModalOpen] = useState(false);
   const [qrScannerOpen, setQrScannerOpen] = useState(false);
+  const [manualCheckInOpen, setManualCheckInOpen] = useState(false);
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   
   const { getEvent } = useEventsStore();
   
-  // Find the event based on the ID parameter
   const event = id ? getEvent(id) : undefined;
   
-  // Check registration and attendance status
   useEffect(() => {
     if (id && event) {
       const status = getEventRegistrationStatus(id, event.date, event.time, event.endTime);
       setRegistrationStatus(status);
+      checkAttendance();
     }
   }, [id, event]);
+
+  const checkAttendance = async () => {
+    if (!user || !id) return;
+
+    const { data } = await supabase
+      .from('event_attendance')
+      .select('*')
+      .eq('event_id', id)
+      .eq('user_id', user.id)
+      .single();
+
+    if (data) {
+      setRegistrationStatus(prev => ({ ...prev, hasAttended: true, canScanQR: false }));
+    }
+  };
+
+  const handleRegisterForReminder = () => {
+    if (!event || !id) return;
+    
+    registerForEvent(id);
+    
+    downloadCalendarFile({
+      title: event.title,
+      date: event.date,
+      time: event.time,
+      endTime: event.endTime,
+      location: event.location,
+      description: event.description
+    });
+    
+    setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false }));
+    
+    toast({
+      title: "¡Registrado para recordatorio!",
+      description: `Evento de calendario agregado para ${event.title}.`,
+    });
+  };
+
+  const handleQRScanSuccess = async (result: string) => {
+    if (!event || !id || !user) return;
+    
+    try {
+      const { error } = await supabase.rpc('award_event_points', {
+        p_user_id: user.id,
+        p_event_id: id,
+        p_check_in_method: 'qr_scan'
+      });
+
+      if (error) throw error;
+
+      markEventAttended(id);
+      
+      setRegistrationStatus(prev => ({ 
+        ...prev, 
+        hasAttended: true, 
+        canScanQR: false 
+      }));
+      
+      setQrScannerOpen(false);
+      
+      toast({
+        title: "¡Asistencia registrada!",
+        description: `Has ganado ${event.pointsEarned} puntos y ${event.volunteerHours} horas de voluntariado.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Error al registrar asistencia",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSearchUser = async () => {
+    if (!searchEmail) return;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name')
+      .or(`first_name.ilike.%${searchEmail}%,last_name.ilike.%${searchEmail}%`)
+      .limit(5);
+
+    if (!error && data) {
+      setSearchResults(data);
+    }
+  };
+
+  const handleManualCheckIn = async (userId: string, userName: string) => {
+    if (!id) return;
+
+    try {
+      const { error } = await supabase.rpc('award_event_points', {
+        p_user_id: userId,
+        p_event_id: id,
+        p_check_in_method: 'manual'
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Asistencia registrada",
+        description: `${userName} ha sido marcado como asistente`,
+      });
+
+      setSearchEmail('');
+      setSearchResults([]);
+      setManualCheckInOpen(false);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Error al registrar asistencia",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleShare = () => {
+    toast({
+      title: "Función de compartir",
+      description: "La funcionalidad para compartir se implementaría aquí",
+    });
+  };
+
+  const handleBack = () => {
+    navigate('/dashboard');
+  };
 
   if (!event) {
     return (
@@ -57,66 +189,7 @@ const EventDetail = () => {
     );
   }
 
-  const handleRegisterForReminder = () => {
-    if (!event || !id) return;
-    
-    // Register for the event (calendar reminder)
-    registerForEvent(id);
-    
-    // Download calendar file
-    downloadCalendarFile({
-      title: event.title,
-      date: event.date,
-      time: event.time,
-      endTime: event.endTime,
-      location: event.location,
-      description: event.description
-    });
-    
-    // Update local state
-    setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false }));
-    
-    // Show success toast
-    toast({
-      title: "¡Registrado para recordatorio!",
-      description: `Evento de calendario agregado para ${event.title}.`,
-    });
-  };
-
-
-  const handleQRScanSuccess = (result: string) => {
-    if (!event || !id) return;
-    
-    // Mark attendance
-    markEventAttended(id);
-    
-    // Update local state
-    setRegistrationStatus(prev => ({ 
-      ...prev, 
-      hasAttended: true, 
-      canScanQR: false 
-    }));
-    
-    setQrScannerOpen(false);
-    
-    toast({
-      title: "¡Asistencia registrada!",
-      description: `Has ganado ${event.pointsEarned} puntos y ${event.volunteerHours} horas de voluntariado.`,
-    });
-  };
-
-  const handleShare = () => {
-    // In a real app, this would open a proper share dialog
-    toast({
-      title: "Función de compartir",
-      description: "La funcionalidad para compartir se implementaría aquí",
-    });
-  };
-
-  // Use direct route for navigation - maintain the '/dashboard' path
-  const handleBack = () => {
-    navigate('/dashboard');
-  };
+  const isAdmin = user?.accountType === 'admin';
 
   return (
     <div className="app-container p-4">
@@ -179,7 +252,6 @@ const EventDetail = () => {
             <p className="text-gray-600">{event.description}</p>
           </div>
           
-          {/* Funding Section */}
           {event.fundingRequired && event.fundingRequired > 0 && (
             <div className="border rounded-lg p-4 mb-4 bg-gradient-to-r from-green-50 to-blue-50">
               <div className="flex items-center justify-between mb-3">
@@ -231,7 +303,24 @@ const EventDetail = () => {
           </div>
           
           <div className="flex gap-2">
-            {registrationStatus.canScanQR ? (
+            {isAdmin ? (
+              <>
+                <Button 
+                  className="flex-1 bg-blue-600 hover:bg-blue-700" 
+                  onClick={() => setQrScannerOpen(true)}
+                >
+                  <QrCode size={16} className="mr-2" />
+                  Escanear QR
+                </Button>
+                <Button 
+                  className="flex-1 bg-purple-600 hover:bg-purple-700" 
+                  onClick={() => setManualCheckInOpen(true)}
+                >
+                  <UserPlus size={16} className="mr-2" />
+                  Check-in Manual
+                </Button>
+              </>
+            ) : registrationStatus.canScanQR ? (
               <Button 
                 className="flex-1 bg-green-600 hover:bg-green-700" 
                 onClick={() => setQrScannerOpen(true)}
@@ -275,20 +364,18 @@ const EventDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Donation Modal */}
       {event.fundingRequired && (
-          <EventDonationModal
-            eventId={event.id}
-            eventTitle={event.title}
-            fundingRequired={event.fundingRequired}
-            currentFunding={event.currentFunding || 0}
-            pointsEarned={event.pointsEarned}
-            isOpen={donationModalOpen}
-            onClose={() => setDonationModalOpen(false)}
-          />
+        <EventDonationModal
+          eventId={event.id}
+          eventTitle={event.title}
+          fundingRequired={event.fundingRequired}
+          currentFunding={event.currentFunding || 0}
+          pointsEarned={event.pointsEarned}
+          isOpen={donationModalOpen}
+          onClose={() => setDonationModalOpen(false)}
+        />
       )}
 
-      {/* QR Scanner Modal */}
       <Dialog open={qrScannerOpen} onOpenChange={setQrScannerOpen}>
         <DialogContent>
           <DialogHeader>
@@ -298,6 +385,45 @@ const EventDetail = () => {
             onSuccess={handleQRScanSuccess}
             onClose={() => setQrScannerOpen(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={manualCheckInOpen} onOpenChange={setManualCheckInOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Check-in Manual de Asistencia</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Buscar usuario por nombre</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={searchEmail}
+                  onChange={(e) => setSearchEmail(e.target.value)}
+                  placeholder="Nombre del usuario"
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearchUser()}
+                />
+                <Button onClick={handleSearchUser}>Buscar</Button>
+              </div>
+            </div>
+
+            {searchResults.length > 0 && (
+              <div className="space-y-2">
+                <Label>Resultados:</Label>
+                {searchResults.map((result) => (
+                  <div key={result.id} className="flex items-center justify-between p-2 border rounded">
+                    <span>{result.first_name} {result.last_name}</span>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleManualCheckIn(result.id, `${result.first_name} ${result.last_name}`)}
+                    >
+                      Marcar Asistencia
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
