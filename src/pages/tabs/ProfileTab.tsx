@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import AchievementsModal from '@/components/AchievementsModal';
 import UserSettingsModal from '@/components/UserSettingsModal';
 import { useEventsStore } from '@/store/eventsStore';
 import { formatDate } from '@/utils/dateUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 const ProfileTab = () => {
   const { user, logout } = useAuth();
@@ -23,34 +24,76 @@ const ProfileTab = () => {
   const [showEventHistory, setShowEventHistory] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [donationStats, setDonationStats] = useState({ total: 0, thisMonth: 0 });
+  const [recentDonations, setRecentDonations] = useState<any[]>([]);
 
-  // Helper function to get donation stats (including mock data for consistency)
-  const getDonationStats = () => {
-    const submittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-    
-    // Add mock donations for demonstration (same as in DonationHistoryModal)
-    const mockDonations = [
-      { id: 'mock-1', amount: 25.50, date: '2024-01-15', note: 'Donación mensual', status: 'verified' },
-      { id: 'mock-2', amount: 50.00, date: '2024-02-15', note: 'Apoyo especial', status: 'verified' },
-      { id: 'mock-3', amount: 15.75, date: '2024-03-01', note: 'Contribución solidaria', status: 'pending' }
-    ];
-    
-    const allDonations = [...submittedDonations, ...mockDonations];
-    const totalDonated = allDonations.reduce((sum: number, donation: any) => sum + Number(donation.amount), 0);
-    
-    const thisMonth = new Date().getMonth();
-    const thisYear = new Date().getFullYear();
-    const monthlyDonated = allDonations
-      .filter((donation: any) => {
-        const donationDate = new Date(donation.date);
-        return donationDate.getMonth() === thisMonth && donationDate.getFullYear() === thisYear;
-      })
-      .reduce((sum: number, donation: any) => sum + Number(donation.amount), 0);
-    
-    return { total: totalDonated, thisMonth: monthlyDonated };
-  };
+  // Fetch donation stats from database
+  useEffect(() => {
+    const fetchDonationStats = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-  const donationStats = getDonationStats();
+      const { data, error } = await supabase
+        .from('donations')
+        .select('amount, created_at, note, status')
+        .eq('user_id', user.id)
+        .eq('status', 'approved');
+
+      if (error) {
+        console.error('Error fetching donations:', error);
+        return;
+      }
+
+      // Calculate total
+      const total = data.reduce((sum, d) => sum + Number(d.amount), 0);
+
+      // Calculate this month's donations
+      const thisMonth = new Date().getMonth();
+      const thisYear = new Date().getFullYear();
+      const monthlyTotal = data
+        .filter(d => {
+          const donationDate = new Date(d.created_at);
+          return donationDate.getMonth() === thisMonth && donationDate.getFullYear() === thisYear;
+        })
+        .reduce((sum, d) => sum + Number(d.amount), 0);
+
+      setDonationStats({ total, thisMonth: monthlyTotal });
+
+      // Get recent 3 donations
+      const recent = data
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 3)
+        .map(d => ({
+          amount: Number(d.amount),
+          date: d.created_at,
+          note: d.note || 'Donación'
+        }));
+      
+      setRecentDonations(recent);
+    };
+
+    fetchDonationStats();
+
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('donation-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'donations'
+        },
+        () => {
+          fetchDonationStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // Get actual attended events from localStorage and latest attended event
   const getAttendedEventsStats = () => {
@@ -181,36 +224,25 @@ const ProfileTab = () => {
 
               <h4 className="text-sm font-medium text-gray-700 mb-3">Donaciones Recientes</h4>
               <div className="space-y-3">
-                {(() => {
-                  const submittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-                  const mockDonations = [
-                    { id: 'mock-1', amount: 25.50, date: '2024-01-15', note: 'Donación mensual', status: 'verified' },
-                    { id: 'mock-2', amount: 50.00, date: '2024-02-15', note: 'Apoyo especial', status: 'verified' },
-                    { id: 'mock-3', amount: 15.75, date: '2024-03-01', note: 'Contribución solidaria', status: 'pending' }
-                  ];
-                  const allDonations = [...submittedDonations, ...mockDonations];
-                  const recentDonations = allDonations.slice(-3).reverse(); // Show last 3 donations
-
-                  return recentDonations.length > 0 ? (
-                    recentDonations.map((donation: any) => (
-                      <div key={donation.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                        <div>
-                          <p className="text-sm font-medium">${Number(donation.amount).toFixed(2)}</p>
-                          <p className="text-xs text-gray-500">{donation.note || 'Donación'}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs text-gray-500">
-                            {new Date(donation.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
-                          </p>
-                        </div>
+                {recentDonations.length > 0 ? (
+                  recentDonations.map((donation, index) => (
+                    <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                      <div>
+                        <p className="text-sm font-medium">${donation.amount.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500">{donation.note}</p>
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-4 text-gray-500">
-                      <p className="text-sm">No hay donaciones registradas</p>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">
+                          {new Date(donation.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
+                        </p>
+                      </div>
                     </div>
-                  );
-                })()}
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    <p className="text-sm">No hay donaciones registradas</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

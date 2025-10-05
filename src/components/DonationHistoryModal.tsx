@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Gift, CircleDollarSign, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DonationHistoryModalProps {
   isOpen: boolean;
@@ -15,25 +16,66 @@ interface Donation {
   amount: number;
   date: string;
   note: string;
-  status: 'pending' | 'verified' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('all');
+  const [donations, setDonations] = useState<Donation[]>([]);
 
-  // Get donations from localStorage including mock data
-  const donations: Donation[] = useMemo(() => {
-    const submittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-    
-    // Add mock donations for demonstration  
-    const mockDonations = [
-      { id: 'mock-1', amount: 25.50, date: '15/01/2024', note: 'Donación mensual', status: 'verified' },
-      { id: 'mock-2', amount: 50.00, date: '15/02/2024', note: 'Apoyo especial', status: 'verified' },
-      { id: 'mock-3', amount: 15.75, date: '01/03/2024', note: 'Contribución solidaria', status: 'pending' }
-    ];
-    
-    return [...submittedDonations, ...mockDonations];
-  }, []);
+  // Fetch donations from database
+  useEffect(() => {
+    const fetchDonations = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('donations')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching donations:', error);
+        return;
+      }
+
+      // Format donations to match expected structure
+      const formattedDonations = data.map(d => ({
+        id: d.id,
+        amount: Number(d.amount),
+        date: new Date(d.created_at).toLocaleDateString('es-ES'),
+        note: d.note || '',
+        status: d.status as 'pending' | 'approved' | 'rejected'
+      }));
+
+      setDonations(formattedDonations);
+    };
+
+    if (isOpen) {
+      fetchDonations();
+    }
+
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('donation-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'donations'
+        },
+        () => {
+          fetchDonations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isOpen]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -58,7 +100,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'verified':
+      case 'approved':
         return <CheckCircle size={16} className="text-green-500" />;
       case 'rejected':
         return <XCircle size={16} className="text-red-500" />;
@@ -69,7 +111,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'verified':
+      case 'approved':
         return 'Verificado';
       case 'rejected':
         return 'Rechazado';
@@ -119,7 +161,7 @@ const DonationHistoryModal: React.FC<DonationHistoryModalProps> = ({ isOpen, onC
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="all" className="text-xs">Todas</TabsTrigger>
             <TabsTrigger value="pending" className="text-xs">Pendientes</TabsTrigger>
-            <TabsTrigger value="verified" className="text-xs">Verificadas</TabsTrigger>
+            <TabsTrigger value="approved" className="text-xs">Verificadas</TabsTrigger>
             <TabsTrigger value="rejected" className="text-xs">Rechazadas</TabsTrigger>
           </TabsList>
 
