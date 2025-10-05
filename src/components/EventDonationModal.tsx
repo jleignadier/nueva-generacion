@@ -10,6 +10,8 @@ import { DollarSign, Heart, Target, Copy, Building2 } from 'lucide-react';
 import { useEventsStore } from '@/store/eventsStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrganizationsStore } from '@/store/organizationsStore';
+import { supabase } from '@/integrations/supabase/client';
+import { uploadFile, validateFileType } from '@/utils/fileUpload';
 
 interface EventDonationModalProps {
   eventId: string;
@@ -60,7 +62,7 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const amount = parseFloat(donationAmount);
@@ -82,34 +84,68 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
       return;
     }
 
-    // Determine donor name and organization
-    const donorName = user?.name || 'Usuario Anónimo';
-    const organizationName = donationType === 'organization' && userOrganization ? userOrganization.name : undefined;
-    const displayName = organizationName ? `${donorName} (${organizationName})` : donorName;
+    // Validate file type
+    if (!validateFileType(receiptFile, ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])) {
+      toast({
+        title: "Tipo de archivo inválido",
+        description: "Solo se permiten imágenes (JPG, PNG, WEBP)",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    // Add donation (pending approval)
-    addDonation(eventId, {
-      userId: user?.id || Date.now().toString(),
-      userName: displayName,
-      amount,
-      status: 'pending',
-      createdAt: new Date().toISOString().split('T')[0],
-      donationType: donationType,
-      organizationId: donationType === 'organization' ? user?.organizationId : undefined,
-      receiptFile: receiptFile.name,
-      donationMethod: donationMethod
-    });
+    if (!user?.id) {
+      toast({
+        title: "Error de autenticación",
+        description: "Debes iniciar sesión para hacer una donación",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    toast({
-      title: "¡Donación enviada!",
-      description: `Tu donación de $${amount} ha sido enviada y está pendiente de aprobación. Ganarás ${calculatedPoints} puntos cuando sea aprobada.`,
-    });
+    try {
+      // Upload receipt to Supabase storage
+      const { url: receiptUrl, path: receiptPath } = await uploadFile(
+        'donation-receipts',
+        receiptFile,
+        user.id
+      );
 
-    // Reset form and close modal
-    setDonationAmount('');
-    setReceiptFile(null);
-    setDonationType('individual');
-    onClose();
+      // Insert donation into database
+      const { error } = await supabase
+        .from('donations')
+        .insert({
+          user_id: user.id,
+          event_id: eventId,
+          amount: amount,
+          receipt_url: receiptUrl,
+          receipt_path: receiptPath,
+          donation_method: donationMethod,
+          donation_type: donationType,
+          organization_id: donationType === 'organization' ? user.organizationId : null,
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "¡Donación enviada!",
+        description: `Tu donación de $${amount} ha sido enviada y está pendiente de aprobación. Ganarás ${calculatedPoints} puntos cuando sea aprobada.`,
+      });
+
+      // Reset form and close modal
+      setDonationAmount('');
+      setReceiptFile(null);
+      setDonationType('individual');
+      onClose();
+    } catch (error: any) {
+      console.error('Error submitting donation:', error);
+      toast({
+        title: "Error al enviar donación",
+        description: error.message || "Por favor intenta de nuevo",
+        variant: "destructive"
+      });
+    }
   };
 
   const quickAmounts = [25, 50, 100, 200];

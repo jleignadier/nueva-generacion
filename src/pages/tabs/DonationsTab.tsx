@@ -11,6 +11,8 @@ import { QrCode, Copy, CalendarCheck, DollarSign, Camera } from 'lucide-react';
 import QRScanner from '@/components/QRScanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, getTodayString } from '@/utils/dateUtils';
+import { supabase } from '@/integrations/supabase/client';
+import { uploadFile, validateFileType } from '@/utils/fileUpload';
 
 const DonationsTab = () => {
   const [amount, setAmount] = useState('');
@@ -61,7 +63,7 @@ const DonationsTab = () => {
     return !isNaN(numAmount) ? numAmount : 0;
   }, [amount]);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!amount || !receiptFile) {
@@ -72,38 +74,73 @@ const DonationsTab = () => {
       });
       return;
     }
+
+    // Validate file type
+    if (!validateFileType(receiptFile, ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])) {
+      toast({
+        title: "Tipo de archivo inválido",
+        description: "Solo se permiten imágenes (JPG, PNG, WEBP)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      toast({
+        title: "Error de autenticación",
+        description: "Debes iniciar sesión para hacer una donación",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     
-    // Create donation object
-    const newDonation = {
-      id: `donation-${Date.now()}`,
-      amount: amount,
-      note: note,
-      receiptFile: receiptFile.name, // In a real app, we'd upload this file to storage
-      date: formatDate(getTodayString()),
-      name: user?.name || "Usuario Anónimo",
-      status: "Pending"
-    };
-    
-    // Save to localStorage
-    const submittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-    submittedDonations.push(newDonation);
-    localStorage.setItem('submittedDonations', JSON.stringify(submittedDonations));
-    
-    // Show success toast
-    setTimeout(() => {
+    try {
+      // Upload receipt to Supabase storage
+      const { url: receiptUrl, path: receiptPath } = await uploadFile(
+        'donation-receipts',
+        receiptFile,
+        user.id
+      );
+
+      // Insert donation into database
+      const { error } = await supabase
+        .from('donations')
+        .insert({
+          user_id: user.id,
+          amount: parseFloat(amount),
+          receipt_url: receiptUrl,
+          receipt_path: receiptPath,
+          note: note || null,
+          donation_method: donationMethod,
+          donation_type: 'individual',
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
       toast({
         title: "¡Donación enviada!",
-        description: `Tu donación de $${amount} ha sido enviada para verificación.`,
+        description: `Tu donación de $${amount} ha sido enviada para verificación. Ganarás ${pointsEarned} puntos cuando sea aprobada.`,
       });
       
       // Reset form
       setAmount('');
       setNote('');
       setReceiptFile(null);
+      const fileInput = document.getElementById('receiptUpload') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+    } catch (error: any) {
+      console.error('Error submitting donation:', error);
+      toast({
+        title: "Error al enviar donación",
+        description: error.message || "Por favor intenta de nuevo",
+        variant: "destructive"
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (

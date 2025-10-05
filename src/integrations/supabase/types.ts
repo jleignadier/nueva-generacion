@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      donations: {
+        Row: {
+          amount: number
+          created_at: string | null
+          donation_method: Database["public"]["Enums"]["donation_method"]
+          donation_type: Database["public"]["Enums"]["donation_type"]
+          event_id: string | null
+          id: string
+          note: string | null
+          organization_id: string | null
+          receipt_path: string
+          receipt_url: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["donation_status"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          donation_method?: Database["public"]["Enums"]["donation_method"]
+          donation_type?: Database["public"]["Enums"]["donation_type"]
+          event_id?: string | null
+          id?: string
+          note?: string | null
+          organization_id?: string | null
+          receipt_path: string
+          receipt_url: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["donation_status"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          donation_method?: Database["public"]["Enums"]["donation_method"]
+          donation_type?: Database["public"]["Enums"]["donation_type"]
+          event_id?: string | null
+          id?: string
+          note?: string | null
+          organization_id?: string | null
+          receipt_path?: string
+          receipt_url?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["donation_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "donations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donations_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_attendance: {
         Row: {
           attended_at: string | null
@@ -487,6 +574,9 @@ export type Database = {
         | "terms_of_service"
         | "privacy_policy"
         | "volunteering_rules"
+      donation_method: "qrcode" | "yappy"
+      donation_status: "pending" | "approved" | "rejected"
+      donation_type: "individual" | "organization"
       event_status: "upcoming" | "completed" | "cancelled"
     }
     CompositeTypes: {
@@ -622,6 +712,9 @@ export const Constants = {
         "privacy_policy",
         "volunteering_rules",
       ],
+      donation_method: ["qrcode", "yappy"],
+      donation_status: ["pending", "approved", "rejected"],
+      donation_type: ["individual", "organization"],
       event_status: ["upcoming", "completed", "cancelled"],
     },
   },

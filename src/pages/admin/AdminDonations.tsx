@@ -7,6 +7,7 @@ import { Eye, Calendar, Building2, User, DollarSign, ArrowUpDown } from "lucide-
 import { useEventsStore } from '@/store/eventsStore';
 import { formatDate } from '@/utils/dateUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from '@/integrations/supabase/client';
 import {
   Table,
   TableBody,
@@ -29,8 +30,8 @@ interface Donation {
   name: string;
   amount: string;
   date: string;
-  status: 'Pendiente' | 'Verificada' | 'Rechazada' | 'Completada' | 'Pending' | 'Verified' | 'Rejected' | 'Completed';
-  receipt?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  receipt_url?: string;
   note?: string;
   eventId?: string;
   eventTitle?: string;
@@ -50,7 +51,27 @@ const AdminDonations = () => {
 
   useEffect(() => {
     loadAllDonations();
-  }, [events]); // Re-load when events change
+    
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('donations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'donations'
+        },
+        () => {
+          loadAllDonations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // Filter and sort donations based on search term and sorting
   React.useEffect(() => {
@@ -113,153 +134,100 @@ const AdminDonations = () => {
     return parseFloat(amountStr.replace(/[$,]/g, '')) || 0;
   };
 
-  const loadAllDonations = () => {
-    // Load mock donations and any user-submitted donations from localStorage
-    const userSubmittedDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-    
-    // Transform user submissions to the correct format
-    const formattedUserDonations = userSubmittedDonations.map((donation: any) => ({
-      id: donation.id || `user-${Math.random().toString(36).substr(2, 9)}`,
-      name: donation.name || 'User Donation',
-      amount: `$${donation.amount}`,
-      date: donation.date || formatDate(new Date().toISOString().split('T')[0]),
-      status: donation.status || 'Pendiente',
-      receipt: donation.receiptFile,
-      note: donation.note
-    }));
+  const loadAllDonations = async () => {
+    try {
+      // Fetch donations from database
+      const { data: dbDonations, error } = await supabase
+        .from('donations')
+        .select(`
+          *,
+          profiles!donations_user_id_fkey(first_name, last_name),
+          events(title),
+          organizations(name)
+        `)
+        .order('created_at', { ascending: false });
 
-    // Get mock donations from localStorage or use default if not present
-    const savedMockDonations = JSON.parse(localStorage.getItem('mockDonations') || 'null');
-    
-    const mockDonations = savedMockDonations || [
-      { id: '1', name: 'John Doe', amount: '$1,000', date: formatDate('2023-05-12'), status: 'Completada' },
-      { id: '2', name: 'Maria Garcia', amount: '$500', date: formatDate('2023-05-10'), status: 'Completada' },
-      { id: '3', name: 'Robert Smith', amount: '$750', date: formatDate('2023-05-08'), status: 'Pendiente' },
-    ];
+      if (error) throw error;
 
-    // If mock donations were not in localStorage yet, save them
-    if (!savedMockDonations) {
-      localStorage.setItem('mockDonations', JSON.stringify(mockDonations));
+      // Transform database donations to the format expected by the UI
+      const formattedDonations: Donation[] = (dbDonations || []).map((donation: any) => ({
+        id: donation.id,
+        name: `${donation.profiles?.first_name || ''} ${donation.profiles?.last_name || ''}`.trim() || 'Usuario Desconocido',
+        amount: `$${donation.amount}`,
+        date: formatDate(donation.created_at),
+        status: donation.status,
+        receipt_url: donation.receipt_url,
+        note: donation.note,
+        eventId: donation.event_id,
+        eventTitle: donation.events?.title,
+        donationType: donation.donation_type,
+        donationMethod: donation.donation_method
+      }));
+
+      setDonations(formattedDonations);
+      setFilteredDonations(formattedDonations);
+    } catch (error) {
+      console.error('Error loading donations:', error);
+      toast({
+        title: "Error al cargar donaciones",
+        description: "No se pudieron cargar las donaciones",
+        variant: "destructive"
+      });
     }
-
-    // Get event donations
-    const eventDonations: Donation[] = [];
-    events.forEach(event => {
-      if (event.donations) {
-        event.donations.forEach(donation => {
-          eventDonations.push({
-            id: `event-${event.id}-${donation.id}`,
-            name: donation.userName,
-            amount: `$${donation.amount}`,
-            date: formatDate(donation.createdAt),
-            status: donation.status === 'approved' ? 'Completada' : donation.status === 'rejected' ? 'Rechazada' : 'Pendiente',
-            receipt: donation.receiptFile,
-            eventId: event.id,
-            eventTitle: event.title,
-            donationType: donation.donationType,
-            donationMethod: donation.donationMethod
-          });
-        });
-      }
-    });
-
-    // Combine all donations
-    const allDonations = [...formattedUserDonations, ...mockDonations, ...eventDonations];
-
-    setDonations(allDonations);
-    setFilteredDonations(allDonations);
   };
 
-  const handleStatusUpdate = (donationId: string, newStatus: 'Completada' | 'Rechazada') => {
-    // Check if this is an event donation
-    if (donationId.startsWith('event-')) {
-      const [, eventId, originalDonationId] = donationId.split('-');
-      
-      if (newStatus === 'Completada') {
-        approveDonation(eventId, originalDonationId);
-      } else {
-        rejectDonation(eventId, originalDonationId);
+  const handleStatusUpdate = async (donationId: string, newStatus: 'approved' | 'rejected') => {
+    try {
+      const donation = donations.find(d => d.id === donationId);
+      if (!donation) return;
+
+      // Update donation status in database
+      const { error } = await supabase
+        .from('donations')
+        .update({
+          status: newStatus,
+          reviewed_at: new Date().toISOString()
+        })
+        .eq('id', donationId);
+
+      if (error) throw error;
+
+      // If approved and there's an event, update event funding
+      if (newStatus === 'approved' && donation.eventId) {
+        const amount = parseFloat(donation.amount.replace(/[$,]/g, ''));
+        // You can implement event funding update here if needed
       }
-      
-      // Reload donations to reflect changes
-      setTimeout(() => loadAllDonations(), 100);
-      
+
       toast({
-        title: "Donación de evento actualizada",
-        description: `El estado de la donación ha sido actualizado a ${newStatus}`
+        title: "Donación actualizada",
+        description: `La donación ha sido ${newStatus === 'approved' ? 'aprobada' : 'rechazada'}`
       });
+
+      // Reload donations
+      await loadAllDonations();
       
+      // Close the modal
       if (showDetailsModal) {
         setShowDetailsModal(false);
         setSelectedDonation(null);
       }
-      return;
-    }
-    
-    // Handle regular donations (existing logic)
-    const updatedDonations = donations.map(donation => 
-      donation.id === donationId 
-        ? { ...donation, status: newStatus } 
-        : donation
-    );
-    setDonations(updatedDonations);
-    
-    // Update filtered donations as well
-    setFilteredDonations(prev => 
-      prev.map(donation => 
-        donation.id === donationId 
-          ? { ...donation, status: newStatus } 
-          : donation
-      )
-    );
-
-    // Find the donation that was updated
-    const updatedDonation = donations.find(d => d.id === donationId);
-    
-    // Check if it's a mock donation
-    const isMockDonation = ['1', '2', '3'].includes(donationId);
-    
-    if (isMockDonation) {
-      // Update in mock donations storage
-      const mockDonations = JSON.parse(localStorage.getItem('mockDonations') || '[]');
-      const updatedMockDonations = mockDonations.map((donation: any) => 
-        donation.id === donationId ? { ...donation, status: newStatus } : donation
-      );
-      localStorage.setItem('mockDonations', JSON.stringify(updatedMockDonations));
-    } else {
-      // Update in user donations storage
-      const userDonations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-      const updatedDonations = userDonations.map((donation: any) => 
-        donation.id === donationId ? { ...donation, status: newStatus } : donation
-      );
-      localStorage.setItem('submittedDonations', JSON.stringify(updatedDonations));
-    }
-
-    toast({
-      title: "Donación actualizada",
-      description: `El estado de la donación ha sido actualizado a ${newStatus}`
-    });
-    
-    // Close the modal after updating status
-    if (showDetailsModal) {
-      setShowDetailsModal(false);
-      setSelectedDonation(null);
+    } catch (error: any) {
+      console.error('Error updating donation:', error);
+      toast({
+        title: "Error al actualizar",
+        description: error.message || "No se pudo actualizar la donación",
+        variant: "destructive"
+      });
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch(status) {
-      case 'Completada':
-      case 'Completed':
-        return <Badge className="bg-green-600 hover:bg-green-700">Completada</Badge>;
-      case 'Verificada':
-      case 'Verified':
-        return <Badge className="bg-green-600 hover:bg-green-700">Completada</Badge>;
-      case 'Rechazada':
-      case 'Rejected':
+      case 'approved':
+        return <Badge className="bg-green-600 hover:bg-green-700">Aprobada</Badge>;
+      case 'rejected':
         return <Badge className="bg-red-600 hover:bg-red-700">Rechazada</Badge>;
-      case 'Pendiente':
-      case 'Pending':
+      case 'pending':
       default:
         return <Badge className="bg-amber-600 hover:bg-amber-700">Pendiente</Badge>;
     }
@@ -361,21 +329,21 @@ const AdminDonations = () => {
                         Detalles
                       </Button>
                       
-                      {(donation.status === 'Pendiente' || donation.status === 'Pending') && (
+                      {donation.status === 'pending' && (
                         <>
                           <Button 
                             variant="outline" 
                             size="sm" 
                             className="text-green-400 hover:text-green-300 hover:border-green-400"
-                            onClick={() => handleStatusUpdate(donation.id, 'Completada')}
+                            onClick={() => handleStatusUpdate(donation.id, 'approved')}
                           >
-                            Verificar
+                            Aprobar
                           </Button>
                           <Button 
                             variant="outline" 
                             size="sm" 
                             className="text-red-400 hover:text-red-300 hover:border-red-400"
-                            onClick={() => handleStatusUpdate(donation.id, 'Rechazada')}
+                            onClick={() => handleStatusUpdate(donation.id, 'rejected')}
                           >
                             Rechazar
                           </Button>
@@ -469,13 +437,13 @@ const AdminDonations = () => {
                 </div>
               )}
               
-              {selectedDonation.receipt && (
+              {selectedDonation.receipt_url && (
                 <div>
                   <p className="text-sm font-medium text-gray-500">Recibo</p>
                   <div className="border rounded-lg overflow-hidden mt-1">
                     <AspectRatio ratio={16/9}>
                       <img 
-                        src={selectedDonation.receipt} 
+                        src={selectedDonation.receipt_url} 
                         alt="Recibo de Donación"
                         className="object-contain w-full h-full"
                       />
@@ -494,18 +462,18 @@ const AdminDonations = () => {
               Cerrar
             </Button>
             
-            {selectedDonation && (selectedDonation.status === 'Pendiente' || selectedDonation.status === 'Pending') && (
+            {selectedDonation && selectedDonation.status === 'pending' && (
               <div className="flex space-x-2">
                 <Button 
                   variant="default"
                   className="bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => handleStatusUpdate(selectedDonation.id, 'Completada')}
+                  onClick={() => handleStatusUpdate(selectedDonation.id, 'approved')}
                 >
-                  Verificar
+                  Aprobar
                 </Button>
                 <Button 
                   variant="destructive"
-                  onClick={() => handleStatusUpdate(selectedDonation.id, 'Rechazada')}
+                  onClick={() => handleStatusUpdate(selectedDonation.id, 'rejected')}
                 >
                   Rechazar
                 </Button>
