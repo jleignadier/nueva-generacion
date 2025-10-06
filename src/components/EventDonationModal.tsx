@@ -110,20 +110,25 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
         receiptFile
       );
 
+      // Prepare donation data
+      const donationData = {
+        user_id: user.id,
+        event_id: eventId,
+        amount: amount,
+        receipt_url: receiptUrl,
+        receipt_path: receiptPath,
+        donation_method: donationMethod,
+        donation_type: donationType,
+        organization_id: donationType === 'organization' ? user.organizationId : null,
+        status: 'pending' as const
+      };
+
+      console.log('Donation data being inserted:', donationData);
+
       // Insert donation into database
       const { error } = await supabase
         .from('donations')
-        .insert({
-          user_id: user.id,
-          event_id: eventId,
-          amount: amount,
-          receipt_url: receiptUrl,
-          receipt_path: receiptPath,
-          donation_method: donationMethod,
-          donation_type: donationType,
-          organization_id: donationType === 'organization' ? user.organizationId : null,
-          status: 'pending'
-        });
+        .insert(donationData);
 
       if (error) throw error;
 

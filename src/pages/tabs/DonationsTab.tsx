@@ -103,19 +103,24 @@ const DonationsTab = () => {
         receiptFile
       );
 
+      // Prepare donation data
+      const donationData = {
+        user_id: user.id,
+        amount: parseFloat(amount),
+        receipt_url: receiptUrl,
+        receipt_path: receiptPath,
+        note: note || null,
+        donation_method: donationMethod,
+        donation_type: 'individual' as const,
+        status: 'pending' as const
+      };
+
+      console.log('Donation data being inserted:', donationData);
+
       // Insert donation into database
       const { error } = await supabase
         .from('donations')
-        .insert({
-          user_id: user.id,
-          amount: parseFloat(amount),
-          receipt_url: receiptUrl,
-          receipt_path: receiptPath,
-          note: note || null,
-          donation_method: donationMethod,
-          donation_type: 'individual',
-          status: 'pending'
-        });
+        .insert(donationData);
 
       if (error) throw error;
 
