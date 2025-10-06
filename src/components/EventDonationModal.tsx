@@ -173,10 +173,14 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
               <span>•</span>
               <span>{pointsEarned} puntos por participar</span>
             </div>
-            <Progress value={fundingProgress} className="mb-2" />
+            <Progress value={Math.min(100, fundingProgress)} className="mb-2" />
             <div className="flex justify-between text-sm">
               <span className="text-green-600 font-medium">${currentFunding} recaudado</span>
-              <span className="text-orange-600">${remainingAmount} restante</span>
+              {currentFunding >= fundingRequired ? (
+                <span className="text-green-600 font-bold">¡Meta Alcanzada! 🎉</span>
+              ) : (
+                <span className="text-orange-600">${remainingAmount} restante</span>
+              )}
             </div>
           </div>
 

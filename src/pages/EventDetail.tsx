@@ -257,7 +257,11 @@ const EventDetail = () => {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium flex items-center gap-2">
                   <Target className="text-green-600" size={18} />
-                  Financiar Evento
+                  {(event.currentFunding || 0) >= event.fundingRequired ? (
+                    <span className="text-green-700">¡Fondos Recaudados!</span>
+                  ) : (
+                    'Financiar Evento'
+                  )}
                 </h3>
                 <Button 
                   size="sm" 
@@ -279,12 +283,19 @@ const EventDetail = () => {
                   </span>
                 </div>
                 <Progress 
-                  value={((event.currentFunding || 0) / event.fundingRequired) * 100} 
+                  value={Math.min(100, ((event.currentFunding || 0) / event.fundingRequired) * 100)} 
                   className="h-2"
                 />
-                <p className="text-xs text-gray-600">
-                  ${Math.max(0, event.fundingRequired - (event.currentFunding || 0))} restante para alcanzar la meta
-                </p>
+                {(event.currentFunding || 0) >= event.fundingRequired ? (
+                  <p className="text-xs text-green-700 font-medium flex items-center gap-1">
+                    <CheckCircle size={14} />
+                    ¡Meta alcanzada! Gracias por tu apoyo.
+                  </p>
+                ) : (
+                  <p className="text-xs text-gray-600">
+                    ${Math.max(0, event.fundingRequired - (event.currentFunding || 0))} restante para alcanzar la meta
+                  </p>
+                )}
               </div>
             </div>
           )}

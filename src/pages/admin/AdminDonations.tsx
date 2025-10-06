@@ -47,7 +47,7 @@ const AdminDonations = () => {
   const { toast } = useToast();
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
-  const { events, approveDonation, rejectDonation } = useEventsStore();
+  const { events, approveDonation, rejectDonation, loadEvents } = useEventsStore();
 
   useEffect(() => {
     loadAllDonations();
@@ -195,7 +195,30 @@ const AdminDonations = () => {
       // If approved and there's an event, update event funding
       if (newStatus === 'approved' && donation.eventId) {
         const amount = parseFloat(donation.amount.replace(/[$,]/g, ''));
-        // You can implement event funding update here if needed
+        
+        // Get current event funding
+        const { data: eventData } = await supabase
+          .from('events')
+          .select('current_funding')
+          .eq('id', donation.eventId)
+          .single();
+
+        if (eventData) {
+          // Update the event's current funding
+          const { error: eventError } = await supabase
+            .from('events')
+            .update({
+              current_funding: (eventData.current_funding || 0) + amount
+            })
+            .eq('id', donation.eventId);
+
+          if (eventError) {
+            console.error('Error updating event funding:', eventError);
+          } else {
+            // Reload events to reflect the updated funding
+            await loadEvents();
+          }
+        }
       }
 
       toast({
