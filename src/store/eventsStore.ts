@@ -1,5 +1,5 @@
-
 import { create } from 'zustand';
+import { supabase } from '@/integrations/supabase/client';
 
 // Define event types
 export interface EventDonation {
@@ -118,6 +118,8 @@ const initialEvents: Event[] = [
 // Create the store
 interface EventsState {
   events: Event[];
+  loading: boolean;
+  loadEvents: () => Promise<void>;
   addEvent: (event: Omit<Event, 'id' | 'participantCount'>) => void;
   updateEvent: (id: string, eventData: Partial<Event>) => void;
   deleteEvent: (id: string) => void;
@@ -128,17 +130,75 @@ interface EventsState {
 }
 
 export const useEventsStore = create<EventsState>((set, get) => ({
-  events: initialEvents,
+  events: [],
+  loading: false,
+
+  loadEvents: async () => {
+    set({ loading: true });
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('date', { ascending: true });
+
+      if (error) throw error;
+
+      const formattedEvents: Event[] = (data || []).map(event => ({
+        id: event.id,
+        title: event.title,
+        location: event.location,
+        date: event.date,
+        time: event.time,
+        endTime: event.end_time || undefined,
+        description: event.description || '',
+        participantCount: 0, // TODO: Could be calculated from event_attendance
+        pointsEarned: event.points_earned || 0,
+        volunteerHours: Number(event.volunteer_hours) || 0,
+        status: event.status as 'upcoming' | 'completed',
+        image: event.image_url || 'https://placehold.co/600x400/png?text=Event',
+        fundingRequired: Number(event.funding_required) || undefined,
+        currentFunding: Number(event.current_funding) || 0,
+        donations: [], // TODO: Load from donations table if needed
+        registeredParticipants: [] // TODO: Load from event_attendance if needed
+      }));
+
+      set({ events: formattedEvents, loading: false });
+    } catch (error) {
+      console.error('Error loading events:', error);
+      set({ loading: false });
+    }
+  },
   
-  addEvent: (eventData) => set(state => {
-    const newId = String(state.events.length + 1);
-    const newEvent: Event = {
-      ...eventData as Event,
-      id: newId,
-      participantCount: 0,
-    };
-    return { events: [...state.events, newEvent] };
-  }),
+  addEvent: async (eventData) => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .insert({
+          title: eventData.title,
+          location: eventData.location,
+          date: eventData.date,
+          time: eventData.time,
+          end_time: eventData.endTime,
+          description: eventData.description,
+          points_earned: eventData.pointsEarned,
+          volunteer_hours: eventData.volunteerHours,
+          status: eventData.status,
+          image_url: eventData.image,
+          funding_required: eventData.fundingRequired,
+          current_funding: eventData.currentFunding || 0,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Reload events to get the new one with proper UUID
+      await get().loadEvents();
+    } catch (error) {
+      console.error('Error adding event:', error);
+      throw error;
+    }
+  },
   
   updateEvent: (id, eventData) => set(state => ({
     events: state.events.map(event => 

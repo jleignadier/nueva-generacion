@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search, Trophy, Plus, Calendar } from 'lucide-react';
@@ -15,7 +15,12 @@ import { formatDate, formatEventTime, getTodayString } from '@/utils/dateUtils';
 const AdminEvents = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { events, deleteEvent } = useEventsStore();
+  const { events, deleteEvent, loadEvents } = useEventsStore();
+
+  // Load events on mount
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
   const { competitions, addCompetition, updateCompetition, deleteCompetition } = useCompetitionsStore();
   const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'completed'
   const [searchQuery, setSearchQuery] = useState('');

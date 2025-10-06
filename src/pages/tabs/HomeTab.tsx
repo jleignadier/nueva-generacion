@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,12 @@ import { formatDate, formatEventTime, getTodayString } from '@/utils/dateUtils';
 const HomeTab = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { events } = useEventsStore();
+  const { events, loadEvents } = useEventsStore();
+
+  // Load events on mount
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
   
   // Filter events to show all upcoming events and today's events (visible until end of day)
   const upcomingEvents = events

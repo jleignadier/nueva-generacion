@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const Events = () => {
   const navigate = useNavigate();
-  const { events } = useEventsStore();
+  const { events, loadEvents } = useEventsStore();
   const [publicEvents, setPublicEvents] = useState<Event[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
@@ -19,8 +19,11 @@ const Events = () => {
       const { data: { user } } = await supabase.auth.getUser();
       setIsAuthenticated(!!user);
       
-      // If user is not authenticated, fetch from public view
-      if (!user) {
+      if (user) {
+        // If authenticated, load events from the store (which fetches from DB)
+        loadEvents();
+      } else {
+        // If user is not authenticated, fetch from public view
         const { data, error } = await supabase
           .from('events_public')
           .select('*')
@@ -34,7 +37,7 @@ const Events = () => {
     };
     
     checkAuth();
-  }, []);
+  }, [loadEvents]);
   
   console.log('Events page - All events:', events);
   
