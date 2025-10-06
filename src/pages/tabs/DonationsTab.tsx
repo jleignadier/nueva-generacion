@@ -100,8 +100,7 @@ const DonationsTab = () => {
       // Upload receipt to Supabase storage
       const { url: receiptUrl, path: receiptPath } = await uploadFile(
         'donation-receipts',
-        receiptFile,
-        user.id
+        receiptFile
       );
 
       // Insert donation into database
