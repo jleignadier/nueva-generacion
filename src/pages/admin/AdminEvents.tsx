@@ -17,10 +17,10 @@ const AdminEvents = () => {
   const { toast } = useToast();
   const { events, deleteEvent, loadEvents } = useEventsStore();
 
-  // Load events on mount
+  // Load events on mount only
   useEffect(() => {
     loadEvents();
-  }, [loadEvents]);
+  }, []); // Empty dependency array - only run once on mount
   const { competitions, addCompetition, updateCompetition, deleteCompetition } = useCompetitionsStore();
   const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'completed'
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,13 +37,15 @@ const AdminEvents = () => {
   const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
       try {
+        console.log('🔄 Starting event deletion for:', id);
         await deleteEvent(id);
+        console.log('✅ Event deletion completed successfully');
         toast({
           title: "Evento eliminado",
           description: "El evento ha sido eliminado exitosamente",
         });
       } catch (error: any) {
-        console.error('Error deleting event:', error);
+        console.error('❌ Error in handleDelete:', error);
         const errorMessage = error?.message || "No se pudo eliminar el evento. Por favor intenta de nuevo.";
         toast({
           title: "Error al eliminar",

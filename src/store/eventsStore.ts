@@ -241,22 +241,29 @@ export const useEventsStore = create<EventsState>((set, get) => ({
   
   deleteEvent: async (id) => {
     try {
-      const { error } = await supabase
+      console.log('🗑️ Attempting to delete event:', id);
+      
+      const { data, error } = await supabase
         .from('events')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
       if (error) {
-        console.error('Error deleting event:', error);
+        console.error('❌ Database error deleting event:', error);
         throw error;
       }
 
+      console.log('✅ Event deleted from database:', data);
+
       // Update local state after successful database deletion
-      set(state => ({
-        events: state.events.filter(event => event.id !== id)
-      }));
+      set(state => {
+        const newEvents = state.events.filter(event => event.id !== id);
+        console.log(`📊 Local state updated. Events before: ${state.events.length}, after: ${newEvents.length}`);
+        return { events: newEvents };
+      });
     } catch (error) {
-      console.error('Failed to delete event:', error);
+      console.error('❌ Failed to delete event:', error);
       throw error;
     }
   },
