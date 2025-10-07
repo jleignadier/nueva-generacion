@@ -74,7 +74,7 @@ const EventForm = () => {
     }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
@@ -89,16 +89,26 @@ const EventForm = () => {
     
     // Update or create event
     if (isEditing && id) {
-      updateEvent(id, {
-        ...formData,
-        pointsEarned: Number(formData.pointsEarned),
-        volunteerHours: Number(formData.volunteerHours)
-      });
-      
-      toast({
-        title: "Evento actualizado",
-        description: `Actualizado exitosamente`
-      });
+      try {
+        await updateEvent(id, {
+          ...formData,
+          pointsEarned: Number(formData.pointsEarned),
+          volunteerHours: Number(formData.volunteerHours)
+        });
+        
+        toast({
+          title: "Evento actualizado",
+          description: `Actualizado exitosamente`
+        });
+      } catch (error) {
+        console.error('Error updating event:', error);
+        toast({
+          title: "Error",
+          description: "No se pudo actualizar el evento. Por favor intenta de nuevo.",
+          variant: "destructive"
+        });
+        return;
+      }
     } else {
       addEvent({
         ...formData,

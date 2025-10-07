@@ -195,28 +195,49 @@ const AdminDonations = () => {
       // If approved and there's an event, update event funding
       if (newStatus === 'approved' && donation.eventId) {
         const amount = parseFloat(donation.amount.replace(/[$,]/g, ''));
+        console.log(`Approving donation of $${amount} for event ${donation.eventId}`);
         
         // Get current event funding
-        const { data: eventData } = await supabase
+        const { data: eventData, error: fetchError } = await supabase
           .from('events')
-          .select('current_funding')
+          .select('current_funding, title')
           .eq('id', donation.eventId)
           .single();
 
-        if (eventData) {
+        if (fetchError) {
+          console.error('Error fetching event data:', fetchError);
+          toast({
+            title: "Warning",
+            description: "Donation approved but event funding couldn't be updated",
+            variant: "destructive",
+          });
+        } else if (eventData) {
+          const newFunding = (eventData.current_funding || 0) + amount;
+          console.log(`Updating event "${eventData.title}" funding from $${eventData.current_funding} to $${newFunding}`);
+          
           // Update the event's current funding
           const { error: eventError } = await supabase
             .from('events')
             .update({
-              current_funding: (eventData.current_funding || 0) + amount
+              current_funding: newFunding
             })
             .eq('id', donation.eventId);
 
           if (eventError) {
             console.error('Error updating event funding:', eventError);
+            toast({
+              title: "Warning",
+              description: "Donation approved but event funding couldn't be updated",
+              variant: "destructive",
+            });
           } else {
+            console.log(`✅ Successfully updated event funding to $${newFunding}`);
             // Reload events to reflect the updated funding
             await loadEvents();
+            toast({
+              title: "Event Funding Updated",
+              description: `Added $${amount} to event funding`,
+            });
           }
         }
       }

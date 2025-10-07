@@ -34,13 +34,22 @@ const AdminEvents = () => {
   });
 
   // Handle deleting an event
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
-      deleteEvent(id);
-      toast({
-        title: "Evento eliminado",
-        description: "El evento ha sido eliminado exitosamente",
-      });
+      try {
+        await deleteEvent(id);
+        toast({
+          title: "Evento eliminado",
+          description: "El evento ha sido eliminado exitosamente",
+        });
+      } catch (error) {
+        console.error('Error deleting event:', error);
+        toast({
+          title: "Error",
+          description: "No se pudo eliminar el evento. Por favor intenta de nuevo.",
+          variant: "destructive",
+        });
+      }
     }
   };
 

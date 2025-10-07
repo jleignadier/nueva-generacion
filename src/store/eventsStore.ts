@@ -121,8 +121,8 @@ interface EventsState {
   loading: boolean;
   loadEvents: () => Promise<void>;
   addEvent: (event: Omit<Event, 'id' | 'participantCount'>) => void;
-  updateEvent: (id: string, eventData: Partial<Event>) => void;
-  deleteEvent: (id: string) => void;
+  updateEvent: (id: string, eventData: Partial<Event>) => Promise<void>;
+  deleteEvent: (id: string) => Promise<void>;
   getEvent: (id: string) => Event | undefined;
   addDonation: (eventId: string, donation: Omit<EventDonation, 'id'>) => void;
   approveDonation: (eventId: string, donationId: string) => void;
@@ -200,15 +200,66 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     }
   },
   
-  updateEvent: (id, eventData) => set(state => ({
-    events: state.events.map(event => 
-      event.id === id ? { ...event, ...eventData } : event
-    )
-  })),
+  updateEvent: async (id, eventData) => {
+    try {
+      // Map Event fields to database columns
+      const dbFields: any = {};
+      if (eventData.title !== undefined) dbFields.title = eventData.title;
+      if (eventData.location !== undefined) dbFields.location = eventData.location;
+      if (eventData.date !== undefined) dbFields.date = eventData.date;
+      if (eventData.time !== undefined) dbFields.time = eventData.time;
+      if (eventData.endTime !== undefined) dbFields.end_time = eventData.endTime;
+      if (eventData.description !== undefined) dbFields.description = eventData.description;
+      if (eventData.pointsEarned !== undefined) dbFields.points_earned = eventData.pointsEarned;
+      if (eventData.volunteerHours !== undefined) dbFields.volunteer_hours = eventData.volunteerHours;
+      if (eventData.status !== undefined) dbFields.status = eventData.status;
+      if (eventData.image !== undefined) dbFields.image_url = eventData.image;
+      if (eventData.fundingRequired !== undefined) dbFields.funding_required = eventData.fundingRequired;
+      if (eventData.currentFunding !== undefined) dbFields.current_funding = eventData.currentFunding;
+
+      const { error } = await supabase
+        .from('events')
+        .update(dbFields)
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error updating event:', error);
+        throw error;
+      }
+
+      // Update local state after successful database update
+      set(state => ({
+        events: state.events.map(event => 
+          event.id === id ? { ...event, ...eventData } : event
+        )
+      }));
+    } catch (error) {
+      console.error('Failed to update event:', error);
+      throw error;
+    }
+  },
   
-  deleteEvent: (id) => set(state => ({
-    events: state.events.filter(event => event.id !== id)
-  })),
+  deleteEvent: async (id) => {
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting event:', error);
+        throw error;
+      }
+
+      // Update local state after successful database deletion
+      set(state => ({
+        events: state.events.filter(event => event.id !== id)
+      }));
+    } catch (error) {
+      console.error('Failed to delete event:', error);
+      throw error;
+    }
+  },
   
   getEvent: (id) => get().events.find(event => event.id === id),
   
