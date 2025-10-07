@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Award, User, Users, Calendar, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -138,9 +139,12 @@ const LeaderboardTab = () => {
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg mr-3">
-                {user?.name?.charAt(0).toUpperCase() || '?'}
-              </div>
+              <Avatar className="h-12 w-12 border-2 border-white/20 mr-3">
+                <AvatarImage src={user?.avatarUrl} alt={user?.name} />
+                <AvatarFallback className="bg-white/20 text-white font-bold text-lg">
+                  {user?.name?.charAt(0).toUpperCase() || '?'}
+                </AvatarFallback>
+              </Avatar>
               <div>
                 <h3 className="font-bold">{user?.name || 'Usuario'}</h3>
               </div>

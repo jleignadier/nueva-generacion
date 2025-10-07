@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { CalendarCheck, Clock, MapPin, Award, ChevronRight } from 'lucide-react';
 import { useEventsStore, Event } from '@/store/eventsStore';
 import { useAuth } from '@/contexts/AuthContext';
@@ -49,9 +50,12 @@ const HomeTab = () => {
         <h1 className="text-2xl font-bold text-gray-800">
           Hola, {user?.name}
         </h1>
-        <div className="h-10 w-10 rounded-full bg-nuevagen-purple text-white flex items-center justify-center font-medium">
-          {user?.name.charAt(0).toUpperCase()}
-        </div>
+        <Avatar className="h-10 w-10">
+          <AvatarImage src={user?.avatarUrl} alt={user?.name} />
+          <AvatarFallback className="bg-nuevagen-purple text-white font-medium">
+            {user?.name.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </div>
       
       <div className="mb-6">
