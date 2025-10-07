@@ -42,11 +42,12 @@ const AdminEvents = () => {
           title: "Evento eliminado",
           description: "El evento ha sido eliminado exitosamente",
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting event:', error);
+        const errorMessage = error?.message || "No se pudo eliminar el evento. Por favor intenta de nuevo.";
         toast({
-          title: "Error",
-          description: "No se pudo eliminar el evento. Por favor intenta de nuevo.",
+          title: "Error al eliminar",
+          description: errorMessage,
           variant: "destructive",
         });
       }
