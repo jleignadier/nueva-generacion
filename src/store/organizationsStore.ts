@@ -122,23 +122,27 @@ export const useOrganizationsStore = create<OrganizationsState>()(
 
       fetchOrganizations: async () => {
         try {
+          console.log('🔄 Fetching organizations from database...');
           const { data, error } = await supabase
             .from('organizations')
             .select('*')
             .order('name');
 
           if (error) {
-            console.error('Error fetching organizations:', error);
-            // Fallback to seed data on error
+            console.error('❌ Error fetching organizations:', error);
+            console.log('⚠️ Falling back to mock data due to error');
             get().initializeOrganizations();
             return;
           }
 
           // If database is empty, use seed data as fallback
           if (!data || data.length === 0) {
+            console.log('⚠️ Database is empty, using mock data. Add organizations in the admin panel to see real data.');
             get().initializeOrganizations();
             return;
           }
+
+          console.log(`✅ Loaded ${data.length} organizations from database`);
 
           // Convert database format to store format
           const formattedOrgs: Organization[] = data.map(org => ({

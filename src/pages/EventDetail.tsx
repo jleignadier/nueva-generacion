@@ -206,11 +206,11 @@ const EventDetail = () => {
         <img 
           src={event.image} 
           alt={event.title}
-          className="w-full h-40 sm:h-48 md:h-56 object-cover" 
+          className="w-full h-56 sm:h-64 md:h-80 object-cover" 
         />
       </div>
       
-      <Card>
+      <Card className="max-h-[calc(100vh-250px)] overflow-y-auto scroll-smooth">
         <CardHeader className="pb-2">
           <CardTitle className="text-2xl">{event.title}</CardTitle>
         </CardHeader>
@@ -249,7 +249,9 @@ const EventDetail = () => {
           
           <div className="border-t border-b py-4 my-4">
             <h3 className="font-medium mb-2">Acerca de este evento</h3>
-            <p className="text-gray-600">{event.description}</p>
+            <div className="text-gray-600 max-h-[200px] overflow-y-auto scroll-smooth pr-2">
+              <p>{event.description}</p>
+            </div>
           </div>
           
           {event.fundingRequired && event.fundingRequired > 0 && (
