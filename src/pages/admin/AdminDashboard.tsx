@@ -27,11 +27,16 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
 
+      // Check current user
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Current user:', user?.id);
+
       // Fetch total events
       const { count: eventsCount, error: eventsError } = await supabase
         .from('events')
         .select('*', { count: 'exact', head: true });
 
+      console.log('Events count:', eventsCount, 'Error:', eventsError);
       if (eventsError) throw eventsError;
 
       // Fetch total approved donations amount
@@ -40,6 +45,7 @@ const AdminDashboard = () => {
         .select('amount')
         .eq('status', 'approved');
 
+      console.log('Donations data:', donationsData, 'Error:', donationsError);
       if (donationsError) throw donationsError;
 
       const totalDonationsAmount = donationsData?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
@@ -49,12 +55,15 @@ const AdminDashboard = () => {
         .from('profiles')
         .select('*', { count: 'exact', head: true });
 
+      console.log('Users count:', usersCount, 'Error:', usersError);
       if (usersError) throw usersError;
 
       // Update stats
       setTotalEvents(eventsCount || 0);
       setTotalDonations(totalDonationsAmount);
       setActiveUsers(usersCount || 0);
+      
+      console.log('Final stats:', { eventsCount, totalDonationsAmount, usersCount });
 
       // Fetch recent activities
       const activities = await fetchRecentActivities();
