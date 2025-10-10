@@ -119,4 +119,25 @@
   .app-container {
     @apply flex flex-col h-full w-full max-w-md mx-auto px-4 py-6;
   }
+
+  /* Custom scrollbar styles */
+  .scroll-smooth::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scroll-smooth::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+  }
+
+  .scroll-smooth::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400;
+  }
+
+  .dark .scroll-smooth::-webkit-scrollbar-track {
+    @apply bg-gray-800;
+  }
+
+  .dark .scroll-smooth::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 hover:bg-gray-500;
+  }
 }

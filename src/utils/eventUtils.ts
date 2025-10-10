@@ -103,7 +103,7 @@ export const getEventRegistrationStatus = (
   const isRegistered = registeredEvents.includes(eventId);
   const hasAttended = attendedEvents.includes(eventId);
   const canScanQR = eventStartTime ? canScanQRAtCurrentTime(eventId, eventDate, eventStartTime, eventEndTime) : false;
-  const canRegister = isEventUpcoming(eventDate) && !isRegistered;
+  const canRegister = isEventUpcomingOrToday(eventDate) && !isRegistered;
   const eventIsPast = isEventPast(eventDate);
 
   return {

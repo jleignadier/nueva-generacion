@@ -202,15 +202,20 @@ const EventDetail = () => {
         Volver
       </Button>
       
-      <div className="rounded-lg overflow-hidden mb-4">
-        <img 
-          src={event.image} 
-          alt={event.title}
-          className="w-full h-56 sm:h-64 md:h-80 object-cover" 
-        />
-      </div>
-      
-      <Card className="max-h-[calc(100vh-250px)] overflow-y-auto scroll-smooth">
+      <Card className="max-h-[calc(100vh-180px)] overflow-y-auto scroll-smooth">
+        {event.image && (
+          <div className="w-full">
+            <img 
+              src={event.image} 
+              alt={event.title}
+              className="w-full h-56 sm:h-64 md:h-80 object-cover rounded-t-lg" 
+              onError={(e) => {
+                console.error('Failed to load event image:', event.image);
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
         <CardHeader className="pb-2">
           <CardTitle className="text-2xl">{event.title}</CardTitle>
         </CardHeader>
