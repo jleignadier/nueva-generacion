@@ -143,6 +143,19 @@ export const useEventsStore = create<EventsState>((set, get) => ({
 
       if (error) throw error;
 
+      // Fetch attendance counts for all events
+      const { data: attendanceData } = await supabase
+        .from('event_attendance')
+        .select('event_id');
+
+      // Count participants per event
+      const attendanceCounts: Record<string, number> = {};
+      if (attendanceData) {
+        attendanceData.forEach(record => {
+          attendanceCounts[record.event_id] = (attendanceCounts[record.event_id] || 0) + 1;
+        });
+      }
+
       const formattedEvents: Event[] = (data || []).map(event => ({
         id: event.id,
         title: event.title,
@@ -151,15 +164,15 @@ export const useEventsStore = create<EventsState>((set, get) => ({
         time: event.time,
         endTime: event.end_time || undefined,
         description: event.description || '',
-        participantCount: 0, // TODO: Could be calculated from event_attendance
+        participantCount: attendanceCounts[event.id] || 0,
         pointsEarned: event.points_earned || 0,
         volunteerHours: Number(event.volunteer_hours) || 0,
         status: event.status as 'upcoming' | 'completed',
         image: event.image_url || 'https://placehold.co/600x400/png?text=Event',
         fundingRequired: Number(event.funding_required) || undefined,
         currentFunding: Number(event.current_funding) || 0,
-        donations: [], // TODO: Load from donations table if needed
-        registeredParticipants: [] // TODO: Load from event_attendance if needed
+        donations: [],
+        registeredParticipants: []
       }));
 
       set({ events: formattedEvents, loading: false });

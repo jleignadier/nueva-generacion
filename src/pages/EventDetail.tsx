@@ -192,33 +192,35 @@ const EventDetail = () => {
   const isAdmin = user?.accountType === 'admin';
 
   return (
-    <div className="app-container p-4">
+    <div className="app-container p-3">
       <Button 
         variant="ghost" 
-        className="mb-4" 
-        onClick={handleBack}
+        onClick={() => navigate('/events')}
+        className="mb-3 flex items-center gap-2"
       >
-        <ArrowLeft size={16} className="mr-2" />
+        <ArrowLeft className="h-4 w-4" />
         Volver
       </Button>
       
-      <Card className="max-h-[calc(100vh-180px)] overflow-y-auto scroll-smooth">
-        {event.image && (
-          <div className="w-full">
-            <img 
-              src={event.image} 
-              alt={event.title}
-              className="w-full h-56 sm:h-64 md:h-80 object-cover rounded-t-lg" 
-              onError={(e) => {
-                console.error('Failed to load event image:', event.image);
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          </div>
-        )}
-        <CardHeader className="pb-2">
-          <CardTitle className="text-2xl">{event.title}</CardTitle>
-        </CardHeader>
+      {event.image && (
+        <div className="w-full mb-3 rounded-lg overflow-hidden">
+          <img 
+            src={event.image} 
+            alt={event.title}
+            className="w-full h-48 sm:h-56 md:h-64 object-cover" 
+            onError={(e) => {
+              console.error('Failed to load event image:', event.image);
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </div>
+      )}
+      
+      <Card className="max-h-[calc(100vh-140px)]">
+        <div className="overflow-y-auto scroll-smooth max-h-[calc(100vh-140px)]">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-2xl">{event.title}</CardTitle>
+          </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-2 text-sm mb-4">
             <div className="flex items-center">
@@ -380,6 +382,7 @@ const EventDetail = () => {
             </Button>
           </div>
         </CardContent>
+        </div>
       </Card>
 
       {event.fundingRequired && (

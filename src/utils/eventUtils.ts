@@ -195,13 +195,29 @@ export const downloadCalendarFile = (event: {
   location: string;
   description: string;
 }): void => {
-  const icsContent = generateCalendarFile(event);
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `${event.title.replace(/\s+/g, '-').toLowerCase()}.ics`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(link.href);
+  try {
+    console.log('📅 Generating calendar file for event:', event.title);
+    const icsContent = generateCalendarFile(event);
+    console.log('📄 ICS content generated, length:', icsContent.length);
+    
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${event.title.replace(/\s+/g, '-').toLowerCase()}.ics`;
+    link.setAttribute('download', link.download);
+    
+    console.log('⬇️ Triggering download:', link.download);
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      console.log('✅ Calendar file download initiated');
+    }, 100);
+  } catch (error) {
+    console.error('❌ Error downloading calendar file:', error);
+  }
 };
