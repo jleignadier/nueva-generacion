@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,9 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useOrganizationsStore } from '@/store/organizationsStore';
+import { supabase } from '@/integrations/supabase/client';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -32,17 +34,42 @@ const Signup = () => {
   const [joinOrg, setJoinOrg] = useState(false);
   const [selectedOrgId, setSelectedOrgId] = useState<string>('');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [legalAccepted, setLegalAccepted] = useState(false);
+  const [legalDocuments, setLegalDocuments] = useState<Array<{document_type: string, file_url: string, version: number}>>([]);
   const { signup, error } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { getActiveOrganizations, initializeOrganizations } = useOrganizationsStore();
 
   // Initialize organizations and get active ones
-  React.useEffect(() => {
+  useEffect(() => {
     initializeOrganizations();
   }, [initializeOrganizations]);
 
+  // Fetch legal documents on mount
+  useEffect(() => {
+    const fetchLegalDocs = async () => {
+      const { data } = await supabase
+        .from('legal_documents')
+        .select('document_type, file_url, version')
+        .eq('is_current', true)
+        .order('document_type');
+      
+      if (data) {
+        setLegalDocuments(data);
+      }
+    };
+    fetchLegalDocs();
+  }, []);
+
   const activeOrganizations = getActiveOrganizations();
+
+  const openDocument = (docType: string) => {
+    const doc = legalDocuments.find(d => d.document_type === docType);
+    if (doc?.file_url) {
+      window.open(doc.file_url, '_blank');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +78,15 @@ const Signup = () => {
       toast({
         title: "Los Passwords no son iguales",
         description: "Asegúrese de poner el mismo Password",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!legalAccepted) {
+      toast({
+        title: "Aceptación Requerida",
+        description: "Debes aceptar los documentos legales para continuar",
         variant: "destructive"
       });
       return;
@@ -89,6 +125,24 @@ const Signup = () => {
       };
         
       const user = await signup(signupData);
+      
+      // Save legal acceptance records after successful signup
+      if (user?.id && legalDocuments.length > 0) {
+        const acceptanceRecords = legalDocuments.map(doc => ({
+          user_id: user.id,
+          document_type: doc.document_type as 'privacy_policy' | 'terms_of_service' | 'volunteering_rules',
+          version_accepted: doc.version,
+        }));
+
+        const { error: acceptanceError } = await supabase
+          .from('user_legal_acceptance')
+          .insert(acceptanceRecords);
+
+        if (acceptanceError) {
+          console.error('Error saving legal acceptance:', acceptanceError);
+          // Don't block signup, but log the error
+        }
+      }
       
       setRegistrationSuccess(true);
       toast({
@@ -386,9 +440,53 @@ const Signup = () => {
             />
           </div>
 
+          {legalDocuments.length > 0 && (
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="legal-acceptance"
+                  checked={legalAccepted}
+                  onCheckedChange={(checked) => setLegalAccepted(!!checked)}
+                  className="mt-1"
+                />
+                <div className="flex-1">
+                  <label
+                    htmlFor="legal-acceptance"
+                    className="text-sm text-gray-700 cursor-pointer leading-relaxed"
+                  >
+                    He leído y acepto los{' '}
+                    <button
+                      type="button"
+                      onClick={() => openDocument('terms_of_service')}
+                      className="text-nuevagen-blue hover:underline font-medium"
+                    >
+                      Términos de Servicio
+                    </button>
+                    , la{' '}
+                    <button
+                      type="button"
+                      onClick={() => openDocument('privacy_policy')}
+                      className="text-nuevagen-blue hover:underline font-medium"
+                    >
+                      Política de Privacidad
+                    </button>
+                    {' '}y el{' '}
+                    <button
+                      type="button"
+                      onClick={() => openDocument('reglamento_de_voluntariado')}
+                      className="text-nuevagen-blue hover:underline font-medium"
+                    >
+                      Reglamento de Voluntariado
+                    </button>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
           <Button
             type="submit"
-            disabled={isLoading || (joinOrg && !selectedOrgId)}
+            disabled={isLoading || (joinOrg && !selectedOrgId) || !legalAccepted}
             className={`w-full h-10 ${isAdmin ? 'bg-purple-600 hover:bg-purple-700' : 'bg-nuevagen-blue hover:bg-opacity-90'} text-white font-medium rounded-lg text-sm`}
           >
             {isLoading ? "Creando Cuenta..." : "Registrarse"}
