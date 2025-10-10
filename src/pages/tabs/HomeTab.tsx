@@ -30,19 +30,6 @@ const HomeTab = () => {
   
   const nextEvent = upcomingEvents[0];
   const otherEvents = upcomingEvents.slice(1, 4);
-  
-  // Function to check event status
-  const getEventStatus = (eventId: string) => {
-    const registeredEvents = JSON.parse(localStorage.getItem('registeredEvents') || '[]');
-    const attendedEvents = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
-    
-    const isRegistered = registeredEvents.includes(eventId);
-    const hasAttended = attendedEvents.includes(eventId);
-    
-    if (hasAttended) return { status: 'attended', text: 'Asistido ✓' };
-    if (isRegistered) return { status: 'registered', text: 'Registrado' };
-    return { status: 'available', text: 'Ver Detalles' };
-  };
 
   return (
     <div className="app-container">
@@ -85,7 +72,7 @@ const HomeTab = () => {
                 size="sm"
                 onClick={() => navigate(`/dashboard/events/${nextEvent.id}`)}
               >
-                {getEventStatus(nextEvent.id).text}
+                Ver Detalles
               </Button>
             </CardContent>
           </Card>
@@ -135,9 +122,8 @@ const HomeTab = () => {
                     className="w-full mt-3 btn-primary" 
                     size="sm"
                     onClick={() => navigate(`/dashboard/events/${event.id}`)}
-                    variant={getEventStatus(event.id).status === 'attended' ? 'secondary' : 'default'}
                   >
-                    {getEventStatus(event.id).text}
+                    Ver Detalles
                   </Button>
                 </CardContent>
               </Card>

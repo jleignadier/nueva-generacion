@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarCheck, Clock, MapPin, ArrowLeft, Award } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, ArrowLeft, Award, Users } from 'lucide-react';
 import { useEventsStore, Event } from '@/store/eventsStore';
 import { formatDate, formatEventTime, getTodayString } from '@/utils/dateUtils';
 import { supabase } from '@/integrations/supabase/client';
+import EventParticipants from '@/components/EventParticipants';
 
 const Events = () => {
   const navigate = useNavigate();
@@ -54,19 +55,6 @@ const Events = () => {
     .sort((a, b) => a.date.localeCompare(b.date)); // Sort by date string
   
   console.log('Events page - Upcoming events:', upcomingEvents);
-  
-  // Function to check event status
-  const getEventStatus = (eventId: string) => {
-    const registeredEvents = JSON.parse(localStorage.getItem('registeredEvents') || '[]');
-    const attendedEvents = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
-    
-    const isRegistered = registeredEvents.includes(eventId);
-    const hasAttended = attendedEvents.includes(eventId);
-    
-    if (hasAttended) return { status: 'attended', text: 'Asistido ✓' };
-    if (isRegistered) return { status: 'registered', text: 'Registrado' };
-    return { status: 'available', text: 'Ver Detalles' };
-  };
 
   return (
     <div className="app-container">
@@ -107,6 +95,16 @@ const Events = () => {
                   </div>
                 </div>
                 
+                {/* Show participants if there are any */}
+                {event.registeredParticipants && event.registeredParticipants.length > 0 && (
+                  <div className="mb-3">
+                    <EventParticipants 
+                      participants={event.registeredParticipants}
+                      totalCount={event.participantCount}
+                    />
+                  </div>
+                )}
+                
                 <div className="flex justify-between items-center">
                   <div className="text-xs text-gray-500">
                     <span className="bg-nuevagen-blue bg-opacity-10 text-nuevagen-blue px-2 py-1 rounded-full">
@@ -117,9 +115,8 @@ const Events = () => {
                     className="btn-primary" 
                     size="sm"
                     onClick={() => navigate(`/dashboard/events/${event.id}`)}
-                    variant={getEventStatus(event.id).status === 'attended' ? 'secondary' : 'default'}
                   >
-                    {getEventStatus(event.id).text}
+                    Ver Detalles
                   </Button>
                 </div>
               </CardContent>

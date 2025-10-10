@@ -35,17 +35,38 @@ const EventDetail = () => {
   const [searchEmail, setSearchEmail] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   
-  const { getEvent } = useEventsStore();
+  const { getEvent, registerForEvent: registerInDb, isUserRegistered } = useEventsStore();
   
   const event = id ? getEvent(id) : undefined;
   
   useEffect(() => {
-    if (id && event) {
-      const status = getEventRegistrationStatus(id, event.date, event.time, event.endTime);
-      setRegistrationStatus(status);
+    if (id && event && user) {
+      checkRegistrationStatus();
       checkAttendance();
     }
-  }, [id, event]);
+  }, [id, event, user]);
+
+  const checkRegistrationStatus = async () => {
+    if (!id || !event || !user) return;
+
+    // Check if user is registered in database
+    const isRegistered = await isUserRegistered(id, user.id);
+    
+    // Calculate event status
+    const eventDateTime = new Date(`${event.date}T${event.time}`);
+    const now = new Date();
+    const isPast = eventDateTime < now;
+    const canScanQR = !isPast && isRegistered;
+    const canRegister = !isPast && !isRegistered;
+
+    setRegistrationStatus({
+      isRegistered,
+      canRegister,
+      isEventPast: isPast,
+      canScanQR,
+      hasAttended: false
+    });
+  };
 
   const checkAttendance = async () => {
     if (!user || !id) return;
@@ -62,26 +83,36 @@ const EventDetail = () => {
     }
   };
 
-  const handleRegisterForReminder = () => {
-    if (!event || !id) return;
+  const handleRegisterForReminder = async () => {
+    if (!event || !id || !user) return;
     
-    registerForEvent(id);
-    
-    downloadCalendarFile({
-      title: event.title,
-      date: event.date,
-      time: event.time,
-      endTime: event.endTime,
-      location: event.location,
-      description: event.description
-    });
-    
-    setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false }));
-    
-    toast({
-      title: "¡Registrado para recordatorio!",
-      description: `Evento de calendario agregado para ${event.title}.`,
-    });
+    try {
+      // Register in database
+      await registerInDb(id, user.id, user.organizationId);
+      
+      // Download calendar file
+      downloadCalendarFile({
+        title: event.title,
+        date: event.date,
+        time: event.time,
+        endTime: event.endTime,
+        location: event.location,
+        description: event.description
+      });
+      
+      setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: true }));
+      
+      toast({
+        title: "¡Registrado exitosamente!",
+        description: `Te has registrado para ${event.title}. Evento de calendario descargado.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Error al registrarse para el evento",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleQRScanSuccess = async (result: string) => {

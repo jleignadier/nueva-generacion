@@ -127,6 +127,9 @@ interface EventsState {
   addDonation: (eventId: string, donation: Omit<EventDonation, 'id'>) => void;
   approveDonation: (eventId: string, donationId: string) => void;
   rejectDonation: (eventId: string, donationId: string) => void;
+  registerForEvent: (eventId: string, userId: string, organizationId?: string) => Promise<void>;
+  unregisterFromEvent: (eventId: string, userId: string) => Promise<void>;
+  isUserRegistered: (eventId: string, userId: string) => Promise<boolean>;
 }
 
 export const useEventsStore = create<EventsState>((set, get) => ({
@@ -143,12 +146,49 @@ export const useEventsStore = create<EventsState>((set, get) => ({
 
       if (error) throw error;
 
-      // Fetch attendance counts for all events
+      // Fetch registrations with user profiles for all events
+      const { data: registrationsData } = await supabase
+        .from('event_registrations')
+        .select(`
+          event_id,
+          user_id,
+          organization_id,
+          profiles:user_id (
+            id,
+            first_name,
+            last_name,
+            avatar_url,
+            account_type,
+            organization_id
+          )
+        `);
+
+      // Build registrations map
+      const registrationsByEvent: Record<string, RegisteredParticipant[]> = {};
+      if (registrationsData) {
+        registrationsData.forEach((reg: any) => {
+          if (!registrationsByEvent[reg.event_id]) {
+            registrationsByEvent[reg.event_id] = [];
+          }
+          
+          const profile = reg.profiles;
+          if (profile) {
+            registrationsByEvent[reg.event_id].push({
+              id: profile.id,
+              name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
+              type: profile.account_type === 'organization' ? 'organization' : 'user',
+              avatar: profile.avatar_url || undefined
+            });
+          }
+        });
+      }
+
+      // Fetch attendance counts for completed events
       const { data: attendanceData } = await supabase
         .from('event_attendance')
         .select('event_id');
 
-      // Count participants per event
+      // Count attendance per event
       const attendanceCounts: Record<string, number> = {};
       if (attendanceData) {
         attendanceData.forEach(record => {
@@ -156,24 +196,30 @@ export const useEventsStore = create<EventsState>((set, get) => ({
         });
       }
 
-      const formattedEvents: Event[] = (data || []).map(event => ({
-        id: event.id,
-        title: event.title,
-        location: event.location,
-        date: event.date,
-        time: event.time,
-        endTime: event.end_time || undefined,
-        description: event.description || '',
-        participantCount: attendanceCounts[event.id] || 0,
-        pointsEarned: event.points_earned || 0,
-        volunteerHours: Number(event.volunteer_hours) || 0,
-        status: event.status as 'upcoming' | 'completed',
-        image: event.image_url || 'https://placehold.co/600x400/png?text=Event',
-        fundingRequired: Number(event.funding_required) || undefined,
-        currentFunding: Number(event.current_funding) || 0,
-        donations: [],
-        registeredParticipants: []
-      }));
+      const formattedEvents: Event[] = (data || []).map(event => {
+        const registeredParticipants = registrationsByEvent[event.id] || [];
+        const isCompleted = event.status === 'completed';
+        
+        return {
+          id: event.id,
+          title: event.title,
+          location: event.location,
+          date: event.date,
+          time: event.time,
+          endTime: event.end_time || undefined,
+          description: event.description || '',
+          // For upcoming events, show registration count; for completed, show attendance count
+          participantCount: isCompleted ? (attendanceCounts[event.id] || 0) : registeredParticipants.length,
+          pointsEarned: event.points_earned || 0,
+          volunteerHours: Number(event.volunteer_hours) || 0,
+          status: event.status as 'upcoming' | 'completed',
+          image: event.image_url || 'https://placehold.co/600x400/png?text=Event',
+          fundingRequired: Number(event.funding_required) || undefined,
+          currentFunding: Number(event.current_funding) || 0,
+          donations: [],
+          registeredParticipants
+        };
+      });
 
       set({ events: formattedEvents, loading: false });
     } catch (error) {
@@ -338,4 +384,59 @@ export const useEventsStore = create<EventsState>((set, get) => ({
       return event;
     })
   })),
+
+  registerForEvent: async (eventId: string, userId: string, organizationId?: string) => {
+    try {
+      const { error } = await supabase
+        .from('event_registrations')
+        .insert({
+          event_id: eventId,
+          user_id: userId,
+          organization_id: organizationId || null
+        });
+
+      if (error) throw error;
+
+      // Reload events to update registration counts
+      await get().loadEvents();
+    } catch (error) {
+      console.error('Error registering for event:', error);
+      throw error;
+    }
+  },
+
+  unregisterFromEvent: async (eventId: string, userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('event_registrations')
+        .delete()
+        .eq('event_id', eventId)
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      // Reload events to update registration counts
+      await get().loadEvents();
+    } catch (error) {
+      console.error('Error unregistering from event:', error);
+      throw error;
+    }
+  },
+
+  isUserRegistered: async (eventId: string, userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('event_registrations')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return !!data;
+    } catch (error) {
+      console.error('Error checking registration:', error);
+      return false;
+    }
+  },
 }));
