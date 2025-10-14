@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Award, Gift, Calendar, Crown, Star, Users, Lock } from 'lucide-react';
-import { useEventsStore } from '@/store/eventsStore';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AchievementsModalProps {
   isOpen: boolean;
@@ -24,34 +24,52 @@ interface Achievement {
 }
 
 const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, onClose }) => {
-  // Calculate user stats from localStorage
-  const userStats = useMemo(() => {
-    const donations = JSON.parse(localStorage.getItem('submittedDonations') || '[]');
-    const attendedEventIds = JSON.parse(localStorage.getItem('attendedEvents') || '[]');
-    
-    // Calculate points based on actual events attended
-    const { events } = useEventsStore.getState();
-    const pointsEarned = attendedEventIds.reduce((total: number, eventId: string) => {
-      const event = events.find(e => e.id === eventId);
-      return total + (event?.pointsEarned || 0);
-    }, 0);
-    
-    const totalDonated = donations.reduce((sum: number, d: any) => sum + Number(d.amount), 0);
-    const eventsAttended = attendedEventIds.length;
+  // User statistics state
+  const [userStats, setUserStats] = useState({
+    totalDonated: 0,
+    eventsAttended: 0,
+    pointsEarned: 0
+  });
 
-    return {
-      totalDonated,
-      eventsAttended,
-      pointsEarned
-    };
-  }, []);
-
-  // Check if user won any competition
+  // Check if user won any competition (from localStorage)
   const hasWonCompetition = useMemo(() => {
-    // Check localStorage for competition wins
     const competitionWins = JSON.parse(localStorage.getItem('competitionWins') || '[]');
     return competitionWins.length > 0;
   }, []);
+
+  // Fetch user statistics from database
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch approved donations total
+      const { data: donations } = await supabase
+        .from('donations')
+        .select('amount')
+        .eq('user_id', user.id)
+        .eq('status', 'approved');
+
+      const totalDonated = donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
+
+      // Fetch event attendance and points from user_points table
+      const { data: pointsData } = await supabase
+        .from('user_points')
+        .select('points, events_attended')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setUserStats({
+        totalDonated,
+        eventsAttended: pointsData?.events_attended || 0,
+        pointsEarned: pointsData?.points || 0
+      });
+    };
+
+    if (isOpen) {
+      fetchUserStats();
+    }
+  }, [isOpen]);
 
   // Define achievements
   const achievements: Achievement[] = useMemo(() => [

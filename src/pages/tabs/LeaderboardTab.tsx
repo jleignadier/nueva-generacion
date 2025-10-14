@@ -247,19 +247,15 @@ const LeaderboardTab = () => {
                   {entry.rank}
                 </div>
                 
-                <div className="h-10 w-10 rounded-full overflow-hidden flex items-center justify-center bg-primary">
-                  {entry.avatar_url || entry.logo_url ? (
-                    <img 
-                      src={entry.avatar_url || entry.logo_url} 
-                      alt={`${entry.name} profile`} 
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span className="font-medium text-white text-sm">
-                      {entry.avatar}
-                    </span>
-                  )}
-                </div>
+              <Avatar className="h-10 w-10">
+                <AvatarImage 
+                  src={entry.avatar_url || entry.logo_url} 
+                  alt={`${entry.name} profile`}
+                />
+                <AvatarFallback className="bg-primary text-white font-medium text-sm">
+                  {entry.avatar}
+                </AvatarFallback>
+              </Avatar>
                 
                 <div className="ml-3 flex-1">
                   <p className={`font-medium ${isUser ? 'text-primary' : ''} flex items-center`}>
