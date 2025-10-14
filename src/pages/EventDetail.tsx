@@ -234,11 +234,11 @@ const EventDetail = () => {
       </Button>
       
       {event.image && (
-        <div className="w-full mb-3 rounded-lg overflow-hidden">
+        <div className="w-full mb-3 rounded-lg overflow-hidden max-h-96">
           <img 
             src={event.image} 
             alt={event.title}
-            className="w-full h-48 sm:h-56 md:h-64 object-cover" 
+            className="w-full object-contain" 
             onError={(e) => {
               console.error('Failed to load event image:', event.image);
               e.currentTarget.style.display = 'none';

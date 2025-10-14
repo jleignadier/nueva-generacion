@@ -299,7 +299,13 @@ const EventForm = () => {
                   className="bg-zinc-700 border-zinc-600 text-white"
                 />
                 {formData.image && (
-                  <img src={formData.image} alt="Preview" className="w-32 h-32 object-cover rounded mt-2" />
+                  <div className="mt-3 border border-zinc-600 rounded-lg overflow-hidden max-w-md">
+                    <img 
+                      src={formData.image} 
+                      alt="Preview" 
+                      className="w-full object-contain max-h-64"
+                    />
+                  </div>
                 )}
               </div>
             </div>
