@@ -49,11 +49,14 @@ const Signup = () => {
   // Fetch legal documents on mount
   useEffect(() => {
     const fetchLegalDocs = async () => {
-      const { data } = await supabase
+      console.log('📄 Fetching legal documents...');
+      const { data, error } = await supabase
         .from('legal_documents')
         .select('document_type, file_url, version')
         .eq('is_current', true)
         .order('document_type');
+      
+      console.log('📄 Legal documents result:', { data, error, count: data?.length });
       
       if (data) {
         setLegalDocuments(data);
