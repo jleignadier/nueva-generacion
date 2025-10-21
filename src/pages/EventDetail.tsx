@@ -34,6 +34,7 @@ const EventDetail = () => {
   const [manualCheckInOpen, setManualCheckInOpen] = useState(false);
   const [searchEmail, setSearchEmail] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isRegistering, setIsRegistering] = useState(false);
   
   const { getEvent, registerForEvent: registerInDb, isUserRegistered } = useEventsStore();
   
@@ -41,6 +42,13 @@ const EventDetail = () => {
   
   useEffect(() => {
     if (id && event && user) {
+      console.log('📊 Current state:', {
+        eventId: id,
+        userId: user.id,
+        organizationId: user.organizationId,
+        accountType: user.accountType,
+        isAuthenticated: !!user.id
+      });
       checkRegistrationStatus();
       checkAttendance();
     }
@@ -84,11 +92,34 @@ const EventDetail = () => {
   };
 
   const handleRegisterForReminder = async () => {
-    if (!event || !id || !user) return;
+    console.log('🔵 Registration button clicked');
+    console.log('Event:', event);
+    console.log('Event ID:', id);
+    console.log('User:', user);
+    console.log('User ID:', user?.id);
+    console.log('Organization ID:', user?.organizationId);
+    
+    if (isRegistering) {
+      console.log('⚠️ Already registering, preventing double-click');
+      return;
+    }
+    
+    if (!event || !id || !user) {
+      console.error('❌ Missing required data:', { event: !!event, id: !!id, user: !!user });
+      toast({
+        title: "Error",
+        description: "Faltan datos requeridos para el registro",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsRegistering(true);
     
     try {
-      // Register in database
+      console.log('🟢 Attempting to register in database...');
       await registerInDb(id, user.id, user.organizationId);
+      console.log('✅ Registration successful');
       
       // Download calendar file
       downloadCalendarFile({
@@ -107,11 +138,25 @@ const EventDetail = () => {
         description: `Te has registrado para ${event.title}. Evento de calendario descargado.`,
       });
     } catch (error: any) {
+      console.error('❌ Registration error:', error);
+      
+      let errorMessage = "Error al registrarse para el evento";
+      
+      if (error.message?.includes('row-level security') || error.message?.includes('policy')) {
+        errorMessage = "Error de permisos. Por favor, cierra sesión y vuelve a iniciar sesión.";
+      } else if (error.message?.includes('duplicate') || error.message?.includes('already exists')) {
+        errorMessage = "Ya estás registrado para este evento.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Error al registrarse para el evento",
+        description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setIsRegistering(false);
     }
   };
 
@@ -389,9 +434,10 @@ const EventDetail = () => {
                 className="flex-1" 
                 onClick={handleRegisterForReminder}
                 variant="outline"
+                disabled={isRegistering}
               >
                 <Calendar size={16} className="mr-2" />
-                Registrarse para Recordatorio
+                {isRegistering ? 'Registrando...' : 'Registrarse para Recordatorio'}
               </Button>
             ) : registrationStatus.isRegistered ? (
               <Button className="flex-1" disabled>

@@ -387,20 +387,28 @@ export const useEventsStore = create<EventsState>((set, get) => ({
 
   registerForEvent: async (eventId: string, userId: string, organizationId?: string) => {
     try {
-      const { error } = await supabase
+      console.log('📝 Registering for event:', { eventId, userId, organizationId });
+      
+      const { data, error } = await supabase
         .from('event_registrations')
         .insert({
           event_id: eventId,
           user_id: userId,
           organization_id: organizationId || null
-        });
+        })
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Database error:', error);
+        throw error;
+      }
+
+      console.log('✅ Registration data:', data);
 
       // Reload events to update registration counts
       await get().loadEvents();
     } catch (error) {
-      console.error('Error registering for event:', error);
+      console.error('❌ Error registering for event:', error);
       throw error;
     }
   },
