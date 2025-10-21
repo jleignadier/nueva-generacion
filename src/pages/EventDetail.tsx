@@ -41,31 +41,47 @@ const EventDetail = () => {
   const event = id ? getEvent(id) : undefined;
   
   useEffect(() => {
-    if (id && event && user) {
-      console.log('📊 Current state:', {
-        eventId: id,
-        userId: user.id,
-        organizationId: user.organizationId,
-        accountType: user.accountType,
-        isAuthenticated: !!user.id
-      });
-      checkRegistrationStatus();
-      checkAttendance();
+    if (id && event) {
+      if (user?.id) {
+        console.log('📊 Current state:', {
+          eventId: id,
+          userId: user.id,
+          organizationId: user.organizationId,
+          accountType: user.accountType,
+          isAuthenticated: !!user.id,
+          userObjectComplete: !!(user.firstName && user.lastName)
+        });
+        checkRegistrationStatus();
+        checkAttendance();
+      } else {
+        console.log('⏳ Waiting for user to load...');
+      }
     }
-  }, [id, event, user]);
+  }, [id, event, user?.id]);
 
   const checkRegistrationStatus = async () => {
-    if (!id || !event || !user) return;
+    if (!id || !event || !user) {
+      console.log('⚠️ Cannot check registration - missing:', { id: !!id, event: !!event, user: !!user });
+      return;
+    }
 
-    // Check if user is registered in database
+    console.log('🔍 Checking registration for:', { eventId: id, userId: user.id });
+
     const isRegistered = await isUserRegistered(id, user.id);
+    console.log('📋 Is user registered?', isRegistered);
     
-    // Calculate event status
     const eventDateTime = new Date(`${event.date}T${event.time}`);
     const now = new Date();
     const isPast = eventDateTime < now;
     const canScanQR = !isPast && isRegistered;
     const canRegister = !isPast && !isRegistered;
+
+    console.log('✅ Registration status calculated:', {
+      isRegistered,
+      canRegister,
+      isEventPast: isPast,
+      canScanQR,
+    });
 
     setRegistrationStatus({
       isRegistered,
@@ -429,15 +445,15 @@ const EventDetail = () => {
                 <CheckCircle size={16} className="mr-2" />
                 Asistencia Registrada
               </Button>
-            ) : registrationStatus.canRegister ? (
+            ) : registrationStatus.canRegister || !user ? (
               <Button 
                 className="flex-1" 
                 onClick={handleRegisterForReminder}
                 variant="outline"
-                disabled={isRegistering}
+                disabled={isRegistering || !user}
               >
                 <Calendar size={16} className="mr-2" />
-                {isRegistering ? 'Registrando...' : 'Registrarse para Recordatorio'}
+                {!user ? 'Cargando...' : isRegistering ? 'Registrando...' : 'Registrarse para Recordatorio'}
               </Button>
             ) : registrationStatus.isRegistered ? (
               <Button className="flex-1" disabled>
