@@ -144,7 +144,7 @@ export const LegalAcceptanceModal = () => {
                     </label>
                     <Button
                       variant="link"
-                      className="p-0 h-auto mt-1"
+                      className="p-0 h-auto mt-1 text-primary hover:text-primary/80"
                       onClick={() => window.open(doc.file_url, '_blank')}
                     >
                       Ver documento completo
