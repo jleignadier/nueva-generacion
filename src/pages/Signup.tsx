@@ -476,7 +476,7 @@ const Signup = () => {
                     {' '}y el{' '}
                     <button
                       type="button"
-                      onClick={() => openDocument('reglamento_de_voluntariado')}
+                      onClick={() => openDocument('volunteering_rules')}
                       className="text-nuevagen-blue hover:underline font-medium"
                     >
                       Reglamento de Voluntariado

@@ -657,7 +657,7 @@ export type Database = {
         Returns: boolean
       }
       get_current_user_role: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
       get_organization_contact: {
@@ -685,7 +685,7 @@ export type Database = {
         }[]
       }
       get_public_organizations: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           description: string
@@ -707,10 +707,7 @@ export type Database = {
           user_id: string
         }[]
       }
-      has_accepted_legal_docs: {
-        Args: { p_user_id: string }
-        Returns: boolean
-      }
+      has_accepted_legal_docs: { Args: { p_user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
