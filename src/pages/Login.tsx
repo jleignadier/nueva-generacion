@@ -30,6 +30,19 @@ const Login = () => {
     console.log("Login page mounted, user state:", user?.email);
   }, [user]);
 
+  // Check if user just verified email
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('type') === 'signup' && params.get('token_hash')) {
+      toast({
+        title: "¡Correo verificado!",
+        description: "Ahora puedes iniciar sesión con tu cuenta",
+      });
+      // Clear the URL parameters
+      window.history.replaceState({}, '', '/login');
+    }
+  }, [toast]);
+
   // If user is already logged in, redirect to appropriate dashboard
   if (user) {
     console.log("Login: User already logged in, redirecting");
@@ -141,6 +154,40 @@ const Login = () => {
     }
   };
 
+  const handleResendVerification = async () => {
+    if (!email) {
+      toast({
+        title: "Correo requerido",
+        description: "Por favor ingresa tu correo electrónico",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Correo reenviado",
+        description: "Revisa tu bandeja de entrada y tu carpeta de spam",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo reenviar el correo",
+        variant: "destructive"
+      });
+    }
+  };
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-nuevagen-blue to-nuevagen-teal">
@@ -212,6 +259,23 @@ const Login = () => {
               Mantener sesión iniciada
             </label>
           </div>
+
+          {showResendConfirmation && (
+            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-800 mb-2">
+                Tu correo no está verificado. ¿No recibiste el correo de confirmación?
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleResendVerification}
+                className="w-full text-nuevagen-blue border-nuevagen-blue hover:bg-nuevagen-blue hover:text-white"
+              >
+                Reenviar correo de verificación
+              </Button>
+            </div>
+          )}
           
           <Button
             type="submit"

@@ -134,9 +134,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (error) {
         // Handle specific error cases
         if (error.message.includes('Email not confirmed')) {
-          throw new Error('Por favor confirma tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.');
+          throw new Error('Por favor confirma tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada y tu carpeta de spam.');
         } else if (error.message.includes('Invalid login credentials')) {
-          throw new Error('Credenciales incorrectas. Verifica tu correo y contraseña.');
+          throw new Error('Credenciales incorrectas. Si acabas de registrarte, verifica tu correo primero.');
         }
         throw error;
       }
@@ -222,7 +222,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('No user data returned');
       }
       
-      // User data will be set via the auth state change listener
+      // Check if user needs email confirmation
+      const needsConfirmation = data.user.identities && data.user.identities.length === 0;
+
+      if (needsConfirmation) {
+        console.log('AuthContext: User needs to confirm email');
+        // Don't set session, user must verify email first
+        // Clear any session that might have been created
+        await supabase.auth.signOut();
+      }
+      
+      // Return user data for UI display
       return {
         id: data.user.id,
         email: data.user.email!,
