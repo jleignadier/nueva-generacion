@@ -67,6 +67,14 @@ const Signup = () => {
 
   const activeOrganizations = getActiveOrganizations();
 
+  // Redirect if user is already logged in
+  const { user } = useAuth();
+  if (user) {
+    console.log("Signup: User already logged in, redirecting");
+    navigate(user.isAdmin ? '/admin/dashboard' : '/home', { replace: true });
+    return null;
+  }
+
   const openDocument = (docType: string) => {
     const doc = legalDocuments.find(d => d.document_type === docType);
     if (doc?.file_url) {

@@ -56,49 +56,52 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         
         if (session?.user) {
-          try {
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('id, first_name, last_name, phone, birthdate, account_type, organization_id, avatar_url')
-              .eq('id', session.user.id)
-              .single();
+          // Defer profile fetching with setTimeout to prevent deadlocks
+          setTimeout(async () => {
+            try {
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('id, first_name, last_name, phone, birthdate, account_type, organization_id, avatar_url')
+                .eq('id', session.user.id)
+                .single();
 
-            if (profileError) {
-              console.error('Error fetching profile:', profileError);
+              if (profileError) {
+                console.error('Error fetching profile:', profileError);
+                setError('Failed to load user profile');
+                setIsLoading(false);
+                return;
+              }
+
+              if (profile) {
+                const isAdmin = profile.account_type === 'admin';
+                const userData: User = {
+                  id: profile.id,
+                  email: session.user.email!,
+                  name: `${profile.first_name} ${profile.last_name}`.trim() || session.user.email!.split('@')[0],
+                  firstName: profile.first_name,
+                  lastName: profile.last_name,
+                  phone: profile.phone,
+                  birthdate: profile.birthdate,
+                  accountType: profile.account_type,
+                  isAdmin: isAdmin,
+                  organizationId: profile.organization_id,
+                  avatarUrl: profile.avatar_url
+                };
+                setUser(userData);
+                console.log('✅ User profile loaded:', userData.email, 'isAdmin:', isAdmin);
+              }
+            } catch (error) {
+              console.error('Error fetching user profile:', error);
               setError('Failed to load user profile');
+            } finally {
               setIsLoading(false);
-              return;
             }
-
-            if (profile) {
-              const isAdmin = profile.account_type === 'admin';
-              const userData: User = {
-                id: profile.id,
-                email: session.user.email!,
-                name: `${profile.first_name} ${profile.last_name}`.trim() || session.user.email!.split('@')[0],
-                firstName: profile.first_name,
-                lastName: profile.last_name,
-                phone: profile.phone,
-                birthdate: profile.birthdate,
-                accountType: profile.account_type,
-                isAdmin: isAdmin,
-                organizationId: profile.organization_id,
-                avatarUrl: profile.avatar_url
-              };
-              setUser(userData);
-              console.log('✅ User profile loaded:', userData.email, 'isAdmin:', isAdmin);
-            }
-          } catch (error) {
-            console.error('Error fetching user profile:', error);
-            setError('Failed to load user profile');
-          } finally {
-            setIsLoading(false);
-          }
+          }, 0);
         } else {
           setUser(null);
           setIsLoading(false);
