@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useOrganizationsStore } from '@/store/organizationsStore';
 import { supabase } from '@/integrations/supabase/client';
+import { authStorage } from '@/utils/authStorage';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -36,6 +37,7 @@ const Signup = () => {
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [legalAccepted, setLegalAccepted] = useState(false);
   const [legalDocuments, setLegalDocuments] = useState<Array<{document_type: string, file_url: string, version: number}>>([]);
+  const [rememberMe, setRememberMe] = useState(false);
   const { signup, error } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -113,9 +115,11 @@ const Signup = () => {
     }
     
     setIsLoading(true);
-    
     try {
-      const name = accountType === 'volunteer' 
+      // Set storage preference before signup
+      authStorage.setRememberMe(rememberMe);
+      
+      const name = accountType === 'volunteer'
         ? `${firstName} ${lastName}` 
         : orgName;
         
@@ -494,6 +498,20 @@ const Signup = () => {
               </div>
             </div>
           )}
+
+          <div className="flex items-center space-x-2 mb-4">
+            <Checkbox
+              id="remember-me-signup"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+            />
+            <label
+              htmlFor="remember-me-signup"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              Mantener sesión iniciada
+            </label>
+          </div>
 
           <Button
             type="submit"
