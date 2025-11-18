@@ -8,6 +8,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { Checkbox } from '@/components/ui/checkbox';
+import { authStorage } from '@/utils/authStorage';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -19,6 +21,7 @@ const Login = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const { login, error, user, resendConfirmation } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -39,6 +42,9 @@ const Login = () => {
     setIsLoading(true);
     
     try {
+      // Set storage preference before login
+      authStorage.setRememberMe(rememberMe);
+      
       const user = await login(email, password);
       // Navigation will be handled by the auth state change
       if (user.isAdmin) {
@@ -191,6 +197,20 @@ const Login = () => {
             >
               ¿Olvidaste tu contraseña?
             </button>
+          </div>
+
+          <div className="flex items-center space-x-2 mb-4">
+            <Checkbox
+              id="remember-me"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+            />
+            <label
+              htmlFor="remember-me"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              Mantener sesión iniciada
+            </label>
           </div>
           
           <Button

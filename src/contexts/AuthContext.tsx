@@ -312,6 +312,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    
+    // Clear remember-me preference
+    sessionStorage.removeItem('auth-remember-me');
+    
     console.log("AuthContext: User logged out");
   };
 
