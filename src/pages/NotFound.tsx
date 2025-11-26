@@ -19,7 +19,10 @@ const NotFound = () => {
         <img 
           src="/lovable-uploads/3e471c72-20ba-448a-94e3-4531623f02bc.png" 
           alt="Nueva Generación Logo" 
-          className="h-24 w-auto mx-auto mb-6" 
+          className="h-24 w-auto mx-auto mb-6"
+          width={96}
+          height={96}
+          fetchPriority="high"
         />
         <h1 className="text-4xl font-bold mb-4 text-nuevagen-blue">404</h1>
         <p className="text-xl text-gray-600 mb-6">
