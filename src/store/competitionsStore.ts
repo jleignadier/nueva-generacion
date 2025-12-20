@@ -33,23 +33,38 @@ export const useCompetitionsStore = create<CompetitionsState>((set, get) => ({
   competitions: initialCompetitions,
   
   addCompetition: (competition) =>
-    set((state) => ({
-      competitions: [
-        ...state.competitions,
-        {
-          ...competition,
-          id: Date.now().toString(),
-          createdAt: new Date().toISOString().split('T')[0],
-        },
-      ],
-    })),
+    set((state) => {
+      // If new competition is active, deactivate all others
+      const updatedCompetitions = competition.isActive
+        ? state.competitions.map(c => ({ ...c, isActive: false }))
+        : state.competitions;
+      
+      return {
+        competitions: [
+          ...updatedCompetitions,
+          {
+            ...competition,
+            id: Date.now().toString(),
+            createdAt: new Date().toISOString().split('T')[0],
+          },
+        ],
+      };
+    }),
 
   updateCompetition: (id, competitionData) =>
-    set((state) => ({
-      competitions: state.competitions.map((competition) =>
-        competition.id === id ? { ...competition, ...competitionData } : competition
-      ),
-    })),
+    set((state) => {
+      // If setting this competition to active, deactivate all others first
+      let competitions = state.competitions;
+      if (competitionData.isActive === true) {
+        competitions = competitions.map(c => ({ ...c, isActive: false }));
+      }
+      
+      return {
+        competitions: competitions.map((competition) =>
+          competition.id === id ? { ...competition, ...competitionData } : competition
+        ),
+      };
+    }),
 
   deleteCompetition: (id) =>
     set((state) => ({

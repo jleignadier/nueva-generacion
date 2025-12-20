@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 
 interface LegalDocument {
-  document_type: 'terms_of_service' | 'privacy_policy' | 'volunteering_rules';
+  document_type: 'terms_and_privacy' | 'volunteering_rules';
   file_url: string;
   version: number;
 }
@@ -44,10 +44,11 @@ export const LegalAcceptanceModal = () => {
       const { data: docs } = await supabase
         .from('legal_documents')
         .select('document_type, file_url, version')
-        .eq('is_current', true);
+        .eq('is_current', true)
+        .in('document_type', ['terms_and_privacy', 'volunteering_rules']);
 
       if (docs && docs.length > 0) {
-        setDocuments(docs);
+        setDocuments(docs as LegalDocument[]);
         setOpen(true);
       }
     }
@@ -101,10 +102,8 @@ export const LegalAcceptanceModal = () => {
 
   const getDocumentLabel = (type: string) => {
     switch (type) {
-      case 'terms_of_service':
-        return 'Términos de Servicio';
-      case 'privacy_policy':
-        return 'Política de Privacidad';
+      case 'terms_and_privacy':
+        return 'Términos, Condiciones y Privacidad';
       case 'volunteering_rules':
         return 'Reglamento de Voluntariado';
       default:

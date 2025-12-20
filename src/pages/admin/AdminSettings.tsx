@@ -53,12 +53,8 @@ const AdminSettings = () => {
         <h2 className="text-xl font-medium mb-6">Documentos Legales</h2>
         <div className="space-y-6">
           <LegalDocumentUpload 
-            documentType="terms_of_service"
-            label="Términos de Servicio"
-          />
-          <LegalDocumentUpload 
-            documentType="privacy_policy"
-            label="Política de Privacidad"
+            documentType="terms_and_privacy"
+            label="Términos, Condiciones y Privacidad"
           />
           <LegalDocumentUpload 
             documentType="volunteering_rules"

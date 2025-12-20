@@ -731,6 +731,7 @@ export type Database = {
         | "terms_of_service"
         | "privacy_policy"
         | "volunteering_rules"
+        | "terms_and_privacy"
       donation_method: "qrcode" | "yappy"
       donation_status: "pending" | "approved" | "rejected"
       donation_type: "individual" | "organization"
@@ -868,6 +869,7 @@ export const Constants = {
         "terms_of_service",
         "privacy_policy",
         "volunteering_rules",
+        "terms_and_privacy",
       ],
       donation_method: ["qrcode", "yappy"],
       donation_status: ["pending", "approved", "rejected"],

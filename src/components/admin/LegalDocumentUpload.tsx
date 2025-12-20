@@ -8,7 +8,7 @@ import { uploadFile, validateFileType } from "@/utils/fileUpload";
 import { Download, Upload, FileText } from "lucide-react";
 
 interface LegalDocumentUploadProps {
-  documentType: 'terms_of_service' | 'privacy_policy' | 'volunteering_rules';
+  documentType: 'terms_and_privacy' | 'volunteering_rules';
   label: string;
 }
 
