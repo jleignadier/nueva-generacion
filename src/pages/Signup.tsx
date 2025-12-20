@@ -145,7 +145,7 @@ const Signup = () => {
       if (user?.id && legalDocuments.length > 0) {
         const acceptanceRecords = legalDocuments.map(doc => ({
           user_id: user.id,
-          document_type: doc.document_type as 'privacy_policy' | 'terms_of_service' | 'volunteering_rules',
+          document_type: doc.document_type as 'terms_and_privacy' | 'volunteering_rules',
           version_accepted: doc.version,
         }));
 
@@ -472,18 +472,10 @@ const Signup = () => {
                     He leído y acepto los{' '}
                     <button
                       type="button"
-                      onClick={() => openDocument('terms_of_service')}
+                      onClick={() => openDocument('terms_and_privacy')}
                       className="text-nuevagen-blue hover:underline font-medium"
                     >
-                      Términos de Servicio
-                    </button>
-                    , la{' '}
-                    <button
-                      type="button"
-                      onClick={() => openDocument('privacy_policy')}
-                      className="text-nuevagen-blue hover:underline font-medium"
-                    >
-                      Política de Privacidad
+                      Términos, Condiciones y Privacidad
                     </button>
                     {' '}y el{' '}
                     <button
