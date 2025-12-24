@@ -391,20 +391,23 @@ const AdminEvents = () => {
                     </Button>
                   </div>
                 </div>
-                {event.status === 'completed' && (
-                  <div className="mt-2">
-                    <span className="px-2 py-1 bg-green-900/30 text-green-400 text-xs rounded">
-                      Completado
-                    </span>
-                  </div>
-                )}
-                {event.status === 'upcoming' && (
-                  <div className="mt-2">
-                    <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
-                      Próximo
-                    </span>
-                  </div>
-                )}
+                {(() => {
+                  const today = getTodayString();
+                  const isCompleted = event.date < today;
+                  return (
+                    <div className="mt-2">
+                      {isCompleted ? (
+                        <span className="px-2 py-1 bg-green-900/30 text-green-400 text-xs rounded">
+                          Completado
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
+                          Próximo
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             ))
           )}
