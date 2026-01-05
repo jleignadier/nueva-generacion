@@ -52,8 +52,12 @@ export const AdminNavigation: React.FC = () => {
       {/* Mobile Header */}
       <div className="lg:hidden bg-zinc-800 border-b border-zinc-700 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center">
-          <div className="bg-purple-600 h-8 w-8 rounded-md flex items-center justify-center">
-            <span className="text-white text-sm font-bold">NG</span>
+          <div className="bg-white h-8 w-8 rounded-md flex items-center justify-center p-1">
+            <img 
+              src="/lovable-uploads/3e471c72-20ba-448a-94e3-4531623f02bc.png" 
+              alt="Nueva Generación" 
+              className="h-full w-full object-contain"
+            />
           </div>
           <div className="ml-3">
             <h2 className="text-white font-medium">Nueva Generación Admin</h2>
@@ -107,8 +111,12 @@ export const AdminNavigation: React.FC = () => {
         {/* Admin header */}
         <div className="p-4 border-b border-zinc-700">
           <div className="flex items-center">
-            <div className="bg-purple-600 h-10 w-10 rounded-md flex items-center justify-center">
-              <span className="text-white font-bold">NG</span>
+            <div className="bg-white h-10 w-10 rounded-md flex items-center justify-center p-1">
+              <img 
+                src="/lovable-uploads/3e471c72-20ba-448a-94e3-4531623f02bc.png" 
+                alt="Nueva Generación" 
+                className="h-full w-full object-contain"
+              />
             </div>
             <div className="ml-3">
               <h2 className="text-white font-medium">Nueva Generación</h2>
