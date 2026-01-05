@@ -79,7 +79,10 @@ export const LegalAcceptanceModal = () => {
 
       const { error } = await supabase
         .from('user_legal_acceptance')
-        .insert(acceptanceRecords);
+        .upsert(acceptanceRecords, {
+          onConflict: 'user_id,document_type,version_accepted',
+          ignoreDuplicates: true
+        });
 
       if (error) throw error;
 
