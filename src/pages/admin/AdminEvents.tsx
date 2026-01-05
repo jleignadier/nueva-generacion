@@ -241,10 +241,10 @@ const AdminEvents = () => {
                     </div>
                     <div className="flex flex-row sm:flex-col gap-2 sm:items-end">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className={`px-2 py-1 text-xs rounded ${
+                      <span className={`px-2 py-1 text-xs rounded ${
                           competition.isActive 
                              ? 'bg-green-900/30 text-green-400' 
-                             : 'bg-muted text-zinc-400'
+                             : 'bg-red-900/30 text-red-400'
                          }`}>
                           {competition.isActive ? 'Activa' : 'Inactiva'}
                         </span>

@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrganizationsStore } from '@/store/organizationsStore';
 import { supabase } from '@/integrations/supabase/client';
 import { uploadFile, validateFileType } from '@/utils/fileUpload';
+import { formatCurrency } from '@/utils/dateUtils';
 
 interface EventDonationModalProps {
   eventId: string;
@@ -169,17 +170,17 @@ const EventDonationModal: React.FC<EventDonationModalProps> = ({
             <h3 className="font-semibold text-lg mb-2">{eventTitle}</h3>
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-3">
               <Target size={16} />
-              <span>Meta: ${fundingRequired}</span>
+              <span>Meta: ${formatCurrency(fundingRequired)}</span>
               <span>•</span>
               <span>{pointsEarned} puntos por participar</span>
             </div>
             <Progress value={Math.min(100, fundingProgress)} className="mb-2" />
             <div className="flex justify-between text-sm">
-              <span className="text-green-600 font-medium">${currentFunding} recaudado</span>
+              <span className="text-green-600 font-medium">${formatCurrency(currentFunding)} recaudado</span>
               {currentFunding >= fundingRequired ? (
                 <span className="text-green-600 font-bold">¡Meta Alcanzada! 🎉</span>
               ) : (
-                <span className="text-orange-600">${remainingAmount} restante</span>
+                <span className="text-orange-600">${formatCurrency(remainingAmount)} restante</span>
               )}
             </div>
           </div>

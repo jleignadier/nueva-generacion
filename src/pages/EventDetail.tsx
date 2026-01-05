@@ -13,7 +13,7 @@ import EventParticipants from '@/components/EventParticipants';
 import EventDonationModal from '@/components/EventDonationModal';
 import QRScanner from '@/components/QRScanner';
 import { getEventRegistrationStatus, registerForEvent, downloadCalendarFile, markEventAttended } from '@/utils/eventUtils';
-import { formatDate, formatEventTime } from '@/utils/dateUtils';
+import { formatDate, formatEventTime, formatCurrency } from '@/utils/dateUtils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -377,10 +377,10 @@ const EventDetail = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-green-700 font-medium">
-                    ${event.currentFunding || 0} recaudado
+                    ${formatCurrency(event.currentFunding || 0)} recaudado
                   </span>
                   <span className="text-gray-600">
-                    Meta: ${event.fundingRequired}
+                    Meta: ${formatCurrency(event.fundingRequired)}
                   </span>
                 </div>
                 <Progress 
@@ -394,7 +394,7 @@ const EventDetail = () => {
                   </p>
                 ) : (
                   <p className="text-xs text-gray-600">
-                    ${Math.max(0, event.fundingRequired - (event.currentFunding || 0))} restante para alcanzar la meta
+                    ${formatCurrency(Math.max(0, event.fundingRequired - (event.currentFunding || 0)))} restante para alcanzar la meta
                   </p>
                 )}
               </div>
