@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
 import { Eye, Calendar, Building2, User, DollarSign, ArrowUpDown } from "lucide-react";
 import { useEventsStore } from '@/store/eventsStore';
-import { formatDate } from '@/utils/dateUtils';
+import { formatDateTime } from '@/utils/dateUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -154,7 +154,7 @@ const AdminDonations = () => {
         id: donation.id,
         name: `${donation.profiles?.first_name || ''} ${donation.profiles?.last_name || ''}`.trim() || 'Usuario Desconocido',
         amount: `$${donation.amount}`,
-        date: formatDate(donation.created_at),
+        date: formatDateTime(donation.created_at),
         status: donation.status,
         receipt_url: donation.receipt_url,
         note: donation.note,
