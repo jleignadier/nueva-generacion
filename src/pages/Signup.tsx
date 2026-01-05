@@ -243,8 +243,8 @@ const Signup = () => {
               value="volunteer"
               className={`flex-1 py-2 text-center transition-colors rounded-none ${
                 accountType === 'volunteer' && !isAdmin
-                  ? 'bg-nuevagen-blue/90 text-white font-bold' 
-                  : 'bg-white/90 text-gray-600 hover:bg-white/70'
+                  ? '!bg-zinc-800 !text-white font-bold' 
+                  : '!bg-white/90 text-gray-600 hover:!bg-white/70'
               } ${isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Voluntario
@@ -253,8 +253,8 @@ const Signup = () => {
               value="organization"
               className={`flex-1 py-2 text-center transition-colors rounded-none ${
                 accountType === 'organization' && !isAdmin
-                  ? 'bg-nuevagen-blue/90 text-white font-bold' 
-                  : 'bg-white/90 text-gray-600 hover:bg-white/70'
+                  ? '!bg-zinc-800 !text-white font-bold' 
+                  : '!bg-white/90 text-gray-600 hover:!bg-white/70'
               } ${isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Organización
