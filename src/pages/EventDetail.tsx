@@ -214,10 +214,17 @@ const EventDetail = () => {
   const handleSearchUser = async () => {
     if (!searchEmail) return;
 
+    // Sanitize input to prevent SQL injection - escape special characters
+    const sanitized = searchEmail.trim().replace(/[%_\\]/g, '\\$&');
+    
+    if (sanitized.length === 0 || sanitized.length > 100) {
+      return;
+    }
+
     const { data, error } = await supabase
       .from('profiles')
       .select('id, first_name, last_name')
-      .or(`first_name.ilike.%${searchEmail}%,last_name.ilike.%${searchEmail}%`)
+      .or(`first_name.ilike.%${sanitized}%,last_name.ilike.%${sanitized}%`)
       .limit(5);
 
     if (!error && data) {
