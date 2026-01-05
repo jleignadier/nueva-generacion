@@ -151,8 +151,10 @@ const Signup = () => {
 
         const { error: acceptanceError } = await supabase
           .from('user_legal_acceptance')
-          .insert(acceptanceRecords);
-
+          .upsert(acceptanceRecords, {
+            onConflict: 'user_id,document_type,version_accepted',
+            ignoreDuplicates: true,
+          });
         if (acceptanceError) {
           console.error('Error saving legal acceptance:', acceptanceError);
           // Don't block signup, but log the error
