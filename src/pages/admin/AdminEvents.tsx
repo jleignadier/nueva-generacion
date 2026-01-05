@@ -22,7 +22,7 @@ const AdminEvents = () => {
     loadEvents();
   }, []); // Empty dependency array - only run once on mount
   const { competitions, addCompetition, updateCompetition, deleteCompetition } = useCompetitionsStore();
-  const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'completed'
+  const [filter, setFilter] = useState('upcoming'); // 'upcoming', 'completed'
   const [searchQuery, setSearchQuery] = useState('');
   const [isCompetitionDialogOpen, setIsCompetitionDialogOpen] = useState(false);
   const [editingCompetition, setEditingCompetition] = useState(null);
@@ -116,7 +116,7 @@ const AdminEvents = () => {
       actualStatus = 'completed';
     }
     
-    const matchesFilter = filter === 'all' || actualStatus === filter;
+    const matchesFilter = actualStatus === filter;
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          event.location.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
@@ -286,12 +286,6 @@ const AdminEvents = () => {
             onValueChange={(value) => value && setFilter(value)}
             className="flex flex-wrap gap-2"
           >
-            <ToggleGroupItem 
-              value="all" 
-              className="border-border text-white hover:bg-muted hover:text-white text-xs sm:text-sm"
-            >
-              Todos los Eventos
-            </ToggleGroupItem>
             <ToggleGroupItem 
               value="upcoming" 
               className="border-border text-white hover:bg-muted hover:text-white text-xs sm:text-sm"
