@@ -277,6 +277,18 @@ const AdminDonations = () => {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch(status) {
+      case 'approved':
+        return 'Aprobado';
+      case 'rejected':
+        return 'Rechazado';
+      case 'pending':
+      default:
+        return 'Pendiente';
+    }
+  };
+
   const handleViewDetails = (donation: Donation) => {
     setSelectedDonation(donation);
     setShowDetailsModal(true);
@@ -434,7 +446,7 @@ const AdminDonations = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Estado</p>
-                  <p>{selectedDonation.status}</p>
+                  <p>{getStatusText(selectedDonation.status)}</p>
                 </div>
               </div>
               
