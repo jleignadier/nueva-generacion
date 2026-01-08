@@ -387,8 +387,7 @@ const Signup = () => {
                     onSelect={setBirthdate}
                     disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                     initialFocus
-                    className="pointer-events-auto"
-                    captionLayout="dropdown-buttons"
+                    captionLayout="dropdown"
                     fromYear={1920}
                     toYear={new Date().getFullYear()}
                   />

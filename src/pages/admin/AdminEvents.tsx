@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useEventsStore } from '@/store/eventsStore';
 import { useCompetitionsStore } from '@/store/competitionsStore';
 import { formatDate, formatEventTime, getTodayString } from '@/utils/dateUtils';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 
 const AdminEvents = () => {
   const navigate = useNavigate();
@@ -178,13 +180,16 @@ const AdminEvents = () => {
                   </div>
                   <div>
                     <Label htmlFor="endDate" className="text-popover-foreground">Fecha de Finalización</Label>
-                    <Input
-                      id="endDate"
-                      type="date"
+                    <DatePicker
                       value={competitionForm.endDate}
-                      onChange={(e) => setCompetitionForm({...competitionForm, endDate: e.target.value})}
-                      className="bg-input border-border text-foreground"
-                      required
+                      onChange={(date) => setCompetitionForm({
+                        ...competitionForm, 
+                        endDate: date ? format(date, 'yyyy-MM-dd') : ''
+                      })}
+                      placeholder="Seleccionar fecha"
+                      fromYear={new Date().getFullYear()}
+                      toYear={new Date().getFullYear() + 5}
+                      buttonClassName="bg-input border-border text-foreground"
                     />
                   </div>
                   <div className="flex items-center space-x-2">
