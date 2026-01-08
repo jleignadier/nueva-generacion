@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Calendar, Clock, MapPin } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin } from 'lucide-react';
 import { useEventsStore } from '@/store/eventsStore';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 
 interface EventFormData {
   title: string;
@@ -175,18 +176,17 @@ const EventForm = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="date" className="text-white">Fecha*</Label>
-                <div className="relative">
-                  <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    id="date"
-                    name="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    required
-                    className="pl-10 bg-zinc-700 border-zinc-600 text-white"
-                  />
-                </div>
+                <DatePicker
+                  value={formData.date}
+                  onChange={(date) => setFormData(prev => ({ 
+                    ...prev, 
+                    date: date ? format(date, 'yyyy-MM-dd') : '' 
+                  }))}
+                  placeholder="Seleccionar fecha"
+                  fromYear={new Date().getFullYear()}
+                  toYear={new Date().getFullYear() + 5}
+                  buttonClassName="bg-zinc-700 border-zinc-600 text-white hover:bg-zinc-600"
+                />
               </div>
               
               <div className="grid grid-cols-2 gap-2">
