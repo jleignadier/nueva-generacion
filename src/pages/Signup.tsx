@@ -7,15 +7,20 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Eye, EyeOff, Shield } from 'lucide-react';
+import { Eye, EyeOff, Shield, CalendarIcon } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useOrganizationsStore } from '@/store/organizationsStore';
 import { supabase } from '@/integrations/supabase/client';
 import { authStorage } from '@/utils/authStorage';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -26,7 +31,7 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [birthdate, setBirthdate] = useState('');
+  const [birthdate, setBirthdate] = useState<Date | undefined>(undefined);
   const [accountType, setAccountType] = useState<'volunteer' | 'organization'>('volunteer');
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminKey, setAdminKey] = useState('');
@@ -132,7 +137,7 @@ const Signup = () => {
         firstName,
         lastName,
         phone: phone,
-        birthdate: birthdate,
+        birthdate: birthdate ? format(birthdate, 'yyyy-MM-dd') : undefined,
         accountType: finalAccountType as 'volunteer' | 'organization' | 'admin',
         organizationName: accountType === 'organization' ? orgName : undefined,
         joinOrganizationId: joinOrg && accountType === 'volunteer' && selectedOrgId ? selectedOrgId : undefined,
@@ -362,15 +367,33 @@ const Signup = () => {
                 </div>
               </div>
 
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="dd/mm/yyyy"
-                  value={birthdate}
-                  onChange={(e) => setBirthdate(e.target.value)}
-                  className="w-full h-10 text-sm"
-                />
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full h-10 justify-start text-left font-normal text-sm",
+                      !birthdate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {birthdate ? format(birthdate, "dd/MM/yyyy", { locale: es }) : "Fecha de Nacimiento"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={birthdate}
+                    onSelect={setBirthdate}
+                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                    initialFocus
+                    className="pointer-events-auto"
+                    captionLayout="dropdown-buttons"
+                    fromYear={1920}
+                    toYear={new Date().getFullYear()}
+                  />
+                </PopoverContent>
+              </Popover>
 
               {/* Organization Membership Option */}
               <div className="mt-3 p-3 border border-gray-100 rounded-lg bg-blue-50">
