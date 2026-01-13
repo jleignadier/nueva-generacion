@@ -338,7 +338,12 @@ const AdminEvents = () => {
                     <div className="flex flex-wrap items-center text-zinc-400 text-sm gap-x-4 gap-y-1">
                       <div className="flex items-center">
                         <CalendarCheck size={14} className="mr-1 flex-shrink-0" />
-                        <span className="truncate">{formatDate(event.date)}</span>
+                        <span className="truncate">
+                          {event.endDate 
+                            ? `${formatDate(event.date)} - ${formatDate(event.endDate)}`
+                            : formatDate(event.date)
+                          }
+                        </span>
                       </div>
                       <div className="flex items-center">
                         <Clock size={14} className="mr-1 flex-shrink-0" />
