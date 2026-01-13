@@ -201,6 +201,13 @@ export type Database = {
             referencedRelation: "events_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_registrations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       events: {
@@ -210,6 +217,7 @@ export type Database = {
           current_funding: number | null
           date: string
           description: string | null
+          end_date: string | null
           end_time: string | null
           funding_required: number | null
           id: string
@@ -228,6 +236,7 @@ export type Database = {
           current_funding?: number | null
           date: string
           description?: string | null
+          end_date?: string | null
           end_time?: string | null
           funding_required?: number | null
           id?: string
@@ -246,6 +255,7 @@ export type Database = {
           current_funding?: number | null
           date?: string
           description?: string | null
+          end_date?: string | null
           end_time?: string | null
           funding_required?: number | null
           id?: string

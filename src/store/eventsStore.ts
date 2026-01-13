@@ -27,6 +27,7 @@ export interface Event {
   title: string;
   location: string;
   date: string;
+  endDate?: string; // End date for multi-day events
   time: string;
   endTime?: string;
   description: string;
@@ -205,6 +206,7 @@ export const useEventsStore = create<EventsState>((set, get) => ({
           title: event.title,
           location: event.location,
           date: event.date,
+          endDate: event.end_date || undefined,
           time: event.time,
           endTime: event.end_time || undefined,
           description: event.description || '',
@@ -236,6 +238,7 @@ export const useEventsStore = create<EventsState>((set, get) => ({
           title: eventData.title,
           location: eventData.location,
           date: eventData.date,
+          end_date: eventData.endDate || null,
           time: eventData.time,
           end_time: eventData.endTime,
           description: eventData.description,
@@ -266,6 +269,7 @@ export const useEventsStore = create<EventsState>((set, get) => ({
       if (eventData.title !== undefined) dbFields.title = eventData.title;
       if (eventData.location !== undefined) dbFields.location = eventData.location;
       if (eventData.date !== undefined) dbFields.date = eventData.date;
+      if (eventData.endDate !== undefined) dbFields.end_date = eventData.endDate || null;
       if (eventData.time !== undefined) dbFields.time = eventData.time;
       if (eventData.endTime !== undefined) dbFields.end_time = eventData.endTime;
       if (eventData.description !== undefined) dbFields.description = eventData.description;
