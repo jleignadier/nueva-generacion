@@ -35,7 +35,10 @@ const HomeTab = () => {
     <div className="app-container">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">
-          Hola, {user?.name}
+          {user?.accountType === 'organization' 
+            ? `Bienvenido, ${user?.name}`
+            : `Hola, ${user?.name}`
+          }
         </h1>
         <Avatar className="h-10 w-10">
           <AvatarImage src={user?.avatarUrl} alt={user?.name} />
