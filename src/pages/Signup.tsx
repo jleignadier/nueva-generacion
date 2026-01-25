@@ -7,20 +7,23 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Eye, EyeOff, Shield, CalendarIcon } from 'lucide-react';
+import { Eye, EyeOff, Shield } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DatePicker } from '@/components/ui/date-picker';
 import { useOrganizationsStore } from '@/store/organizationsStore';
 import { supabase } from '@/integrations/supabase/client';
 import { authStorage } from '@/utils/authStorage';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+
+// Phone validation: accepts formats xxxx-xxxx, xxx-xxxx, xxxxxxxx, xxxxxxx
+const formatPhoneInput = (value: string): string => {
+  // Allow only digits and dashes
+  return value.replace(/[^\d-]/g, '');
+};
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -367,32 +370,15 @@ const Signup = () => {
                 </div>
               </div>
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full h-10 justify-start text-left font-normal text-sm",
-                      !birthdate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {birthdate ? format(birthdate, "dd/MM/yyyy", { locale: es }) : "Fecha de Nacimiento"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={birthdate}
-                    onSelect={setBirthdate}
-                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                    initialFocus
-                    captionLayout="dropdown"
-                    fromYear={1920}
-                    toYear={new Date().getFullYear()}
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePicker
+                value={birthdate}
+                onChange={setBirthdate}
+                placeholder="Fecha de Nacimiento"
+                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                fromYear={1920}
+                toYear={new Date().getFullYear()}
+                buttonClassName="h-10 text-sm"
+              />
 
               {/* Organization Membership Option */}
               <div className="mt-3 p-3 border border-gray-100 rounded-lg bg-blue-50">
@@ -472,9 +458,10 @@ const Signup = () => {
           <div>
             <Input
               type="tel"
-              placeholder="Número de Teléfono"
+              placeholder="Teléfono (ej: 6xxx-xxxx)"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(formatPhoneInput(e.target.value))}
+              maxLength={9}
               className="w-full h-10 text-sm"
             />
           </div>
