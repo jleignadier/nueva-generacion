@@ -147,42 +147,23 @@ export const useEventsStore = create<EventsState>((set, get) => ({
 
       if (error) throw error;
 
-      // Fetch registrations with user profiles for all events
-      const { data: registrationsData } = await supabase
-        .from('event_registrations')
-        .select(`
-          event_id,
-          user_id,
-          organization_id,
-          profiles:user_id (
-            id,
-            first_name,
-            last_name,
-            avatar_url,
-            account_type,
-            organization_id
-          )
-        `);
-
-      // Build registrations map
+      // Fetch participants for each event using secure RPC function
       const registrationsByEvent: Record<string, RegisteredParticipant[]> = {};
-      if (registrationsData) {
-        registrationsData.forEach((reg: any) => {
-          if (!registrationsByEvent[reg.event_id]) {
-            registrationsByEvent[reg.event_id] = [];
-          }
-          
-          const profile = reg.profiles;
-          if (profile) {
-            registrationsByEvent[reg.event_id].push({
-              id: profile.id,
-              name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
-              type: profile.account_type === 'organization' ? 'organization' : 'user',
-              avatar: profile.avatar_url || undefined
-            });
-          }
-        });
-      }
+      const eventIds = (data || []).map(e => e.id);
+      
+      await Promise.all(eventIds.map(async (eventId) => {
+        const { data: participants } = await supabase
+          .rpc('get_event_participants', { p_event_id: eventId });
+        
+        if (participants) {
+          registrationsByEvent[eventId] = participants.map((p: any) => ({
+            id: p.user_id,
+            name: `${p.first_name || ''} ${p.last_name || ''}`.trim(),
+            type: p.account_type === 'organization' ? 'organization' as const : 'user' as const,
+            avatar: p.avatar_url || undefined
+          }));
+        }
+      }));
 
       // Fetch attendance counts for completed events
       const { data: attendanceData } = await supabase
