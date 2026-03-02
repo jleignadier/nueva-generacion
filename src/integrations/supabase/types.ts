@@ -670,6 +670,21 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_event_participants: {
+        Args: { p_event_id: string }
+        Returns: {
+          account_type: string
+          avatar_url: string
+          first_name: string
+          last_name: string
+          organization_id: string
+          user_id: string
+        }[]
+      }
+      get_event_registration_count: {
+        Args: { p_event_id: string }
+        Returns: number
+      }
       get_organization_contact: {
         Args: { org_id: string }
         Returns: {
