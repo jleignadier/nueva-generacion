@@ -1,68 +1,67 @@
 
 
-## Password Reset Issue: CAPTCHA Configuration Problem
+## Fix "Miembro desde" (Member Since) Dates
 
-### Problem Identified
+### Problem
+The `UserProfileModal` generates a **random** join date each time it renders, using `Math.floor(Math.random() * 12) + 1` months ago. This has nothing to do with the user's actual signup date stored in `profiles.created_at`.
 
-The auth logs show a 500 error when users try to reset their password:
+### Solution
 
+#### 1. Update `UserProfileModal` to accept a `joinDate` prop
+
+Add `userJoinDate?: string` to the props interface. When provided, use it directly instead of generating a random date. Fall back to "Fecha no disponible" if not provided.
+
+**File:** `src/components/UserProfileModal.tsx`
+- Add `userJoinDate?: string` to `UserProfileModalProps`
+- Replace the random date generation with:
+  ```tsx
+  const joinDate = userJoinDate 
+    ? new Date(userJoinDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
+    : 'fecha no disponible';
+  ```
+- Remove the `Math.random()` logic entirely
+
+#### 2. Fetch `created_at` in the leaderboard query and pass it through
+
+**File:** `src/pages/tabs/LeaderboardTab.tsx`
+- The leaderboard already fetches profile data via `get_user_leaderboard`. We need to check if `created_at` is available.
+- Since the RPC function `get_user_leaderboard` doesn't return `created_at`, we'll fetch it on-demand when a user profile is clicked (a single query to `profiles` for that user's `created_at`).
+- Pass the fetched `created_at` as `userJoinDate` to `UserProfileModal`.
+
+#### 3. Implementation details
+
+When a user clicks on a leaderboard entry to view their profile:
+- Query `profiles.created_at` for the selected user's ID
+- Store it in local state
+- Pass it to `UserProfileModal` as `userJoinDate`
+
+Note: Since `profiles` RLS only allows users to view their own profile (and admins to view all), we'll need to add `created_at` to the `get_user_leaderboard` RPC function so it's accessible to everyone.
+
+#### 4. Database migration
+
+Update the `get_user_leaderboard` function to also return `created_at` from the profiles table:
+
+```sql
+CREATE OR REPLACE FUNCTION public.get_user_leaderboard(p_limit integer DEFAULT 50)
+RETURNS TABLE(
+  user_id uuid, first_name text, last_name text, avatar_url text,
+  organization_name text, points integer, total_hours numeric,
+  events_attended integer, rank bigint, created_at timestamptz
+)
+...
+  SELECT 
+    up.user_id, p.first_name, p.last_name, p.avatar_url,
+    o.name AS organization_name, up.points, up.total_hours,
+    up.events_attended,
+    RANK() OVER (ORDER BY up.points DESC, up.events_attended DESC),
+    p.created_at
+  FROM ...
 ```
-error: "no captcha response (captcha_token) found in request"
-msg: "500: captcha verification process failed"
-path: "/recover"
-```
 
-**Root Cause:** Your Supabase project has CAPTCHA enabled for password recovery, but the application isn't sending a CAPTCHA token with the request.
-
----
-
-### Solution Options
-
-#### Option A: Disable CAPTCHA (Quick Fix - Recommended)
-
-This is the simplest solution if you don't need CAPTCHA protection for password reset:
-
-1. Go to your **Supabase Dashboard**
-2. Navigate to **Authentication** → **Bot and Abuse Protection**
-3. Look for CAPTCHA settings and **disable** it for the password recovery flow
-4. Save changes
-
-After this, the current code will work without any modifications.
-
----
-
-#### Option B: Integrate CAPTCHA (More Secure)
-
-If you want to keep CAPTCHA enabled for security, you'll need to:
-
-1. **Choose a CAPTCHA provider** (Cloudflare Turnstile, hCaptcha, or reCAPTCHA)
-2. **Install the CAPTCHA library** and add the widget to the password reset form
-3. **Pass the captcha token** to Supabase when calling `resetPasswordForEmail`
-
-**Code changes required for Login.tsx:**
-
-```tsx
-// With Cloudflare Turnstile example:
-const { error } = await supabase.auth.resetPasswordForEmail(emailToReset, {
-  redirectTo: `${window.location.origin}/reset-password`,
-  captchaToken: turnstileToken, // Token from CAPTCHA widget
-});
-```
-
----
-
-### Recommendation
-
-**Option A is recommended** unless you have specific security requirements for CAPTCHA. Password reset already requires email access, which provides sufficient security for most use cases.
-
----
-
-### Technical Details
-
-| Item | Details |
-|------|---------|
-| Affected file | `src/pages/Login.tsx` (line 134) |
-| Supabase endpoint | `/auth/v1/recover` |
-| Error code | 500 (captcha verification failed) |
-| Current function call | `supabase.auth.resetPasswordForEmail()` missing `captchaToken` option |
+### Files to modify
+| File | Change |
+|------|--------|
+| Database migration | Add `created_at` to `get_user_leaderboard` return type |
+| `src/components/UserProfileModal.tsx` | Add `userJoinDate` prop, remove random date generation |
+| `src/pages/tabs/LeaderboardTab.tsx` | Pass `created_at` from leaderboard data to modal |
 
