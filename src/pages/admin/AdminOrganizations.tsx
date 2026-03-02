@@ -21,7 +21,7 @@ interface EditOrganizationForm {
 }
 
 const AdminOrganizations = () => {
-  const { organizations, updateOrganization, toggleOrganizationStatus, initializeOrganizations, fetchOrganizations } = useOrganizationsStore();
+  const { organizations, updateOrganization, toggleOrganizationStatus, initializeOrganizations, fetchOrganizationsAdmin } = useOrganizationsStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -32,8 +32,8 @@ const AdminOrganizations = () => {
 
   // Fetch organizations from database on component mount
   React.useEffect(() => {
-    fetchOrganizations();
-  }, [fetchOrganizations]);
+    fetchOrganizationsAdmin();
+  }, [fetchOrganizationsAdmin]);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
