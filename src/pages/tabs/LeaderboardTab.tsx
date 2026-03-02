@@ -23,6 +23,7 @@ interface LeaderboardEntry {
   profilePicture?: string;
   avatar_url?: string;
   logo_url?: string;
+  created_at?: string;
 }
 
 const LeaderboardTab = () => {
@@ -87,6 +88,7 @@ const LeaderboardTab = () => {
         events: item.events_attended || 0,
         organizationName: item.organization_name,
         avatar_url: item.avatar_url,
+        created_at: item.created_at,
       }));
 
       setUserLeaders(formatted);
@@ -358,6 +360,7 @@ const LeaderboardTab = () => {
           userRank={selectedUser.rank}
           userHours={selectedUser.hours}
           userEvents={selectedUser.events}
+          userJoinDate={selectedUser.created_at}
         />
       )}
     </div>

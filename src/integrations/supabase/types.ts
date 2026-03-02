@@ -707,6 +707,7 @@ export type Database = {
         Args: { p_limit?: number }
         Returns: {
           avatar_url: string
+          created_at: string
           events_attended: number
           first_name: string
           last_name: string

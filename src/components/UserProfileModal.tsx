@@ -15,6 +15,7 @@ interface UserProfileModalProps {
   userRank: number;
   userHours?: number;
   userEvents?: number;
+  userJoinDate?: string;
 }
 
 interface MockUserProfile {
@@ -38,17 +39,18 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
   userPoints, 
   userRank,
   userHours = 0,
-  userEvents = 0
+  userEvents = 0,
+  userJoinDate
 }) => {
-  // Generate mock profile data based on user info
+  // Generate profile data based on user info
   const userProfile: MockUserProfile = useMemo(() => {
-    const joinMonthsAgo = Math.floor(Math.random() * 12) + 1;
-    const joinDate = new Date();
-    joinDate.setMonth(joinDate.getMonth() - joinMonthsAgo);
+    const joinDate = userJoinDate 
+      ? new Date(userJoinDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
+      : 'fecha no disponible';
     
-    const eventsAttended = userEvents || Math.floor(userPoints / 4); // Use provided or estimate
-    const hoursVolunteered = userHours || eventsAttended * 3; // Use provided or estimate
-    const totalDonated = Math.floor(userPoints * 2.5); // Rough estimate
+    const eventsAttended = userEvents || Math.floor(userPoints / 4);
+    const hoursVolunteered = userHours || eventsAttended * 3;
+    const totalDonated = Math.floor(userPoints * 2.5);
     
     // Generate achievements based on activity
     const achievements = [];
@@ -64,14 +66,14 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
       avatar: userAvatar,
       points: userPoints,
       rank: userRank,
-      joinDate: joinDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }),
+      joinDate,
       eventsAttended,
       hoursVolunteered,
       totalDonated,
       achievements,
       isVerified: userRank <= 20 // Top 20 users are "verified"
     };
-  }, [userName, userAvatar, userPoints, userRank, userHours, userEvents]);
+  }, [userName, userAvatar, userPoints, userRank, userHours, userEvents, userJoinDate]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
