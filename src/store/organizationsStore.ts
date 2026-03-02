@@ -20,6 +20,7 @@ interface OrganizationsState {
   getActiveOrganizations: () => Organization[];
   initializeOrganizations: () => void;
   fetchOrganizations: () => Promise<void>;
+  fetchOrganizationsAdmin: () => Promise<void>;
   syncWithDatabase: () => Promise<void>;
 }
 
@@ -122,29 +123,62 @@ export const useOrganizationsStore = create<OrganizationsState>()(
 
       fetchOrganizations: async () => {
         try {
-          console.log('🔄 Fetching organizations from database...');
+          console.log('🔄 Fetching organizations from public view...');
+          const { data, error } = await supabase
+            .from('organizations_public')
+            .select('*')
+            .order('name');
+
+          if (error) {
+            console.error('❌ Error fetching organizations:', error);
+            get().initializeOrganizations();
+            return;
+          }
+
+          if (!data || data.length === 0) {
+            console.log('⚠️ Database is empty, using mock data.');
+            get().initializeOrganizations();
+            return;
+          }
+
+          console.log(`✅ Loaded ${data.length} organizations from public view`);
+
+          const formattedOrgs: Organization[] = data.map(org => ({
+            id: org.id || '',
+            name: org.name || '',
+            contactEmail: '', // Not available in public view
+            status: 'Activo' as const,
+            points: 0,
+            members: 0,
+            description: org.description || ''
+          }));
+
+          set({ organizations: formattedOrgs });
+        } catch (error) {
+          console.error('Error in fetchOrganizations:', error);
+          get().initializeOrganizations();
+        }
+      },
+
+      fetchOrganizationsAdmin: async () => {
+        try {
+          console.log('🔄 Fetching full organizations for admin...');
           const { data, error } = await supabase
             .from('organizations')
             .select('*')
             .order('name');
 
           if (error) {
-            console.error('❌ Error fetching organizations:', error);
-            console.log('⚠️ Falling back to mock data due to error');
+            console.error('❌ Error fetching organizations (admin):', error);
             get().initializeOrganizations();
             return;
           }
 
-          // If database is empty, use seed data as fallback
           if (!data || data.length === 0) {
-            console.log('⚠️ Database is empty, using mock data. Add organizations in the admin panel to see real data.');
             get().initializeOrganizations();
             return;
           }
 
-          console.log(`✅ Loaded ${data.length} organizations from database`);
-
-          // Convert database format to store format
           const formattedOrgs: Organization[] = data.map(org => ({
             id: org.id,
             name: org.name || '',
@@ -157,8 +191,7 @@ export const useOrganizationsStore = create<OrganizationsState>()(
 
           set({ organizations: formattedOrgs });
         } catch (error) {
-          console.error('Error in fetchOrganizations:', error);
-          // Fallback to seed data on error
+          console.error('Error in fetchOrganizationsAdmin:', error);
           get().initializeOrganizations();
         }
       },
