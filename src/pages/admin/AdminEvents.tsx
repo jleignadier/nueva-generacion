@@ -378,6 +378,20 @@ const AdminEvents = () => {
                     </div>
                   </div>
                   <div className="flex flex-row lg:flex-col gap-2 lg:items-end">
+                    {filter === 'upcoming' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-green-600 text-green-400 bg-green-900/20 hover:bg-green-900/40 hover:text-green-300 flex-1 lg:flex-initial"
+                        onClick={() => {
+                          setQrDialogEventId(event.id);
+                          setQrDialogEventTitle(event.title);
+                        }}
+                      >
+                        <QrCode size={14} className="mr-1" />
+                        Activar QR
+                      </Button>
+                    )}
                     <Button 
                       variant="outline" 
                       size="sm"
