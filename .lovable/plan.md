@@ -1,77 +1,64 @@
 
 
-# Real QR Code Attendance System
+# Recurring Events Feature
 
 ## Overview
-Replace the mock QR scanner with a real camera-based system. Admins activate a QR code for an event, volunteers scan it with their phone camera to check in and earn points/hours.
-
-## Flow
-
-```text
-ADMIN SIDE                          VOLUNTEER SIDE
-─────────────                       ──────────────
-Event card → "Activar QR"           Event detail → "Escanear QR"
-     │                                    │
-     ▼                                    ▼
-Shows QR code on screen             Opens camera (html5-qrcode)
-(contains event_id + secret token)        │
-     │                                    ▼
-     ▼                              Scans admin's QR code
-QR stays active until admin              │
-clicks "Desactivar QR"                   ▼
-                                    Decoded → calls award_event_points RPC
-                                    → points & hours credited
-```
+Add recurrence settings to the admin event creation/edit form. When an admin creates a recurring event, the system generates individual event instances that share a `recurrence_group_id`. Volunteers can then register for the entire series or individual occurrences.
 
 ## Database Changes (1 migration)
 
-Add a column `qr_active_token` (text, nullable) to the `events` table:
-- When admin activates QR: generate a random UUID token, store it in `qr_active_token`
-- When admin deactivates: set to `NULL`
-- Volunteer scans QR containing `{eventId}:{token}` — the `award_event_points` RPC validates the token matches before awarding points
+Add columns to the `events` table:
+- `recurrence_type TEXT NULL` — values: `weekly`, `biweekly`, `monthly`, or `NULL` (one-time)
+- `recurrence_end_date DATE NULL` — when the recurrence stops generating instances
+- `recurrence_group_id UUID NULL` — shared ID linking all instances of a recurring event
 
-Update `award_event_points` RPC to accept a `p_qr_token` parameter (text, default NULL):
-- For `qr_scan` method: verify `events.qr_active_token` is not null and matches `p_qr_token`
-- For `manual` method: no token needed (admin-only, already secured)
+No new tables needed. Each recurrence instance is a full row in `events`, so existing registration, attendance, QR, and donation logic all work unchanged per instance.
+
+## How It Works
+
+**Admin creates a recurring event:**
+1. Admin fills in the event form as usual (title, date, time, location, etc.)
+2. Toggles "Evento Recurrente" switch ON
+3. Selects frequency: Semanal / Bisemanal / Mensual
+4. Picks a recurrence end date
+5. On submit, the backend generates all individual event rows sharing the same `recurrence_group_id`
+
+**Volunteer registration options:**
+- On any event that belongs to a recurrence group, the volunteer sees two buttons:
+  - "Registrarse para este evento" (single instance)
+  - "Registrarse para toda la serie" (registers for all future instances in the group)
+
+**Admin editing:**
+- When editing a recurring event, admin is asked: "Editar solo este evento" or "Editar todos los eventos futuros de la serie"
+- Single-edit updates only that row; series-edit updates all future instances in the group
 
 ## Frontend Changes
 
-### 1. Install `html5-qrcode` library
-Real camera-based QR scanning for mobile and desktop browsers.
+### 1. `EventForm.tsx` — Add recurrence fields
+- Add a "Evento Recurrente" switch (like the existing multi-day toggle)
+- When ON, show:
+  - Radio group: Semanal / Bisemanal / Mensual
+  - DatePicker for recurrence end date
+- On submit, if recurring: generate event dates client-side, insert all rows via `addRecurringEvents` store method
 
-### 2. Rewrite `QRScanner.tsx`
-- Use `Html5QrcodeScanner` to access the device camera
-- Decode QR content, extract `eventId:token`, and pass to `onSuccess`
-- Handle camera permission errors gracefully
-- Clean up scanner on unmount
+### 2. `eventsStore.ts` — New `addRecurringEvents` method
+- Accepts base event data + recurrence config
+- Generates date array based on frequency
+- Generates a shared `recurrence_group_id` (UUID)
+- Batch-inserts all event rows into Supabase
 
-### 3. Admin: "Activar QR" button on `AdminEvents.tsx`
-- Add an "Activar QR" button per event (upcoming events only)
-- On click: generate a UUID token, update `events.qr_active_token` via Supabase
-- Show a dialog with a large QR code image (generated client-side using `qrcode` library) encoding `{eventId}:{token}`
-- "Desactivar QR" button sets `qr_active_token = null`
+### 3. `EventDetail.tsx` — Series registration option
+- If event has a `recurrence_group_id`, show option to register for the full series
+- "Register for series" calls `registerForEvent` for each future unregistered instance in the group
 
-### 4. Update `EventDetail.tsx` volunteer flow
-- When volunteer clicks "Escanear QR": open real camera scanner
-- On successful scan: parse `eventId:token` from QR data
-- Call `award_event_points` RPC with the token
-- Show success/error feedback
-
-### 5. Update `award_event_points` RPC
-- Add `p_qr_token TEXT DEFAULT NULL` parameter
-- For `qr_scan`: validate `p_qr_token` matches `events.qr_active_token` (and token is not null, meaning QR is active)
-- Raise exception if QR is not active or token doesn't match
-
-## Security
-- Token is random UUID, not guessable
-- QR only works when admin has actively opened attendance
-- Existing auth + registration checks remain in the RPC
-- Admin can deactivate at any time to close attendance window
+### 4. `AdminEvents.tsx` — Visual indicator
+- Show a small "Recurrente" badge on events that belong to a recurrence group
+- When deleting, ask: delete single instance or entire series
 
 ## Technical Details
-- **New packages**: `html5-qrcode` (scanner), `qrcode` (QR generation for admin display)
-- **New DB column**: `events.qr_active_token TEXT NULL`
-- **Modified RPC**: `award_event_points` adds token validation for `qr_scan`
-- **Files modified**: `QRScanner.tsx`, `EventDetail.tsx`, `AdminEvents.tsx`, `award_event_points` RPC
-- **Files created**: None (reuse existing components)
+
+- **Date generation**: use `date-fns` `addWeeks`/`addMonths` to compute instance dates from start date to recurrence end date
+- **New DB columns**: `recurrence_type TEXT NULL`, `recurrence_end_date DATE NULL`, `recurrence_group_id UUID NULL`
+- **Files modified**: `EventForm.tsx`, `eventsStore.ts`, `EventDetail.tsx`, `AdminEvents.tsx`
+- **No new packages needed** — `date-fns` is already installed
 
