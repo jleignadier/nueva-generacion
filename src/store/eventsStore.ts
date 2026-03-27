@@ -510,7 +510,32 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     }
   },
 
-  unregisterFromEvent: async (eventId: string, userId: string) => {
+  registerForSeries: async (recurrenceGroupId: string, userId: string, organizationId?: string) => {
+    try {
+      const seriesEvents = get().getSeriesEvents(recurrenceGroupId);
+      const today = new Date().toISOString().split('T')[0];
+      const futureEvents = seriesEvents.filter(e => e.date >= today);
+      
+      for (const event of futureEvents) {
+        const isRegistered = await get().isUserRegistered(event.id, userId);
+        if (!isRegistered) {
+          await supabase
+            .from('event_registrations')
+            .insert({
+              event_id: event.id,
+              user_id: userId,
+              organization_id: organizationId || null
+            });
+        }
+      }
+      
+      await get().loadEvents();
+    } catch (error) {
+      console.error('Error registering for series:', error);
+      throw error;
+    }
+  },
+
     try {
       const { error } = await supabase
         .from('event_registrations')
