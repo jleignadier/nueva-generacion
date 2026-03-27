@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search, Trophy, Plus, Calendar } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search, Trophy, Plus, Calendar, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -13,6 +13,7 @@ import { useCompetitionsStore } from '@/store/competitionsStore';
 import { formatDate, formatEventTime, getTodayString } from '@/utils/dateUtils';
 import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
+import EventQRDialog from '@/components/admin/EventQRDialog';
 
 const AdminEvents = () => {
   const navigate = useNavigate();
