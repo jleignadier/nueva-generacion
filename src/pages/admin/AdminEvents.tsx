@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search, Trophy, Plus, Calendar } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search, Trophy, Plus, Calendar, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -13,6 +13,7 @@ import { useCompetitionsStore } from '@/store/competitionsStore';
 import { formatDate, formatEventTime, getTodayString } from '@/utils/dateUtils';
 import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
+import EventQRDialog from '@/components/admin/EventQRDialog';
 
 const AdminEvents = () => {
   const navigate = useNavigate();
@@ -28,6 +29,8 @@ const AdminEvents = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCompetitionDialogOpen, setIsCompetitionDialogOpen] = useState(false);
   const [editingCompetition, setEditingCompetition] = useState(null);
+  const [qrDialogEventId, setQrDialogEventId] = useState<string | null>(null);
+  const [qrDialogEventTitle, setQrDialogEventTitle] = useState('');
   const [competitionForm, setCompetitionForm] = useState({
     name: '',
     prize: '',
@@ -375,6 +378,20 @@ const AdminEvents = () => {
                     </div>
                   </div>
                   <div className="flex flex-row lg:flex-col gap-2 lg:items-end">
+                    {filter === 'upcoming' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-green-600 text-green-400 bg-green-900/20 hover:bg-green-900/40 hover:text-green-300 flex-1 lg:flex-initial"
+                        onClick={() => {
+                          setQrDialogEventId(event.id);
+                          setQrDialogEventTitle(event.title);
+                        }}
+                      >
+                        <QrCode size={14} className="mr-1" />
+                        Activar QR
+                      </Button>
+                    )}
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -417,6 +434,12 @@ const AdminEvents = () => {
           )}
         </div>
       </div>
+      <EventQRDialog
+        eventId={qrDialogEventId || ''}
+        eventTitle={qrDialogEventTitle}
+        isOpen={!!qrDialogEventId}
+        onClose={() => setQrDialogEventId(null)}
+      />
     </div>
   );
 };
