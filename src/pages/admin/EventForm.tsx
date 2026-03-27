@@ -297,6 +297,65 @@ const EventForm = () => {
                   </div>
                 )}
               </div>
+
+              {!isEditing && (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="isRecurring"
+                      checked={isRecurring}
+                      onCheckedChange={setIsRecurring}
+                    />
+                    <Label htmlFor="isRecurring" className="text-white flex items-center gap-2">
+                      <Repeat size={16} />
+                      Evento Recurrente
+                    </Label>
+                  </div>
+
+                  {isRecurring && (
+                    <div className="space-y-4 pl-4 border-l-2 border-purple-500/50">
+                      <div className="space-y-2">
+                        <Label className="text-white">Frecuencia</Label>
+                        <RadioGroup
+                          value={recurrenceType}
+                          onValueChange={setRecurrenceType}
+                          className="flex flex-col gap-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="weekly" id="weekly" />
+                            <Label htmlFor="weekly" className="text-white">Semanal</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="biweekly" id="biweekly" />
+                            <Label htmlFor="biweekly" className="text-white">Bisemanal</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="monthly" id="monthly" />
+                            <Label htmlFor="monthly" className="text-white">Mensual</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-white">Repetir hasta*</Label>
+                        <DatePicker
+                          value={recurrenceEndDate}
+                          onChange={(date) => setRecurrenceEndDate(date ? format(date, 'yyyy-MM-dd') : '')}
+                          placeholder="Fecha de fin de recurrencia"
+                          fromYear={new Date().getFullYear()}
+                          toYear={new Date().getFullYear() + 5}
+                          buttonClassName="bg-zinc-700 border-zinc-600 text-white hover:bg-zinc-600"
+                          disabled={(date) => {
+                            if (!formData.date) return true;
+                            const startDate = new Date(formData.date);
+                            return date <= startDate;
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
