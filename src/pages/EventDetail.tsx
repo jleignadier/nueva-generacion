@@ -179,12 +179,38 @@ const EventDetail = () => {
   const handleQRScanSuccess = async (result: string) => {
     if (!event || !id || !user) return;
     
+    // Parse the QR content: "eventId:token"
+    const parts = result.split(':');
+    if (parts.length < 2) {
+      toast({
+        title: "QR inválido",
+        description: "El código QR no es válido para registrar asistencia.",
+        variant: "destructive",
+      });
+      setQrScannerOpen(false);
+      return;
+    }
+
+    const scannedEventId = parts[0];
+    const scannedToken = parts.slice(1).join(':');
+
+    if (scannedEventId !== id) {
+      toast({
+        title: "Evento incorrecto",
+        description: "Este código QR pertenece a otro evento.",
+        variant: "destructive",
+      });
+      setQrScannerOpen(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.rpc('award_event_points', {
         p_user_id: user.id,
         p_event_id: id,
-        p_check_in_method: 'qr_scan'
-      });
+        p_check_in_method: 'qr_scan',
+        p_qr_token: scannedToken
+      } as any);
 
       if (error) throw error;
 
@@ -203,6 +229,7 @@ const EventDetail = () => {
         description: `Has ganado ${event.pointsEarned} puntos y ${event.volunteerHours} horas de voluntariado.`,
       });
     } catch (error: any) {
+      setQrScannerOpen(false);
       toast({
         title: "Error",
         description: error.message || "Error al registrar asistencia",

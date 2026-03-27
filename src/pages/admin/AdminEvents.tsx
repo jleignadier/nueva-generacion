@@ -434,6 +434,12 @@ const AdminEvents = () => {
           )}
         </div>
       </div>
+      <EventQRDialog
+        eventId={qrDialogEventId || ''}
+        eventTitle={qrDialogEventTitle}
+        isOpen={!!qrDialogEventId}
+        onClose={() => setQrDialogEventId(null)}
+      />
     </div>
   );
 };
