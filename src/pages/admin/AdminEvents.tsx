@@ -411,7 +411,7 @@ const AdminEvents = () => {
                       variant="destructive" 
                       size="sm"
                       className="flex-1 lg:flex-initial"
-                      onClick={() => handleDelete(event.id)}
+                      onClick={() => handleDelete(event.id, event.recurrenceGroupId)}
                     >
                       <Trash2 size={14} className="mr-1" />
                       Eliminar
