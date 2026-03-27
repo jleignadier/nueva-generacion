@@ -27,19 +27,22 @@ export interface Event {
   title: string;
   location: string;
   date: string;
-  endDate?: string; // End date for multi-day events
+  endDate?: string;
   time: string;
   endTime?: string;
   description: string;
   participantCount: number;
   pointsEarned: number;
-  volunteerHours: number; // Admin-set hours for volunteer credit
+  volunteerHours: number;
   status: 'upcoming' | 'completed';
   image: string;
-  fundingRequired?: number; // Optional funding target
-  currentFunding?: number; // Current amount raised
-  donations?: EventDonation[]; // Donation history
-  registeredParticipants?: RegisteredParticipant[]; // Registered users and organizations
+  fundingRequired?: number;
+  currentFunding?: number;
+  donations?: EventDonation[];
+  registeredParticipants?: RegisteredParticipant[];
+  recurrenceType?: string | null;
+  recurrenceEndDate?: string | null;
+  recurrenceGroupId?: string | null;
 }
 
 // Initial events data
