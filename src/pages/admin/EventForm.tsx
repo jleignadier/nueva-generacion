@@ -148,20 +148,54 @@ const EventForm = () => {
         });
         return;
       }
+    } else if (isRecurring && recurrenceEndDate) {
+      try {
+        await addRecurringEvents(
+          {
+            ...formData,
+            pointsEarned: Number(formData.pointsEarned),
+            volunteerHours: Number(formData.volunteerHours)
+          },
+          recurrenceType,
+          recurrenceEndDate
+        );
+        
+        toast({
+          title: "Eventos recurrentes creados",
+          description: `Serie de eventos creada exitosamente`
+        });
+      } catch (error) {
+        console.error('Error creating recurring events:', error);
+        toast({
+          title: "Error",
+          description: "No se pudieron crear los eventos recurrentes.",
+          variant: "destructive"
+        });
+        return;
+      }
     } else {
-      addEvent({
-        ...formData,
-        pointsEarned: Number(formData.pointsEarned),
-        volunteerHours: Number(formData.volunteerHours)
-      });
-      
-      toast({
-        title: "Evento creado",
-        description: `Creado exitosamente`
-      });
+      try {
+        await addEvent({
+          ...formData,
+          pointsEarned: Number(formData.pointsEarned),
+          volunteerHours: Number(formData.volunteerHours)
+        });
+        
+        toast({
+          title: "Evento creado",
+          description: `Creado exitosamente`
+        });
+      } catch (error) {
+        console.error('Error creating event:', error);
+        toast({
+          title: "Error",
+          description: "No se pudo crear el evento.",
+          variant: "destructive"
+        });
+        return;
+      }
     }
     
-    // Navigate back to events list
     navigate('/admin/events');
   };
   
