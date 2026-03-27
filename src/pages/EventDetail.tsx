@@ -480,15 +480,39 @@ const EventDetail = () => {
                 Asistencia Registrada
               </Button>
             ) : registrationStatus.canRegister || !user ? (
-              <Button 
-                className="flex-1" 
-                onClick={handleRegisterForReminder}
-                variant="outline"
-                disabled={isRegistering || !user}
-              >
-                <Calendar size={16} className="mr-2" />
-                {!user ? 'Cargando...' : isRegistering ? 'Registrando...' : 'Registrarse para Recordatorio'}
-              </Button>
+              <div className="flex flex-1 gap-2">
+                <Button 
+                  className="flex-1" 
+                  onClick={handleRegisterForReminder}
+                  variant="outline"
+                  disabled={isRegistering || !user}
+                >
+                  <Calendar size={16} className="mr-2" />
+                  {!user ? 'Cargando...' : isRegistering ? 'Registrando...' : 'Registrarse'}
+                </Button>
+                {event.recurrenceGroupId && user && (
+                  <Button
+                    className="flex-1 bg-purple-600 hover:bg-purple-700"
+                    onClick={async () => {
+                      if (!event.recurrenceGroupId || !user) return;
+                      setIsRegistering(true);
+                      try {
+                        await registerForSeries(event.recurrenceGroupId, user.id, user.organizationId);
+                        setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: true }));
+                        toast({ title: "¡Registrado para toda la serie!", description: "Te has registrado para todos los eventos futuros de esta serie." });
+                      } catch (error: any) {
+                        toast({ title: "Error", description: error.message || "Error al registrarse", variant: "destructive" });
+                      } finally {
+                        setIsRegistering(false);
+                      }
+                    }}
+                    disabled={isRegistering}
+                  >
+                    <Repeat size={16} className="mr-2" />
+                    Registrarse para la serie
+                  </Button>
+                )}
+              </div>
             ) : registrationStatus.isRegistered ? (
               <Button className="flex-1" disabled>
                 <Calendar size={16} className="mr-2" />
