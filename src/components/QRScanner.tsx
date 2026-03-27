@@ -1,7 +1,7 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Html5Qrcode } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/use-toast';
+import { Camera, CameraOff } from 'lucide-react';
 
 interface QRScannerProps {
   onSuccess: (result: string) => void;
@@ -9,68 +9,97 @@ interface QRScannerProps {
 }
 
 const QRScanner: React.FC<QRScannerProps> = ({ onSuccess, onClose }) => {
+  const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const hasSucceededRef = useRef(false);
 
-  // This is a mock implementation that simulates scanning a QR code
-  // In a real app, you would use a library like html5-qrcode or react-qr-reader
-  useEffect(() => {
-    if (scanning) {
-      // Simulate scanning process
-      const timer = setTimeout(() => {
-        // Simulate successful scan with a mock result
-        // In a real implementation, this would be the actual QR code value
-        const mockResult = 'valid-qr-code';
-        onSuccess(mockResult);
-        setScanning(false);
-      }, 2500); // Simulate 2.5 seconds of scanning
-      
-      return () => clearTimeout(timer);
-    }
-  }, [scanning, onSuccess]);
-
-  const startScanning = () => {
+  const startScanning = async () => {
+    setError(null);
     setScanning(true);
-    toast({
-      title: "Escaneando...",
-      description: "Apunta tu cámara al código QR del evento",
-    });
+
+    try {
+      const scanner = new Html5Qrcode('qr-reader');
+      scannerRef.current = scanner;
+
+      await scanner.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        (decodedText) => {
+          if (hasSucceededRef.current) return;
+          hasSucceededRef.current = true;
+          scanner.stop().catch(() => {});
+          onSuccess(decodedText);
+        },
+        () => {
+          // ignore scan failures (no QR found yet)
+        }
+      );
+    } catch (err: any) {
+      setScanning(false);
+      if (err?.toString?.().includes('NotAllowedError') || err?.toString?.().includes('Permission')) {
+        setError('Permiso de cámara denegado. Por favor permite el acceso a la cámara en la configuración de tu navegador.');
+      } else if (err?.toString?.().includes('NotFoundError')) {
+        setError('No se encontró ninguna cámara en este dispositivo.');
+      } else {
+        setError('No se pudo iniciar la cámara. Intenta de nuevo.');
+      }
+    }
   };
 
+  useEffect(() => {
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+        scannerRef.current = null;
+      }
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-full aspect-square bg-gray-100 mb-4 relative">
-        {scanning ? (
-          <div className="w-full h-full flex items-center justify-center">
-            {/* Animated scanning effect */}
-            <div className="w-4/5 h-4/5 border-2 border-nuevagen-blue relative">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-nuevagen-blue animate-bounce"></div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full">
-            <p className="text-gray-500 mb-2">La vista previa de la cámara aparecerá aquí</p>
-            <p className="text-sm text-gray-400">Por favor permite el acceso a la cámara cuando se solicite</p>
-          </div>
-        )}
-      </div>
-      
+    <div className="flex flex-col items-center gap-4">
+      <div
+        id="qr-reader"
+        ref={containerRef}
+        className="w-full aspect-square bg-muted rounded-lg overflow-hidden"
+        style={{ minHeight: 280 }}
+      />
+
+      {error && (
+        <div className="text-destructive text-sm text-center px-4">
+          <CameraOff className="mx-auto mb-1" size={20} />
+          {error}
+        </div>
+      )}
+
+      {!scanning && !error && (
+        <p className="text-muted-foreground text-sm text-center">
+          Presiona el botón para activar la cámara y escanear el código QR del evento.
+        </p>
+      )}
+
       <div className="flex gap-2 w-full">
-        <Button 
-          className="flex-1" 
-          onClick={startScanning} 
-          disabled={scanning}
-        >
-          {scanning ? 'Escaneando...' : 'Iniciar Escaneo'}
-        </Button>
-        <Button 
-          variant="outline" 
-          onClick={onClose}
-        >
+        {!scanning && (
+          <Button className="flex-1" onClick={startScanning}>
+            <Camera size={16} className="mr-2" />
+            Iniciar Escaneo
+          </Button>
+        )}
+        {scanning && (
+          <Button className="flex-1" disabled>
+            Escaneando...
+          </Button>
+        )}
+        <Button variant="outline" onClick={onClose}>
           Cancelar
         </Button>
       </div>
-      
-      <p className="text-sm text-gray-500 mt-4 text-center">
+
+      <p className="text-xs text-muted-foreground text-center">
         Posiciona el código QR dentro del área de escaneo
       </p>
     </div>
