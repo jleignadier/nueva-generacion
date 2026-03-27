@@ -239,16 +239,68 @@ export const useEventsStore = create<EventsState>((set, get) => ({
           image_url: eventData.image,
           funding_required: eventData.fundingRequired,
           current_funding: eventData.currentFunding || 0,
-        })
+        } as any)
         .select()
         .single();
 
       if (error) throw error;
-
-      // Reload events to get the new one with proper UUID
       await get().loadEvents();
     } catch (error) {
       console.error('Error adding event:', error);
+      throw error;
+    }
+  },
+
+  addRecurringEvents: async (baseEvent, recurrenceType, recurrenceEndDate) => {
+    try {
+      const { addWeeks, addMonths, parseISO, format: fnsFormat, isBefore, isEqual } = await import('date-fns');
+      
+      const groupId = crypto.randomUUID();
+      const startDate = parseISO(baseEvent.date);
+      const endDate = parseISO(recurrenceEndDate);
+      
+      const dates: Date[] = [startDate];
+      let current = startDate;
+      
+      while (true) {
+        let next: Date;
+        if (recurrenceType === 'weekly') next = addWeeks(current, 1);
+        else if (recurrenceType === 'biweekly') next = addWeeks(current, 2);
+        else next = addMonths(current, 1);
+        
+        if (isBefore(next, endDate) || isEqual(next, endDate)) {
+          dates.push(next);
+          current = next;
+        } else {
+          break;
+        }
+      }
+      
+      const rows = dates.map(d => ({
+        title: baseEvent.title,
+        location: baseEvent.location,
+        date: fnsFormat(d, 'yyyy-MM-dd'),
+        end_date: baseEvent.endDate || null,
+        time: baseEvent.time,
+        end_time: baseEvent.endTime || null,
+        description: baseEvent.description,
+        points_earned: baseEvent.pointsEarned,
+        volunteer_hours: baseEvent.volunteerHours,
+        status: baseEvent.status,
+        image_url: baseEvent.image,
+        funding_required: baseEvent.fundingRequired || 0,
+        current_funding: 0,
+        recurrence_type: recurrenceType,
+        recurrence_end_date: recurrenceEndDate,
+        recurrence_group_id: groupId,
+      }));
+      
+      const { error } = await supabase.from('events').insert(rows as any);
+      if (error) throw error;
+      
+      await get().loadEvents();
+    } catch (error) {
+      console.error('Error adding recurring events:', error);
       throw error;
     }
   },
