@@ -18,7 +18,7 @@ import EventQRDialog from '@/components/admin/EventQRDialog';
 const AdminEvents = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { events, deleteEvent, loadEvents } = useEventsStore();
+  const { events, deleteEvent, deleteRecurringSeries, loadEvents } = useEventsStore();
 
   // Load events on mount only
   useEffect(() => {
