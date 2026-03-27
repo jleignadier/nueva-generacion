@@ -54,8 +54,16 @@ const QRScanner: React.FC<QRScannerProps> = ({ onSuccess, onClose }) => {
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
+        const s = scannerRef.current;
         scannerRef.current = null;
+        try {
+          const state = s.getState();
+          if (state === 2 || state === 3) { // SCANNING or PAUSED
+            s.stop().catch(() => {});
+          }
+        } catch {
+          // scanner not in a stoppable state, ignore
+        }
       }
     };
   }, []);
