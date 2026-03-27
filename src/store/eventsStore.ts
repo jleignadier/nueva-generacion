@@ -405,7 +405,26 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     }
   },
   
+  deleteRecurringSeries: async (recurrenceGroupId) => {
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('recurrence_group_id', recurrenceGroupId);
+
+      if (error) throw error;
+      set(state => ({
+        events: state.events.filter(e => e.recurrenceGroupId !== recurrenceGroupId)
+      }));
+    } catch (error) {
+      console.error('Error deleting recurring series:', error);
+      throw error;
+    }
+  },
+
   getEvent: (id) => get().events.find(event => event.id === id),
+  
+  getSeriesEvents: (recurrenceGroupId) => get().events.filter(e => e.recurrenceGroupId === recurrenceGroupId),
   
   addDonation: (eventId, donationData) => set(state => ({
     events: state.events.map(event => {
