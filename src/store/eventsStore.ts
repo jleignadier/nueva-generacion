@@ -125,13 +125,18 @@ interface EventsState {
   loading: boolean;
   loadEvents: () => Promise<void>;
   addEvent: (event: Omit<Event, 'id' | 'participantCount'>) => void;
+  addRecurringEvents: (baseEvent: Omit<Event, 'id' | 'participantCount'>, recurrenceType: string, recurrenceEndDate: string) => Promise<void>;
   updateEvent: (id: string, eventData: Partial<Event>) => Promise<void>;
+  updateRecurringSeries: (recurrenceGroupId: string, currentEventId: string, eventData: Partial<Event>) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
+  deleteRecurringSeries: (recurrenceGroupId: string) => Promise<void>;
   getEvent: (id: string) => Event | undefined;
+  getSeriesEvents: (recurrenceGroupId: string) => Event[];
   addDonation: (eventId: string, donation: Omit<EventDonation, 'id'>) => void;
   approveDonation: (eventId: string, donationId: string) => void;
   rejectDonation: (eventId: string, donationId: string) => void;
   registerForEvent: (eventId: string, userId: string, organizationId?: string) => Promise<void>;
+  registerForSeries: (recurrenceGroupId: string, userId: string, organizationId?: string) => Promise<void>;
   unregisterFromEvent: (eventId: string, userId: string) => Promise<void>;
   isUserRegistered: (eventId: string, userId: string) => Promise<boolean>;
 }
