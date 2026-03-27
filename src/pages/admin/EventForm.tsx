@@ -125,6 +125,25 @@ const EventForm = () => {
       });
       return;
     }
+
+    // Validate recurrence end date
+    if (isRecurring && !recurrenceEndDate) {
+      toast({
+        title: "Información faltante",
+        description: "Por favor selecciona la fecha de fin de recurrencia",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isRecurring && recurrenceEndDate && recurrenceEndDate <= formData.date) {
+      toast({
+        title: "Fecha inválida",
+        description: "La fecha de fin de recurrencia debe ser posterior a la fecha de inicio",
+        variant: "destructive"
+      });
+      return;
+    }
     
     // Update or create event
     if (isEditing && id) {

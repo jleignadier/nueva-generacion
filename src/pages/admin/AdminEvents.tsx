@@ -39,25 +39,31 @@ const AdminEvents = () => {
   });
 
   // Handle deleting an event
-  const handleDelete = async (id: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
-      try {
-        console.log('🔄 Starting event deletion for:', id);
-        await deleteEvent(id);
-        console.log('✅ Event deletion completed successfully');
-        toast({
-          title: "Evento eliminado",
-          description: "El evento ha sido eliminado exitosamente",
-        });
-      } catch (error: any) {
-        console.error('❌ Error in handleDelete:', error);
-        const errorMessage = error?.message || "No se pudo eliminar el evento. Por favor intenta de nuevo.";
-        toast({
-          title: "Error al eliminar",
-          description: errorMessage,
-          variant: "destructive",
-        });
+  const handleDelete = async (id: string, recurrenceGroupId?: string | null) => {
+    if (recurrenceGroupId) {
+      const choice = window.prompt(
+        '¿Qué deseas eliminar?\n1 = Solo este evento\n2 = Toda la serie recurrente\n\nEscribe 1 o 2:'
+      );
+      if (choice === '2') {
+        try {
+          await deleteRecurringSeries(recurrenceGroupId);
+          toast({ title: "Serie eliminada", description: "Todos los eventos de la serie han sido eliminados" });
+        } catch (error: any) {
+          toast({ title: "Error", description: error?.message || "No se pudo eliminar la serie", variant: "destructive" });
+        }
+        return;
+      } else if (choice !== '1') {
+        return;
       }
+    } else {
+      if (!confirm('¿Estás seguro de que quieres eliminar este evento?')) return;
+    }
+
+    try {
+      await deleteEvent(id);
+      toast({ title: "Evento eliminado", description: "El evento ha sido eliminado exitosamente" });
+    } catch (error: any) {
+      toast({ title: "Error al eliminar", description: error?.message || "No se pudo eliminar el evento.", variant: "destructive" });
     }
   };
 
