@@ -190,7 +190,7 @@ export const useEventsStore = create<EventsState>((set, get) => ({
         const registeredParticipants = registrationsByEvent[event.id] || [];
         const isCompleted = event.status === 'completed';
         
-        return {
+          return {
           id: event.id,
           title: event.title,
           location: event.location,
@@ -199,7 +199,6 @@ export const useEventsStore = create<EventsState>((set, get) => ({
           time: event.time,
           endTime: event.end_time || undefined,
           description: event.description || '',
-          // For upcoming events, show registration count; for completed, show attendance count
           participantCount: isCompleted ? (attendanceCounts[event.id] || 0) : registeredParticipants.length,
           pointsEarned: event.points_earned || 0,
           volunteerHours: Number(event.volunteer_hours) || 0,
@@ -208,7 +207,10 @@ export const useEventsStore = create<EventsState>((set, get) => ({
           fundingRequired: Number(event.funding_required) || undefined,
           currentFunding: Number(event.current_funding) || 0,
           donations: [],
-          registeredParticipants
+          registeredParticipants,
+          recurrenceType: (event as any).recurrence_type || null,
+          recurrenceEndDate: (event as any).recurrence_end_date || null,
+          recurrenceGroupId: (event as any).recurrence_group_id || null,
         };
       });
 
