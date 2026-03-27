@@ -36,7 +36,7 @@ const EventDetail = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isRegistering, setIsRegistering] = useState(false);
   
-  const { getEvent, registerForEvent: registerInDb, isUserRegistered } = useEventsStore();
+  const { getEvent, registerForEvent: registerInDb, registerForSeries, isUserRegistered } = useEventsStore();
   
   const event = id ? getEvent(id) : undefined;
   
