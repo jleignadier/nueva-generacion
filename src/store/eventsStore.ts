@@ -345,6 +345,37 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     }
   },
   
+  updateRecurringSeries: async (recurrenceGroupId, currentEventId, eventData) => {
+    try {
+      const dbFields: any = {};
+      if (eventData.title !== undefined) dbFields.title = eventData.title;
+      if (eventData.location !== undefined) dbFields.location = eventData.location;
+      if (eventData.time !== undefined) dbFields.time = eventData.time;
+      if (eventData.endTime !== undefined) dbFields.end_time = eventData.endTime;
+      if (eventData.description !== undefined) dbFields.description = eventData.description;
+      if (eventData.pointsEarned !== undefined) dbFields.points_earned = eventData.pointsEarned;
+      if (eventData.volunteerHours !== undefined) dbFields.volunteer_hours = eventData.volunteerHours;
+      if (eventData.image !== undefined) dbFields.image_url = eventData.image;
+      if (eventData.fundingRequired !== undefined) dbFields.funding_required = eventData.fundingRequired;
+
+      // Get current event date to only update future events
+      const currentEvent = get().getEvent(currentEventId);
+      if (!currentEvent) throw new Error('Event not found');
+
+      const { error } = await supabase
+        .from('events')
+        .update(dbFields)
+        .eq('recurrence_group_id', recurrenceGroupId)
+        .gte('date', currentEvent.date);
+
+      if (error) throw error;
+      await get().loadEvents();
+    } catch (error) {
+      console.error('Error updating recurring series:', error);
+      throw error;
+    }
+  },
+
   deleteEvent: async (id) => {
     try {
       console.log('🗑️ Attempting to delete event:', id);
