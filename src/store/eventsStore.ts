@@ -536,6 +536,7 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     }
   },
 
+  unregisterFromEvent: async (eventId: string, userId: string) => {
     try {
       const { error } = await supabase
         .from('event_registrations')
@@ -544,8 +545,6 @@ export const useEventsStore = create<EventsState>((set, get) => ({
         .eq('user_id', userId);
 
       if (error) throw error;
-
-      // Reload events to update registration counts
       await get().loadEvents();
     } catch (error) {
       console.error('Error unregistering from event:', error);
