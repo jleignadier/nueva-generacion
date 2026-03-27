@@ -29,6 +29,8 @@ const AdminEvents = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCompetitionDialogOpen, setIsCompetitionDialogOpen] = useState(false);
   const [editingCompetition, setEditingCompetition] = useState(null);
+  const [qrDialogEventId, setQrDialogEventId] = useState<string | null>(null);
+  const [qrDialogEventTitle, setQrDialogEventTitle] = useState('');
   const [competitionForm, setCompetitionForm] = useState({
     name: '',
     prize: '',
