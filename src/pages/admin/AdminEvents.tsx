@@ -422,7 +422,7 @@ const AdminEvents = () => {
                   const today = getTodayString();
                   const isCompleted = event.date < today;
                   return (
-                    <div className="mt-2">
+                    <div className="mt-2 flex gap-2">
                       {isCompleted ? (
                         <span className="px-2 py-1 bg-green-900/30 text-green-400 text-xs rounded">
                           Completado
@@ -430,6 +430,12 @@ const AdminEvents = () => {
                       ) : (
                         <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
                           Próximo
+                        </span>
+                      )}
+                      {event.recurrenceGroupId && (
+                        <span className="px-2 py-1 bg-purple-900/30 text-purple-400 text-xs rounded flex items-center gap-1">
+                          <Repeat size={12} />
+                          Recurrente
                         </span>
                       )}
                     </div>
