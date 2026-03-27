@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search, Trophy, Plus, Calendar, QrCode } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, Edit, Trash2, Users, Search, Trophy, Plus, Calendar, QrCode, Repeat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -18,7 +18,7 @@ import EventQRDialog from '@/components/admin/EventQRDialog';
 const AdminEvents = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { events, deleteEvent, loadEvents } = useEventsStore();
+  const { events, deleteEvent, deleteRecurringSeries, loadEvents } = useEventsStore();
 
   // Load events on mount only
   useEffect(() => {
@@ -39,25 +39,31 @@ const AdminEvents = () => {
   });
 
   // Handle deleting an event
-  const handleDelete = async (id: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
-      try {
-        console.log('🔄 Starting event deletion for:', id);
-        await deleteEvent(id);
-        console.log('✅ Event deletion completed successfully');
-        toast({
-          title: "Evento eliminado",
-          description: "El evento ha sido eliminado exitosamente",
-        });
-      } catch (error: any) {
-        console.error('❌ Error in handleDelete:', error);
-        const errorMessage = error?.message || "No se pudo eliminar el evento. Por favor intenta de nuevo.";
-        toast({
-          title: "Error al eliminar",
-          description: errorMessage,
-          variant: "destructive",
-        });
+  const handleDelete = async (id: string, recurrenceGroupId?: string | null) => {
+    if (recurrenceGroupId) {
+      const choice = window.prompt(
+        '¿Qué deseas eliminar?\n1 = Solo este evento\n2 = Toda la serie recurrente\n\nEscribe 1 o 2:'
+      );
+      if (choice === '2') {
+        try {
+          await deleteRecurringSeries(recurrenceGroupId);
+          toast({ title: "Serie eliminada", description: "Todos los eventos de la serie han sido eliminados" });
+        } catch (error: any) {
+          toast({ title: "Error", description: error?.message || "No se pudo eliminar la serie", variant: "destructive" });
+        }
+        return;
+      } else if (choice !== '1') {
+        return;
       }
+    } else {
+      if (!confirm('¿Estás seguro de que quieres eliminar este evento?')) return;
+    }
+
+    try {
+      await deleteEvent(id);
+      toast({ title: "Evento eliminado", description: "El evento ha sido eliminado exitosamente" });
+    } catch (error: any) {
+      toast({ title: "Error al eliminar", description: error?.message || "No se pudo eliminar el evento.", variant: "destructive" });
     }
   };
 
@@ -405,7 +411,7 @@ const AdminEvents = () => {
                       variant="destructive" 
                       size="sm"
                       className="flex-1 lg:flex-initial"
-                      onClick={() => handleDelete(event.id)}
+                      onClick={() => handleDelete(event.id, event.recurrenceGroupId)}
                     >
                       <Trash2 size={14} className="mr-1" />
                       Eliminar
@@ -416,7 +422,7 @@ const AdminEvents = () => {
                   const today = getTodayString();
                   const isCompleted = event.date < today;
                   return (
-                    <div className="mt-2">
+                    <div className="mt-2 flex gap-2">
                       {isCompleted ? (
                         <span className="px-2 py-1 bg-green-900/30 text-green-400 text-xs rounded">
                           Completado
@@ -424,6 +430,12 @@ const AdminEvents = () => {
                       ) : (
                         <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
                           Próximo
+                        </span>
+                      )}
+                      {event.recurrenceGroupId && (
+                        <span className="px-2 py-1 bg-purple-900/30 text-purple-400 text-xs rounded flex items-center gap-1">
+                          <Repeat size={12} />
+                          Recurrente
                         </span>
                       )}
                     </div>

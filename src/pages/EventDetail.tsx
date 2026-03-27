@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, Award, Calendar, CheckCircle, DollarSign, Target, QrCode, UserPlus } from 'lucide-react';
+import { CalendarCheck, Clock, MapPin, ArrowLeft, Users, Share2, Award, Calendar, CheckCircle, DollarSign, Target, QrCode, UserPlus, Repeat } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useEventsStore } from '@/store/eventsStore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -36,7 +36,7 @@ const EventDetail = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isRegistering, setIsRegistering] = useState(false);
   
-  const { getEvent, registerForEvent: registerInDb, isUserRegistered } = useEventsStore();
+  const { getEvent, registerForEvent: registerInDb, registerForSeries, isUserRegistered } = useEventsStore();
   
   const event = id ? getEvent(id) : undefined;
   
@@ -480,15 +480,39 @@ const EventDetail = () => {
                 Asistencia Registrada
               </Button>
             ) : registrationStatus.canRegister || !user ? (
-              <Button 
-                className="flex-1" 
-                onClick={handleRegisterForReminder}
-                variant="outline"
-                disabled={isRegistering || !user}
-              >
-                <Calendar size={16} className="mr-2" />
-                {!user ? 'Cargando...' : isRegistering ? 'Registrando...' : 'Registrarse para Recordatorio'}
-              </Button>
+              <div className="flex flex-1 gap-2">
+                <Button 
+                  className="flex-1" 
+                  onClick={handleRegisterForReminder}
+                  variant="outline"
+                  disabled={isRegistering || !user}
+                >
+                  <Calendar size={16} className="mr-2" />
+                  {!user ? 'Cargando...' : isRegistering ? 'Registrando...' : 'Registrarse'}
+                </Button>
+                {event.recurrenceGroupId && user && (
+                  <Button
+                    className="flex-1 bg-purple-600 hover:bg-purple-700"
+                    onClick={async () => {
+                      if (!event.recurrenceGroupId || !user) return;
+                      setIsRegistering(true);
+                      try {
+                        await registerForSeries(event.recurrenceGroupId, user.id, user.organizationId);
+                        setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: true }));
+                        toast({ title: "¡Registrado para toda la serie!", description: "Te has registrado para todos los eventos futuros de esta serie." });
+                      } catch (error: any) {
+                        toast({ title: "Error", description: error.message || "Error al registrarse", variant: "destructive" });
+                      } finally {
+                        setIsRegistering(false);
+                      }
+                    }}
+                    disabled={isRegistering}
+                  >
+                    <Repeat size={16} className="mr-2" />
+                    Registrarse para la serie
+                  </Button>
+                )}
+              </div>
             ) : registrationStatus.isRegistered ? (
               <Button className="flex-1" disabled>
                 <Calendar size={16} className="mr-2" />

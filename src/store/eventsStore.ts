@@ -27,19 +27,22 @@ export interface Event {
   title: string;
   location: string;
   date: string;
-  endDate?: string; // End date for multi-day events
+  endDate?: string;
   time: string;
   endTime?: string;
   description: string;
   participantCount: number;
   pointsEarned: number;
-  volunteerHours: number; // Admin-set hours for volunteer credit
+  volunteerHours: number;
   status: 'upcoming' | 'completed';
   image: string;
-  fundingRequired?: number; // Optional funding target
-  currentFunding?: number; // Current amount raised
-  donations?: EventDonation[]; // Donation history
-  registeredParticipants?: RegisteredParticipant[]; // Registered users and organizations
+  fundingRequired?: number;
+  currentFunding?: number;
+  donations?: EventDonation[];
+  registeredParticipants?: RegisteredParticipant[];
+  recurrenceType?: string | null;
+  recurrenceEndDate?: string | null;
+  recurrenceGroupId?: string | null;
 }
 
 // Initial events data
@@ -122,13 +125,18 @@ interface EventsState {
   loading: boolean;
   loadEvents: () => Promise<void>;
   addEvent: (event: Omit<Event, 'id' | 'participantCount'>) => void;
+  addRecurringEvents: (baseEvent: Omit<Event, 'id' | 'participantCount'>, recurrenceType: string, recurrenceEndDate: string) => Promise<void>;
   updateEvent: (id: string, eventData: Partial<Event>) => Promise<void>;
+  updateRecurringSeries: (recurrenceGroupId: string, currentEventId: string, eventData: Partial<Event>) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
+  deleteRecurringSeries: (recurrenceGroupId: string) => Promise<void>;
   getEvent: (id: string) => Event | undefined;
+  getSeriesEvents: (recurrenceGroupId: string) => Event[];
   addDonation: (eventId: string, donation: Omit<EventDonation, 'id'>) => void;
   approveDonation: (eventId: string, donationId: string) => void;
   rejectDonation: (eventId: string, donationId: string) => void;
   registerForEvent: (eventId: string, userId: string, organizationId?: string) => Promise<void>;
+  registerForSeries: (recurrenceGroupId: string, userId: string, organizationId?: string) => Promise<void>;
   unregisterFromEvent: (eventId: string, userId: string) => Promise<void>;
   isUserRegistered: (eventId: string, userId: string) => Promise<boolean>;
 }
@@ -182,7 +190,7 @@ export const useEventsStore = create<EventsState>((set, get) => ({
         const registeredParticipants = registrationsByEvent[event.id] || [];
         const isCompleted = event.status === 'completed';
         
-        return {
+          return {
           id: event.id,
           title: event.title,
           location: event.location,
@@ -191,7 +199,6 @@ export const useEventsStore = create<EventsState>((set, get) => ({
           time: event.time,
           endTime: event.end_time || undefined,
           description: event.description || '',
-          // For upcoming events, show registration count; for completed, show attendance count
           participantCount: isCompleted ? (attendanceCounts[event.id] || 0) : registeredParticipants.length,
           pointsEarned: event.points_earned || 0,
           volunteerHours: Number(event.volunteer_hours) || 0,
@@ -200,7 +207,10 @@ export const useEventsStore = create<EventsState>((set, get) => ({
           fundingRequired: Number(event.funding_required) || undefined,
           currentFunding: Number(event.current_funding) || 0,
           donations: [],
-          registeredParticipants
+          registeredParticipants,
+          recurrenceType: (event as any).recurrence_type || null,
+          recurrenceEndDate: (event as any).recurrence_end_date || null,
+          recurrenceGroupId: (event as any).recurrence_group_id || null,
         };
       });
 
@@ -229,16 +239,68 @@ export const useEventsStore = create<EventsState>((set, get) => ({
           image_url: eventData.image,
           funding_required: eventData.fundingRequired,
           current_funding: eventData.currentFunding || 0,
-        })
+        } as any)
         .select()
         .single();
 
       if (error) throw error;
-
-      // Reload events to get the new one with proper UUID
       await get().loadEvents();
     } catch (error) {
       console.error('Error adding event:', error);
+      throw error;
+    }
+  },
+
+  addRecurringEvents: async (baseEvent, recurrenceType, recurrenceEndDate) => {
+    try {
+      const { addWeeks, addMonths, parseISO, format: fnsFormat, isBefore, isEqual } = await import('date-fns');
+      
+      const groupId = crypto.randomUUID();
+      const startDate = parseISO(baseEvent.date);
+      const endDate = parseISO(recurrenceEndDate);
+      
+      const dates: Date[] = [startDate];
+      let current = startDate;
+      
+      while (true) {
+        let next: Date;
+        if (recurrenceType === 'weekly') next = addWeeks(current, 1);
+        else if (recurrenceType === 'biweekly') next = addWeeks(current, 2);
+        else next = addMonths(current, 1);
+        
+        if (isBefore(next, endDate) || isEqual(next, endDate)) {
+          dates.push(next);
+          current = next;
+        } else {
+          break;
+        }
+      }
+      
+      const rows = dates.map(d => ({
+        title: baseEvent.title,
+        location: baseEvent.location,
+        date: fnsFormat(d, 'yyyy-MM-dd'),
+        end_date: baseEvent.endDate || null,
+        time: baseEvent.time,
+        end_time: baseEvent.endTime || null,
+        description: baseEvent.description,
+        points_earned: baseEvent.pointsEarned,
+        volunteer_hours: baseEvent.volunteerHours,
+        status: baseEvent.status,
+        image_url: baseEvent.image,
+        funding_required: baseEvent.fundingRequired || 0,
+        current_funding: 0,
+        recurrence_type: recurrenceType,
+        recurrence_end_date: recurrenceEndDate,
+        recurrence_group_id: groupId,
+      }));
+      
+      const { error } = await supabase.from('events').insert(rows as any);
+      if (error) throw error;
+      
+      await get().loadEvents();
+    } catch (error) {
+      console.error('Error adding recurring events:', error);
       throw error;
     }
   },
@@ -283,6 +345,37 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     }
   },
   
+  updateRecurringSeries: async (recurrenceGroupId, currentEventId, eventData) => {
+    try {
+      const dbFields: any = {};
+      if (eventData.title !== undefined) dbFields.title = eventData.title;
+      if (eventData.location !== undefined) dbFields.location = eventData.location;
+      if (eventData.time !== undefined) dbFields.time = eventData.time;
+      if (eventData.endTime !== undefined) dbFields.end_time = eventData.endTime;
+      if (eventData.description !== undefined) dbFields.description = eventData.description;
+      if (eventData.pointsEarned !== undefined) dbFields.points_earned = eventData.pointsEarned;
+      if (eventData.volunteerHours !== undefined) dbFields.volunteer_hours = eventData.volunteerHours;
+      if (eventData.image !== undefined) dbFields.image_url = eventData.image;
+      if (eventData.fundingRequired !== undefined) dbFields.funding_required = eventData.fundingRequired;
+
+      // Get current event date to only update future events
+      const currentEvent = get().getEvent(currentEventId);
+      if (!currentEvent) throw new Error('Event not found');
+
+      const { error } = await supabase
+        .from('events')
+        .update(dbFields)
+        .eq('recurrence_group_id', recurrenceGroupId)
+        .gte('date', currentEvent.date);
+
+      if (error) throw error;
+      await get().loadEvents();
+    } catch (error) {
+      console.error('Error updating recurring series:', error);
+      throw error;
+    }
+  },
+
   deleteEvent: async (id) => {
     try {
       console.log('🗑️ Attempting to delete event:', id);
@@ -312,7 +405,26 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     }
   },
   
+  deleteRecurringSeries: async (recurrenceGroupId) => {
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('recurrence_group_id', recurrenceGroupId);
+
+      if (error) throw error;
+      set(state => ({
+        events: state.events.filter(e => e.recurrenceGroupId !== recurrenceGroupId)
+      }));
+    } catch (error) {
+      console.error('Error deleting recurring series:', error);
+      throw error;
+    }
+  },
+
   getEvent: (id) => get().events.find(event => event.id === id),
+  
+  getSeriesEvents: (recurrenceGroupId) => get().events.filter(e => e.recurrenceGroupId === recurrenceGroupId),
   
   addDonation: (eventId, donationData) => set(state => ({
     events: state.events.map(event => {
@@ -398,6 +510,32 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     }
   },
 
+  registerForSeries: async (recurrenceGroupId: string, userId: string, organizationId?: string) => {
+    try {
+      const seriesEvents = get().getSeriesEvents(recurrenceGroupId);
+      const today = new Date().toISOString().split('T')[0];
+      const futureEvents = seriesEvents.filter(e => e.date >= today);
+      
+      for (const event of futureEvents) {
+        const isRegistered = await get().isUserRegistered(event.id, userId);
+        if (!isRegistered) {
+          await supabase
+            .from('event_registrations')
+            .insert({
+              event_id: event.id,
+              user_id: userId,
+              organization_id: organizationId || null
+            });
+        }
+      }
+      
+      await get().loadEvents();
+    } catch (error) {
+      console.error('Error registering for series:', error);
+      throw error;
+    }
+  },
+
   unregisterFromEvent: async (eventId: string, userId: string) => {
     try {
       const { error } = await supabase
@@ -407,8 +545,6 @@ export const useEventsStore = create<EventsState>((set, get) => ({
         .eq('user_id', userId);
 
       if (error) throw error;
-
-      // Reload events to update registration counts
       await get().loadEvents();
     } catch (error) {
       console.error('Error unregistering from event:', error);

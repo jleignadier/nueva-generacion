@@ -225,6 +225,9 @@ export type Database = {
           location: string
           points_earned: number | null
           qr_active_token: string | null
+          recurrence_end_date: string | null
+          recurrence_group_id: string | null
+          recurrence_type: string | null
           status: Database["public"]["Enums"]["event_status"] | null
           time: string
           title: string
@@ -245,6 +248,9 @@ export type Database = {
           location: string
           points_earned?: number | null
           qr_active_token?: string | null
+          recurrence_end_date?: string | null
+          recurrence_group_id?: string | null
+          recurrence_type?: string | null
           status?: Database["public"]["Enums"]["event_status"] | null
           time: string
           title: string
@@ -265,6 +271,9 @@ export type Database = {
           location?: string
           points_earned?: number | null
           qr_active_token?: string | null
+          recurrence_end_date?: string | null
+          recurrence_group_id?: string | null
+          recurrence_type?: string | null
           status?: Database["public"]["Enums"]["event_status"] | null
           time?: string
           title?: string

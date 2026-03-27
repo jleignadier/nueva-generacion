@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Clock, MapPin } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Repeat } from 'lucide-react';
 import { useEventsStore } from '@/store/eventsStore';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { format } from 'date-fns';
 
 interface EventFormData {
@@ -33,13 +34,16 @@ const EventForm = () => {
   const { toast } = useToast();
   const isEditing = id !== undefined;
   
-  const { getEvent, addEvent, updateEvent } = useEventsStore();
+  const { getEvent, addEvent, updateEvent, addRecurringEvents } = useEventsStore();
   
   // Get existing event data if editing
   const existingEvent = isEditing ? getEvent(id) : null;
   
   // State for multi-day toggle
   const [isMultiDay, setIsMultiDay] = useState(existingEvent?.endDate ? true : false);
+  const [isRecurring, setIsRecurring] = useState(!!existingEvent?.recurrenceType);
+  const [recurrenceType, setRecurrenceType] = useState(existingEvent?.recurrenceType || 'weekly');
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(existingEvent?.recurrenceEndDate || '');
 
   // Set initial state based on whether we're editing or creating
   const [formData, setFormData] = useState<EventFormData>(
@@ -121,6 +125,25 @@ const EventForm = () => {
       });
       return;
     }
+
+    // Validate recurrence end date
+    if (isRecurring && !recurrenceEndDate) {
+      toast({
+        title: "Información faltante",
+        description: "Por favor selecciona la fecha de fin de recurrencia",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isRecurring && recurrenceEndDate && recurrenceEndDate <= formData.date) {
+      toast({
+        title: "Fecha inválida",
+        description: "La fecha de fin de recurrencia debe ser posterior a la fecha de inicio",
+        variant: "destructive"
+      });
+      return;
+    }
     
     // Update or create event
     if (isEditing && id) {
@@ -144,20 +167,54 @@ const EventForm = () => {
         });
         return;
       }
+    } else if (isRecurring && recurrenceEndDate) {
+      try {
+        await addRecurringEvents(
+          {
+            ...formData,
+            pointsEarned: Number(formData.pointsEarned),
+            volunteerHours: Number(formData.volunteerHours)
+          },
+          recurrenceType,
+          recurrenceEndDate
+        );
+        
+        toast({
+          title: "Eventos recurrentes creados",
+          description: `Serie de eventos creada exitosamente`
+        });
+      } catch (error) {
+        console.error('Error creating recurring events:', error);
+        toast({
+          title: "Error",
+          description: "No se pudieron crear los eventos recurrentes.",
+          variant: "destructive"
+        });
+        return;
+      }
     } else {
-      addEvent({
-        ...formData,
-        pointsEarned: Number(formData.pointsEarned),
-        volunteerHours: Number(formData.volunteerHours)
-      });
-      
-      toast({
-        title: "Evento creado",
-        description: `Creado exitosamente`
-      });
+      try {
+        await addEvent({
+          ...formData,
+          pointsEarned: Number(formData.pointsEarned),
+          volunteerHours: Number(formData.volunteerHours)
+        });
+        
+        toast({
+          title: "Evento creado",
+          description: `Creado exitosamente`
+        });
+      } catch (error) {
+        console.error('Error creating event:', error);
+        toast({
+          title: "Error",
+          description: "No se pudo crear el evento.",
+          variant: "destructive"
+        });
+        return;
+      }
     }
     
-    // Navigate back to events list
     navigate('/admin/events');
   };
   
@@ -259,6 +316,65 @@ const EventForm = () => {
                   </div>
                 )}
               </div>
+
+              {!isEditing && (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="isRecurring"
+                      checked={isRecurring}
+                      onCheckedChange={setIsRecurring}
+                    />
+                    <Label htmlFor="isRecurring" className="text-white flex items-center gap-2">
+                      <Repeat size={16} />
+                      Evento Recurrente
+                    </Label>
+                  </div>
+
+                  {isRecurring && (
+                    <div className="space-y-4 pl-4 border-l-2 border-purple-500/50">
+                      <div className="space-y-2">
+                        <Label className="text-white">Frecuencia</Label>
+                        <RadioGroup
+                          value={recurrenceType}
+                          onValueChange={setRecurrenceType}
+                          className="flex flex-col gap-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="weekly" id="weekly" />
+                            <Label htmlFor="weekly" className="text-white">Semanal</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="biweekly" id="biweekly" />
+                            <Label htmlFor="biweekly" className="text-white">Bisemanal</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="monthly" id="monthly" />
+                            <Label htmlFor="monthly" className="text-white">Mensual</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-white">Repetir hasta*</Label>
+                        <DatePicker
+                          value={recurrenceEndDate}
+                          onChange={(date) => setRecurrenceEndDate(date ? format(date, 'yyyy-MM-dd') : '')}
+                          placeholder="Fecha de fin de recurrencia"
+                          fromYear={new Date().getFullYear()}
+                          toYear={new Date().getFullYear() + 5}
+                          buttonClassName="bg-zinc-700 border-zinc-600 text-white hover:bg-zinc-600"
+                          disabled={(date) => {
+                            if (!formData.date) return true;
+                            const startDate = new Date(formData.date);
+                            return date <= startDate;
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
