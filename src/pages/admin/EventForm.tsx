@@ -34,7 +34,7 @@ const EventForm = () => {
   const { toast } = useToast();
   const isEditing = id !== undefined;
   
-  const { getEvent, addEvent, updateEvent } = useEventsStore();
+  const { getEvent, addEvent, updateEvent, addRecurringEvents } = useEventsStore();
   
   // Get existing event data if editing
   const existingEvent = isEditing ? getEvent(id) : null;
