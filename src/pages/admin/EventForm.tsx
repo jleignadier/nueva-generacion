@@ -39,8 +39,6 @@ const EventForm = () => {
   // Get existing event data if editing
   const existingEvent = isEditing ? getEvent(id) : null;
   
-  // State for multi-day toggle
-  const [isMultiDay, setIsMultiDay] = useState(existingEvent?.endDate ? true : false);
   const [isRecurring, setIsRecurring] = useState(!!existingEvent?.recurrenceType);
   const [recurrenceType, setRecurrenceType] = useState(existingEvent?.recurrenceType || 'weekly');
   const [recurrenceEndDate, setRecurrenceEndDate] = useState(existingEvent?.recurrenceEndDate || '');
