@@ -159,7 +159,7 @@ const EventDetail = () => {
         description: event.description
       });
       
-      setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: true }));
+      setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: false }));
       
       toast({
         title: "¡Registrado exitosamente!",
