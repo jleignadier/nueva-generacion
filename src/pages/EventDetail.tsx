@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import EventParticipants from '@/components/EventParticipants';
 import EventDonationModal from '@/components/EventDonationModal';
 import QRScanner from '@/components/QRScanner';
+import EventQRDialog from '@/components/admin/EventQRDialog';
 import { getEventRegistrationStatus, registerForEvent, downloadCalendarFile, markEventAttended } from '@/utils/eventUtils';
 import { formatDate, formatEventTime, formatCurrency } from '@/utils/dateUtils';
 import { useAuth } from '@/contexts/AuthContext';
