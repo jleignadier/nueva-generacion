@@ -461,14 +461,14 @@ const EventDetail = () => {
           </div>
           
           <div className="flex gap-2">
-            {isAdmin ? (
-              <>
+            {isAdmin && (
+              <div className="flex flex-1 gap-2 mb-2">
                 <Button 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700" 
-                  onClick={() => setQrScannerOpen(true)}
+                  className="flex-1 bg-green-600 hover:bg-green-700" 
+                  onClick={() => setQrDialogOpen(true)}
                 >
                   <QrCode size={16} className="mr-2" />
-                  Escanear QR
+                  Activar/Ver QR
                 </Button>
                 <Button 
                   className="flex-1 bg-purple-600 hover:bg-purple-700" 
@@ -477,19 +477,20 @@ const EventDetail = () => {
                   <UserPlus size={16} className="mr-2" />
                   Check-in Manual
                 </Button>
-              </>
+              </div>
+            )}
+            {registrationStatus.hasAttended ? (
+              <Button className="flex-1 bg-green-600" disabled>
+                <CheckCircle size={16} className="mr-2" />
+                Asistencia Registrada
+              </Button>
             ) : registrationStatus.canScanQR ? (
               <Button 
-                className="flex-1 bg-green-600 hover:bg-green-700" 
+                className="flex-1 bg-blue-600 hover:bg-blue-700" 
                 onClick={() => setQrScannerOpen(true)}
               >
                 <QrCode size={16} className="mr-2" />
                 Escanear QR para Asistencia
-              </Button>
-            ) : registrationStatus.hasAttended ? (
-              <Button className="flex-1 bg-green-600" disabled>
-                <CheckCircle size={16} className="mr-2" />
-                Asistencia Registrada
               </Button>
             ) : registrationStatus.canRegister || !user ? (
               <div className="flex flex-1 gap-2">
@@ -510,7 +511,7 @@ const EventDetail = () => {
                       setIsRegistering(true);
                       try {
                         await registerForSeries(event.recurrenceGroupId, user.id, user.organizationId);
-                        setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: true }));
+                        setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: false }));
                         toast({ title: "¡Registrado para toda la serie!", description: "Te has registrado para todos los eventos futuros de esta serie." });
                       } catch (error: any) {
                         toast({ title: "Error", description: error.message || "Error al registrarse", variant: "destructive" });
@@ -526,9 +527,9 @@ const EventDetail = () => {
                 )}
               </div>
             ) : registrationStatus.isRegistered ? (
-              <Button className="flex-1" disabled>
-                <Calendar size={16} className="mr-2" />
-                Registrado
+              <Button className="flex-1 bg-green-500" disabled>
+                <CheckCircle size={16} className="mr-2" />
+                Registrado ✓
               </Button>
             ) : (
               <Button className="flex-1" disabled>
