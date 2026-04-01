@@ -39,8 +39,6 @@ const EventForm = () => {
   // Get existing event data if editing
   const existingEvent = isEditing ? getEvent(id) : null;
   
-  // State for multi-day toggle
-  const [isMultiDay, setIsMultiDay] = useState(existingEvent?.endDate ? true : false);
   const [isRecurring, setIsRecurring] = useState(!!existingEvent?.recurrenceType);
   const [recurrenceType, setRecurrenceType] = useState(existingEvent?.recurrenceType || 'weekly');
   const [recurrenceEndDate, setRecurrenceEndDate] = useState(existingEvent?.recurrenceEndDate || '');
@@ -76,12 +74,6 @@ const EventForm = () => {
     }
   );
 
-  // Clear endDate when multi-day is toggled off
-  useEffect(() => {
-    if (!isMultiDay) {
-      setFormData(prev => ({ ...prev, endDate: '' }));
-    }
-  }, [isMultiDay]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -101,26 +93,6 @@ const EventForm = () => {
       toast({
         title: "Información faltante",
         description: "Por favor completa todos los campos requeridos",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Validate end date for multi-day events
-    if (isMultiDay && !formData.endDate) {
-      toast({
-        title: "Información faltante",
-        description: "Por favor selecciona la fecha de finalización",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Validate end date is after start date
-    if (isMultiDay && formData.endDate && formData.endDate <= formData.date) {
-      toast({
-        title: "Fecha inválida",
-        description: "La fecha de finalización debe ser posterior a la fecha de inicio",
         variant: "destructive"
       });
       return;
@@ -265,56 +237,19 @@ const EventForm = () => {
                 </div>
               </div>
               
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="isMultiDay"
-                    checked={isMultiDay}
-                    onCheckedChange={setIsMultiDay}
-                  />
-                  <Label htmlFor="isMultiDay" className="text-white">
-                    Evento de varios días
-                  </Label>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="date" className="text-white">
-                    {isMultiDay ? 'Fecha de Inicio*' : 'Fecha*'}
-                  </Label>
-                  <DatePicker
-                    value={formData.date}
-                    onChange={(date) => setFormData(prev => ({ 
-                      ...prev, 
-                      date: date ? format(date, 'yyyy-MM-dd') : '' 
-                    }))}
-                    placeholder="Seleccionar fecha"
-                    fromYear={new Date().getFullYear()}
-                    toYear={new Date().getFullYear() + 5}
-                    buttonClassName="bg-zinc-700 border-zinc-600 text-white hover:bg-zinc-600"
-                  />
-                </div>
-
-                {isMultiDay && (
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate" className="text-white">Fecha de Finalización*</Label>
-                    <DatePicker
-                      value={formData.endDate}
-                      onChange={(date) => setFormData(prev => ({ 
-                        ...prev, 
-                        endDate: date ? format(date, 'yyyy-MM-dd') : '' 
-                      }))}
-                      placeholder="Seleccionar fecha de fin"
-                      fromYear={new Date().getFullYear()}
-                      toYear={new Date().getFullYear() + 5}
-                      buttonClassName="bg-zinc-700 border-zinc-600 text-white hover:bg-zinc-600"
-                      disabled={(date) => {
-                        if (!formData.date) return true;
-                        const startDate = new Date(formData.date);
-                        return date <= startDate;
-                      }}
-                    />
-                  </div>
-                )}
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-white">Fecha*</Label>
+                <DatePicker
+                  value={formData.date}
+                  onChange={(date) => setFormData(prev => ({ 
+                    ...prev, 
+                    date: date ? format(date, 'yyyy-MM-dd') : '' 
+                  }))}
+                  placeholder="Seleccionar fecha"
+                  fromYear={new Date().getFullYear()}
+                  toYear={new Date().getFullYear() + 5}
+                  buttonClassName="bg-zinc-700 border-zinc-600 text-white hover:bg-zinc-600"
+                />
               </div>
 
               {!isEditing && (

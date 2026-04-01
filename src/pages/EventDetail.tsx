@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import EventParticipants from '@/components/EventParticipants';
 import EventDonationModal from '@/components/EventDonationModal';
 import QRScanner from '@/components/QRScanner';
+import EventQRDialog from '@/components/admin/EventQRDialog';
 import { getEventRegistrationStatus, registerForEvent, downloadCalendarFile, markEventAttended } from '@/utils/eventUtils';
 import { formatDate, formatEventTime, formatCurrency } from '@/utils/dateUtils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,6 +33,8 @@ const EventDetail = () => {
   const [donationModalOpen, setDonationModalOpen] = useState(false);
   const [qrScannerOpen, setQrScannerOpen] = useState(false);
   const [manualCheckInOpen, setManualCheckInOpen] = useState(false);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [qrActiveToken, setQrActiveToken] = useState<string | null>(null);
   const [searchEmail, setSearchEmail] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -68,20 +71,29 @@ const EventDetail = () => {
     console.log('🔍 Checking registration for:', { eventId: id, userId: user.id });
 
     const isRegistered = await isUserRegistered(id, user.id);
-    console.log('📋 Is user registered?', isRegistered);
     
+    const eventDate = event.date; // yyyy-MM-dd
+    const today = new Date().toISOString().split('T')[0];
+    const isEventDay = eventDate === today;
     const eventDateTime = new Date(`${event.date}T${event.time}`);
     const now = new Date();
-    const isPast = eventDateTime < now;
-    const canScanQR = !isPast && isRegistered;
-    const canRegister = !isPast && !isRegistered;
+    const isPast = eventDateTime < now && !isEventDay;
 
-    console.log('✅ Registration status calculated:', {
-      isRegistered,
-      canRegister,
-      isEventPast: isPast,
-      canScanQR,
-    });
+    // Check if QR is active for today's event
+    let hasActiveQR = false;
+    if (isEventDay && isRegistered) {
+      const { data } = await supabase
+        .from('events')
+        .select('qr_active_token' as any)
+        .eq('id', id)
+        .single();
+      const token = (data as any)?.qr_active_token;
+      setQrActiveToken(token);
+      hasActiveQR = !!token;
+    }
+
+    const canScanQR = isRegistered && isEventDay && hasActiveQR;
+    const canRegister = !isPast && !isRegistered;
 
     setRegistrationStatus({
       isRegistered,
@@ -147,7 +159,7 @@ const EventDetail = () => {
         description: event.description
       });
       
-      setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: true }));
+      setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: false }));
       
       toast({
         title: "¡Registrado exitosamente!",
@@ -449,14 +461,14 @@ const EventDetail = () => {
           </div>
           
           <div className="flex gap-2">
-            {isAdmin ? (
-              <>
+            {isAdmin && (
+              <div className="flex flex-1 gap-2 mb-2">
                 <Button 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700" 
-                  onClick={() => setQrScannerOpen(true)}
+                  className="flex-1 bg-green-600 hover:bg-green-700" 
+                  onClick={() => setQrDialogOpen(true)}
                 >
                   <QrCode size={16} className="mr-2" />
-                  Escanear QR
+                  Activar/Ver QR
                 </Button>
                 <Button 
                   className="flex-1 bg-purple-600 hover:bg-purple-700" 
@@ -465,19 +477,20 @@ const EventDetail = () => {
                   <UserPlus size={16} className="mr-2" />
                   Check-in Manual
                 </Button>
-              </>
+              </div>
+            )}
+            {registrationStatus.hasAttended ? (
+              <Button className="flex-1 bg-green-600" disabled>
+                <CheckCircle size={16} className="mr-2" />
+                Asistencia Registrada
+              </Button>
             ) : registrationStatus.canScanQR ? (
               <Button 
-                className="flex-1 bg-green-600 hover:bg-green-700" 
+                className="flex-1 bg-blue-600 hover:bg-blue-700" 
                 onClick={() => setQrScannerOpen(true)}
               >
                 <QrCode size={16} className="mr-2" />
                 Escanear QR para Asistencia
-              </Button>
-            ) : registrationStatus.hasAttended ? (
-              <Button className="flex-1 bg-green-600" disabled>
-                <CheckCircle size={16} className="mr-2" />
-                Asistencia Registrada
               </Button>
             ) : registrationStatus.canRegister || !user ? (
               <div className="flex flex-1 gap-2">
@@ -498,7 +511,7 @@ const EventDetail = () => {
                       setIsRegistering(true);
                       try {
                         await registerForSeries(event.recurrenceGroupId, user.id, user.organizationId);
-                        setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: true }));
+                        setRegistrationStatus(prev => ({ ...prev, isRegistered: true, canRegister: false, canScanQR: false }));
                         toast({ title: "¡Registrado para toda la serie!", description: "Te has registrado para todos los eventos futuros de esta serie." });
                       } catch (error: any) {
                         toast({ title: "Error", description: error.message || "Error al registrarse", variant: "destructive" });
@@ -514,9 +527,9 @@ const EventDetail = () => {
                 )}
               </div>
             ) : registrationStatus.isRegistered ? (
-              <Button className="flex-1" disabled>
-                <Calendar size={16} className="mr-2" />
-                Registrado
+              <Button className="flex-1 bg-green-500" disabled>
+                <CheckCircle size={16} className="mr-2" />
+                Registrado ✓
               </Button>
             ) : (
               <Button className="flex-1" disabled>
@@ -559,6 +572,15 @@ const EventDetail = () => {
           />
         </DialogContent>
       </Dialog>
+
+      {event && isAdmin && (
+        <EventQRDialog
+          eventId={event.id}
+          eventTitle={event.title}
+          isOpen={qrDialogOpen}
+          onClose={() => setQrDialogOpen(false)}
+        />
+      )}
 
       <Dialog open={manualCheckInOpen} onOpenChange={setManualCheckInOpen}>
         <DialogContent>
