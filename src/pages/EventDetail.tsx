@@ -33,6 +33,8 @@ const EventDetail = () => {
   const [donationModalOpen, setDonationModalOpen] = useState(false);
   const [qrScannerOpen, setQrScannerOpen] = useState(false);
   const [manualCheckInOpen, setManualCheckInOpen] = useState(false);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [qrActiveToken, setQrActiveToken] = useState<string | null>(null);
   const [searchEmail, setSearchEmail] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isRegistering, setIsRegistering] = useState(false);
