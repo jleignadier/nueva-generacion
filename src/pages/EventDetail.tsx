@@ -573,6 +573,15 @@ const EventDetail = () => {
         </DialogContent>
       </Dialog>
 
+      {event && isAdmin && (
+        <EventQRDialog
+          eventId={event.id}
+          eventTitle={event.title}
+          isOpen={qrDialogOpen}
+          onClose={() => setQrDialogOpen(false)}
+        />
+      )}
+
       <Dialog open={manualCheckInOpen} onOpenChange={setManualCheckInOpen}>
         <DialogContent>
           <DialogHeader>

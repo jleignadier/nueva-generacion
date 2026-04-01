@@ -237,56 +237,19 @@ const EventForm = () => {
                 </div>
               </div>
               
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="isMultiDay"
-                    checked={isMultiDay}
-                    onCheckedChange={setIsMultiDay}
-                  />
-                  <Label htmlFor="isMultiDay" className="text-white">
-                    Evento de varios días
-                  </Label>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="date" className="text-white">
-                    {isMultiDay ? 'Fecha de Inicio*' : 'Fecha*'}
-                  </Label>
-                  <DatePicker
-                    value={formData.date}
-                    onChange={(date) => setFormData(prev => ({ 
-                      ...prev, 
-                      date: date ? format(date, 'yyyy-MM-dd') : '' 
-                    }))}
-                    placeholder="Seleccionar fecha"
-                    fromYear={new Date().getFullYear()}
-                    toYear={new Date().getFullYear() + 5}
-                    buttonClassName="bg-zinc-700 border-zinc-600 text-white hover:bg-zinc-600"
-                  />
-                </div>
-
-                {isMultiDay && (
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate" className="text-white">Fecha de Finalización*</Label>
-                    <DatePicker
-                      value={formData.endDate}
-                      onChange={(date) => setFormData(prev => ({ 
-                        ...prev, 
-                        endDate: date ? format(date, 'yyyy-MM-dd') : '' 
-                      }))}
-                      placeholder="Seleccionar fecha de fin"
-                      fromYear={new Date().getFullYear()}
-                      toYear={new Date().getFullYear() + 5}
-                      buttonClassName="bg-zinc-700 border-zinc-600 text-white hover:bg-zinc-600"
-                      disabled={(date) => {
-                        if (!formData.date) return true;
-                        const startDate = new Date(formData.date);
-                        return date <= startDate;
-                      }}
-                    />
-                  </div>
-                )}
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-white">Fecha*</Label>
+                <DatePicker
+                  value={formData.date}
+                  onChange={(date) => setFormData(prev => ({ 
+                    ...prev, 
+                    date: date ? format(date, 'yyyy-MM-dd') : '' 
+                  }))}
+                  placeholder="Seleccionar fecha"
+                  fromYear={new Date().getFullYear()}
+                  toYear={new Date().getFullYear() + 5}
+                  buttonClassName="bg-zinc-700 border-zinc-600 text-white hover:bg-zinc-600"
+                />
               </div>
 
               {!isEditing && (
