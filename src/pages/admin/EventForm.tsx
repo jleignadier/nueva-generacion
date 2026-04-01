@@ -74,12 +74,6 @@ const EventForm = () => {
     }
   );
 
-  // Clear endDate when multi-day is toggled off
-  useEffect(() => {
-    if (!isMultiDay) {
-      setFormData(prev => ({ ...prev, endDate: '' }));
-    }
-  }, [isMultiDay]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
