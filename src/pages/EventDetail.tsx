@@ -71,20 +71,29 @@ const EventDetail = () => {
     console.log('🔍 Checking registration for:', { eventId: id, userId: user.id });
 
     const isRegistered = await isUserRegistered(id, user.id);
-    console.log('📋 Is user registered?', isRegistered);
     
+    const eventDate = event.date; // yyyy-MM-dd
+    const today = new Date().toISOString().split('T')[0];
+    const isEventDay = eventDate === today;
     const eventDateTime = new Date(`${event.date}T${event.time}`);
     const now = new Date();
-    const isPast = eventDateTime < now;
-    const canScanQR = !isPast && isRegistered;
-    const canRegister = !isPast && !isRegistered;
+    const isPast = eventDateTime < now && !isEventDay;
 
-    console.log('✅ Registration status calculated:', {
-      isRegistered,
-      canRegister,
-      isEventPast: isPast,
-      canScanQR,
-    });
+    // Check if QR is active for today's event
+    let hasActiveQR = false;
+    if (isEventDay && isRegistered) {
+      const { data } = await supabase
+        .from('events')
+        .select('qr_active_token' as any)
+        .eq('id', id)
+        .single();
+      const token = (data as any)?.qr_active_token;
+      setQrActiveToken(token);
+      hasActiveQR = !!token;
+    }
+
+    const canScanQR = isRegistered && isEventDay && hasActiveQR;
+    const canRegister = !isPast && !isRegistered;
 
     setRegistrationStatus({
       isRegistered,
