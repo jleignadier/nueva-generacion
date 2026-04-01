@@ -98,26 +98,6 @@ const EventForm = () => {
       return;
     }
 
-    // Validate end date for multi-day events
-    if (isMultiDay && !formData.endDate) {
-      toast({
-        title: "Información faltante",
-        description: "Por favor selecciona la fecha de finalización",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Validate end date is after start date
-    if (isMultiDay && formData.endDate && formData.endDate <= formData.date) {
-      toast({
-        title: "Fecha inválida",
-        description: "La fecha de finalización debe ser posterior a la fecha de inicio",
-        variant: "destructive"
-      });
-      return;
-    }
-
     // Validate recurrence end date
     if (isRecurring && !recurrenceEndDate) {
       toast({
