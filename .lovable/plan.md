@@ -1,64 +1,54 @@
 
 
-# Recurring Events Feature
+# Fix Recurring Events & Registration Flow
 
-## Overview
-Add recurrence settings to the admin event creation/edit form. When an admin creates a recurring event, the system generates individual event instances that share a `recurrence_group_id`. Volunteers can then register for the entire series or individual occurrences.
+## Issues Identified
 
-## Database Changes (1 migration)
+1. **"Evento de varios días" label** still shows in EventForm.tsx (line 276). Should be replaced with "Evento Recurrente" — but actually both toggles exist now (multi-day AND recurring). The user wants to **remove the multi-day toggle entirely** and keep only "Evento Recurrente."
 
-Add columns to the `events` table:
-- `recurrence_type TEXT NULL` — values: `weekly`, `biweekly`, `monthly`, or `NULL` (one-time)
-- `recurrence_end_date DATE NULL` — when the recurrence stops generating instances
-- `recurrence_group_id UUID NULL` — shared ID linking all instances of a recurring event
+2. **EventDetail skips registration, goes straight to QR scan.** The volunteer action buttons (lines 451-540) show QR scan for admins by default and for registered users. But for non-registered, non-admin users the `canRegister` check at line 482 works correctly. The real problem: **admins always see "Escanear QR" and "Check-in Manual" (lines 452-468)** with no register option, and the `canScanQR` logic (line 76) sets it true immediately upon registration — even before the event day. This means a volunteer who just registered sees "Escanear QR" instead of "Registrado" with a calendar download.
 
-No new tables needed. Each recurrence instance is a full row in `events`, so existing registration, attendance, QR, and donation logic all work unchanged per instance.
+3. **Recurring date generation is correct** (uses `addWeeks`/`addMonths`), so same-day-of-week is already preserved for weekly/biweekly. Monthly uses `addMonths` which keeps the same day-of-month (close enough). No fix needed here.
 
-## How It Works
+4. **Admin QR generation** already exists via `EventQRDialog` in `AdminEvents.tsx`. The user wants it also accessible from `EventDetail.tsx` for admins — currently admins see a "Escanear QR" (scan) button there, but not a "Generar/Activar QR" button for displaying the QR to attendees.
 
-**Admin creates a recurring event:**
-1. Admin fills in the event form as usual (title, date, time, location, etc.)
-2. Toggles "Evento Recurrente" switch ON
-3. Selects frequency: Semanal / Bisemanal / Mensual
-4. Picks a recurrence end date
-5. On submit, the backend generates all individual event rows sharing the same `recurrence_group_id`
+## Changes
 
-**Volunteer registration options:**
-- On any event that belongs to a recurrence group, the volunteer sees two buttons:
-  - "Registrarse para este evento" (single instance)
-  - "Registrarse para toda la serie" (registers for all future instances in the group)
+### 1. `EventForm.tsx` — Remove multi-day toggle, keep only recurring
+- Remove the `isMultiDay` state and the "Evento de varios días" switch + end date picker block (lines 269-317)
+- Remove `endDate` from form data (or keep it unused)
+- The recurring toggle already exists and works correctly
 
-**Admin editing:**
-- When editing a recurring event, admin is asked: "Editar solo este evento" or "Editar todos los eventos futuros de la serie"
-- Single-edit updates only that row; series-edit updates all future instances in the group
+### 2. `EventDetail.tsx` — Fix registration flow
+- **For volunteers:** After registering, show "Registrado ✓" status + calendar download, NOT the QR scan button. Only show QR scan on the **event day** when the admin has activated QR (check `qr_active_token` exists).
+- Change `canScanQR` logic: must be registered AND event is today AND QR is active (token exists in DB)
+- Add a check for `qr_active_token` when determining if QR scan is available
+- **For admins on EventDetail:** Add an "Activar QR" button that opens `EventQRDialog` (to display/generate QR for attendees to scan), in addition to the existing manual check-in button
 
-## Frontend Changes
+### 3. `EventDetail.tsx` — Add series registration with calendar
+- When registering for the full series, download calendar files for all events in the series (or at least the first one)
 
-### 1. `EventForm.tsx` — Add recurrence fields
-- Add a "Evento Recurrente" switch (like the existing multi-day toggle)
-- When ON, show:
-  - Radio group: Semanal / Bisemanal / Mensual
-  - DatePicker for recurrence end date
-- On submit, if recurring: generate event dates client-side, insert all rows via `addRecurringEvents` store method
-
-### 2. `eventsStore.ts` — New `addRecurringEvents` method
-- Accepts base event data + recurrence config
-- Generates date array based on frequency
-- Generates a shared `recurrence_group_id` (UUID)
-- Batch-inserts all event rows into Supabase
-
-### 3. `EventDetail.tsx` — Series registration option
-- If event has a `recurrence_group_id`, show option to register for the full series
-- "Register for series" calls `registerForEvent` for each future unregistered instance in the group
-
-### 4. `AdminEvents.tsx` — Visual indicator
-- Show a small "Recurrente" badge on events that belong to a recurrence group
-- When deleting, ask: delete single instance or entire series
+### 4. `AdminEvents.tsx` — No changes needed
+- QR activation button already exists here
 
 ## Technical Details
 
-- **Date generation**: use `date-fns` `addWeeks`/`addMonths` to compute instance dates from start date to recurrence end date
-- **New DB columns**: `recurrence_type TEXT NULL`, `recurrence_end_date DATE NULL`, `recurrence_group_id UUID NULL`
-- **Files modified**: `EventForm.tsx`, `eventsStore.ts`, `EventDetail.tsx`, `AdminEvents.tsx`
-- **No new packages needed** — `date-fns` is already installed
+**Files modified:**
+- `src/pages/admin/EventForm.tsx` — remove multi-day toggle
+- `src/pages/EventDetail.tsx` — fix registration flow, add admin QR display button, check qr_active_token for scan availability
+
+**Key logic change in EventDetail:**
+```text
+Volunteer flow:
+  Not registered → "Registrarse" button (+ series option if recurring)
+  Registered, not event day → "Registrado ✓" (disabled green button)
+  Registered, event day, QR active → "Escanear QR para Asistencia"
+  Attended → "Asistencia Registrada ✓"
+
+Admin flow:
+  Always show "Activar QR" (opens EventQRDialog to display QR)
+  Always show "Check-in Manual"
+```
+
+**No DB changes needed.**
 
