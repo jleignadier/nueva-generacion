@@ -33,7 +33,7 @@ const EventQRDialog: React.FC<EventQRDialogProps> = ({ eventId, eventTitle, isOp
 
       setToken(newToken);
 
-      const qrContent = `${eventId}:${newToken}`;
+      const qrContent = `${window.location.origin}/qr-check-in?event=${eventId}&token=${newToken}`;
       const dataUrl = await QRCode.toDataURL(qrContent, {
         width: 400,
         margin: 2,
@@ -84,7 +84,7 @@ const EventQRDialog: React.FC<EventQRDialogProps> = ({ eventId, eventTitle, isOp
       const existingToken = (data as any)?.qr_active_token;
       if (existingToken) {
         setToken(existingToken);
-        const qrContent = `${eventId}:${existingToken}`;
+        const qrContent = `${window.location.origin}/qr-check-in?event=${eventId}&token=${existingToken}`;
         const dataUrl = await QRCode.toDataURL(qrContent, {
           width: 400,
           margin: 2,
@@ -115,7 +115,7 @@ const EventQRDialog: React.FC<EventQRDialogProps> = ({ eventId, eventTitle, isOp
                 <img src={qrDataUrl} alt="QR Code" className="w-64 h-64" />
               </div>
               <p className="text-sm text-muted-foreground text-center">
-                Los voluntarios deben escanear este código para registrar su asistencia.
+                Los voluntarios pueden escanear con la cámara del teléfono o con el escáner de la app.
               </p>
               <Button
                 variant="destructive"

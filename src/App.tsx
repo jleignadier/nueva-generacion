@@ -25,6 +25,7 @@ import ProfileTab from "./pages/tabs/ProfileTab";
 import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import NotFound from "./pages/NotFound";
+import QRCheckIn from "./pages/QRCheckIn";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/qr-check-in" element={<QRCheckIn />} />
             
             {/* User Routes */}
             <Route element={<UserLayout />}>
