@@ -222,7 +222,7 @@ const EventDetail = () => {
         p_event_id: id,
         p_check_in_method: 'qr_scan',
         p_qr_token: scannedToken
-      } as any);
+      });
 
       if (error) throw error;
 

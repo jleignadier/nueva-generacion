@@ -666,24 +666,15 @@ export type Database = {
       }
     }
     Functions: {
-      award_event_points:
-        | {
-            Args: {
-              p_check_in_method: Database["public"]["Enums"]["check_in_method"]
-              p_event_id: string
-              p_user_id: string
-            }
-            Returns: undefined
-          }
-        | {
-            Args: {
-              p_check_in_method: Database["public"]["Enums"]["check_in_method"]
-              p_event_id: string
-              p_qr_token?: string
-              p_user_id: string
-            }
-            Returns: undefined
-          }
+      award_event_points: {
+        Args: {
+          p_check_in_method: Database["public"]["Enums"]["check_in_method"]
+          p_event_id: string
+          p_qr_token?: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       can_view_organization_contact: {
         Args: { org_id: string }
         Returns: boolean
