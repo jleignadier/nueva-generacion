@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.award_event_points(uuid, uuid, check_in_method);
