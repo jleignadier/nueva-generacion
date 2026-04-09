@@ -134,11 +134,15 @@ const Signup = () => {
       const finalAccountType = isAdmin ? 'admin' : accountType;
       
       // Prepare signup data
+      // For organization accounts, use orgName as firstName so the profile isn't blank
+      const finalFirstName = accountType === 'organization' ? orgName : firstName;
+      const finalLastName = accountType === 'organization' ? '' : lastName;
+
       const signupData = {
         email,
         password,
-        firstName,
-        lastName,
+        firstName: finalFirstName,
+        lastName: finalLastName,
         phone: phone,
         birthdate: birthdate ? format(birthdate, 'yyyy-MM-dd') : undefined,
         accountType: finalAccountType as 'volunteer' | 'organization' | 'admin',
@@ -204,16 +208,46 @@ const Signup = () => {
             <h2 className="text-2xl font-bold text-nuevagen-blue mb-4">
               ¡Registro Exitoso!
             </h2>
-            <p className="text-gray-600 mb-6 text-sm">
+            <p className="text-gray-600 mb-2 text-sm">
               Te hemos enviado un correo de confirmación a <strong>{email}</strong>. 
               Por favor revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
             </p>
+            <p className="text-amber-600 mb-6 text-sm font-medium">
+              ⚠️ Si no lo encuentras, revisa tu carpeta de spam o correo no deseado.
+            </p>
             <Link 
               to="/login" 
-              className="w-full inline-block text-center px-4 py-2 bg-nuevagen-blue text-white font-medium rounded-lg hover:bg-opacity-90"
+              className="w-full inline-block text-center px-4 py-2 bg-nuevagen-blue text-white font-medium rounded-lg hover:bg-opacity-90 mb-3"
             >
               Ir al Inicio de Sesión
             </Link>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={async () => {
+                try {
+                  const { error } = await supabase.auth.resend({
+                    type: 'signup',
+                    email: email,
+                    options: { emailRedirectTo: `${window.location.origin}/login` }
+                  });
+                  if (error) throw error;
+                  toast({
+                    title: "Correo Reenviado",
+                    description: "Revisa tu bandeja de entrada y tu carpeta de spam.",
+                  });
+                } catch (err: any) {
+                  toast({
+                    title: "Error",
+                    description: err.message || "No se pudo reenviar el correo",
+                    variant: "destructive",
+                  });
+                }
+              }}
+              className="w-full text-nuevagen-blue border-nuevagen-blue hover:bg-nuevagen-blue hover:text-white"
+            >
+              Reenviar Correo de Confirmación
+            </Button>
           </div>
         ) : (
           <>

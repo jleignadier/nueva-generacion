@@ -263,7 +263,7 @@ const Login = () => {
           {showResendConfirmation && (
             <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-800 mb-2">
-                Tu correo no está verificado. ¿No recibiste el correo de confirmación?
+                Tu correo no está verificado. ¿No recibiste el correo de confirmación? Revisa también tu carpeta de <strong>spam o correo no deseado</strong>.
               </p>
               <Button
                 type="button"
@@ -308,22 +308,6 @@ const Login = () => {
             </div>
           )}
 
-          {showResendConfirmation && (
-            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm text-yellow-800 mb-3">
-                ¿No has recibido el correo de confirmación?
-              </p>
-              <Button
-                type="button"
-                onClick={handleResendConfirmation}
-                disabled={isResending}
-                variant="outline"
-                className="w-full h-10 text-sm"
-              >
-                {isResending ? "Enviando..." : "Reenviar Correo de Confirmación"}
-              </Button>
-            </div>
-          )}
           
           <div className="text-center text-sm mt-4">
             <span className="text-gray-600">¿No tienes cuenta? </span>

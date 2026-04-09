@@ -192,7 +192,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       }
       
-      const redirectUrl = window.location.origin;
+      const redirectUrl = `${window.location.origin}/login`;
       
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
@@ -222,15 +222,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('No user data returned');
       }
       
-      // Check if user needs email confirmation
-      const needsConfirmation = data.user.identities && data.user.identities.length === 0;
-
-      if (needsConfirmation) {
-        console.log('AuthContext: User needs to confirm email');
-        // Don't set session, user must verify email first
-        // Clear any session that might have been created
-        await supabase.auth.signOut();
-      }
+      // With enable_confirmations = true, Supabase won't create a session
+      // for unconfirmed users, so no explicit signOut needed.
       
       // Return user data for UI display
       return {
