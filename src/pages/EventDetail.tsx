@@ -191,20 +191,35 @@ const EventDetail = () => {
   const handleQRScanSuccess = async (result: string) => {
     if (!event || !id || !user) return;
     
-    // Parse the QR content: "eventId:token"
-    const parts = result.split(':');
-    if (parts.length < 2) {
-      toast({
-        title: "QR inválido",
-        description: "El código QR no es válido para registrar asistencia.",
-        variant: "destructive",
-      });
-      setQrScannerOpen(false);
-      return;
-    }
+    // Parse QR content: URL format or legacy "eventId:token"
+    let scannedEventId: string;
+    let scannedToken: string;
 
-    const scannedEventId = parts[0];
-    const scannedToken = parts.slice(1).join(':');
+    try {
+      const url = new URL(result);
+      const eParam = url.searchParams.get('event');
+      const tParam = url.searchParams.get('token');
+      if (eParam && tParam) {
+        scannedEventId = eParam;
+        scannedToken = tParam;
+      } else {
+        throw new Error('missing params');
+      }
+    } catch {
+      // Legacy format: "eventId:token"
+      const parts = result.split(':');
+      if (parts.length < 2) {
+        toast({
+          title: "QR inválido",
+          description: "El código QR no es válido para registrar asistencia.",
+          variant: "destructive",
+        });
+        setQrScannerOpen(false);
+        return;
+      }
+      scannedEventId = parts[0];
+      scannedToken = parts.slice(1).join(':');
+    }
 
     if (scannedEventId !== id) {
       toast({

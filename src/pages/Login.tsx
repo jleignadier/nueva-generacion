@@ -59,7 +59,16 @@ const Login = () => {
       authStorage.setRememberMe(rememberMe);
       
       const user = await login(email, password);
-      // Navigation will be handled by the auth state change
+      
+      // Check for pending QR check-in
+      const pendingQR = sessionStorage.getItem('pending-qr-checkin');
+      if (pendingQR) {
+        sessionStorage.removeItem('pending-qr-checkin');
+        const { eventId, token } = JSON.parse(pendingQR);
+        navigate(`/qr-check-in?event=${eventId}&token=${token}`);
+        return;
+      }
+      
       if (user.isAdmin) {
         navigate('/admin');
       } else {
