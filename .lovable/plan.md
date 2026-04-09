@@ -1,54 +1,40 @@
 
 
-# Fix Recurring Events & Registration Flow
+# Fix Email Verification Issues & Add Spam Folder Warning
 
-## Issues Identified
+## Issues Found
 
-1. **"Evento de varios días" label** still shows in EventForm.tsx (line 276). Should be replaced with "Evento Recurrente" — but actually both toggles exist now (multi-day AND recurring). The user wants to **remove the multi-day toggle entirely** and keep only "Evento Recurrente."
+1. **`emailRedirectTo` points to root (`window.location.origin`)** — After clicking the verification link, users land on `/` which may not handle the auth callback properly. It should redirect to `/login` so users see the login page with a "verified" confirmation.
 
-2. **EventDetail skips registration, goes straight to QR scan.** The volunteer action buttons (lines 451-540) show QR scan for admins by default and for registered users. But for non-registered, non-admin users the `canRegister` check at line 482 works correctly. The real problem: **admins always see "Escanear QR" and "Check-in Manual" (lines 452-468)** with no register option, and the `canScanQR` logic (line 76) sets it true immediately upon registration — even before the event day. This means a volunteer who just registered sees "Escanear QR" instead of "Registrado" with a calendar download.
+2. **`needsConfirmation` check is unreliable** — The code checks `data.user.identities.length === 0` to detect if email confirmation is needed. This is a workaround for detecting duplicate signups, NOT for checking if confirmation is pending. With `enable_confirmations = true` in Supabase config, ALL new signups require confirmation but will have identities. The `signOut()` call after signup may be interfering — Supabase with confirmations enabled should NOT create a session for unconfirmed users, so the explicit `signOut()` is unnecessary and could cause race conditions with the auth state listener.
 
-3. **Recurring date generation is correct** (uses `addWeeks`/`addMonths`), so same-day-of-week is already preserved for weekly/biweekly. Monthly uses `addMonths` which keeps the same day-of-month (close enough). No fix needed here.
+3. **No spam folder warning on the registration success screen** — The success message (line 207-210) tells users to check their inbox but does NOT mention the spam/junk folder.
 
-4. **Admin QR generation** already exists via `EventQRDialog` in `AdminEvents.tsx`. The user wants it also accessible from `EventDetail.tsx` for admins — currently admins see a "Escanear QR" (scan) button there, but not a "Generar/Activar QR" button for displaying the QR to attendees.
+4. **Login resend verification has duplicate UI** — Two `showResendConfirmation` blocks render (lines 263-278 AND 311-326), showing redundant resend buttons.
+
+5. **Organization signup missing firstName/lastName** — When `accountType === 'organization'`, the form collects `orgName` but never sets `firstName`/`lastName`. The signup call sends empty strings for these fields, which means the profile gets created with blank names. This could cause issues with the trigger and profile display.
 
 ## Changes
 
-### 1. `EventForm.tsx` — Remove multi-day toggle, keep only recurring
-- Remove the `isMultiDay` state and the "Evento de varios días" switch + end date picker block (lines 269-317)
-- Remove `endDate` from form data (or keep it unused)
-- The recurring toggle already exists and works correctly
+### 1. `src/pages/Signup.tsx` — Add spam warning + fix org fields
+- Add "Revisa también tu carpeta de spam o correo no deseado" to the success message (line 209)
+- Add a resend verification button on the success screen
+- For organization accounts, use `orgName` as `firstName` so the profile isn't blank
 
-### 2. `EventDetail.tsx` — Fix registration flow
-- **For volunteers:** After registering, show "Registrado ✓" status + calendar download, NOT the QR scan button. Only show QR scan on the **event day** when the admin has activated QR (check `qr_active_token` exists).
-- Change `canScanQR` logic: must be registered AND event is today AND QR is active (token exists in DB)
-- Add a check for `qr_active_token` when determining if QR scan is available
-- **For admins on EventDetail:** Add an "Activar QR" button that opens `EventQRDialog` (to display/generate QR for attendees to scan), in addition to the existing manual check-in button
+### 2. `src/contexts/AuthContext.tsx` — Fix redirect URL & confirmation logic
+- Change `emailRedirectTo` from `window.location.origin` to `window.location.origin + '/login'`
+- Remove the unreliable `identities.length === 0` check and the explicit `signOut()` — with `enable_confirmations = true`, Supabase handles this automatically (no session is created for unconfirmed users)
 
-### 3. `EventDetail.tsx` — Add series registration with calendar
-- When registering for the full series, download calendar files for all events in the series (or at least the first one)
-
-### 4. `AdminEvents.tsx` — No changes needed
-- QR activation button already exists here
+### 3. `src/pages/Login.tsx` — Remove duplicate resend UI + add spam tip
+- Remove one of the two duplicate `showResendConfirmation` blocks
+- Add spam folder mention to the resend confirmation messages
 
 ## Technical Details
 
 **Files modified:**
-- `src/pages/admin/EventForm.tsx` — remove multi-day toggle
-- `src/pages/EventDetail.tsx` — fix registration flow, add admin QR display button, check qr_active_token for scan availability
+- `src/pages/Signup.tsx` — spam warning on success screen, resend button, org name fix
+- `src/contexts/AuthContext.tsx` — fix `emailRedirectTo`, remove broken confirmation check
+- `src/pages/Login.tsx` — deduplicate resend UI, add spam mention
 
-**Key logic change in EventDetail:**
-```text
-Volunteer flow:
-  Not registered → "Registrarse" button (+ series option if recurring)
-  Registered, not event day → "Registrado ✓" (disabled green button)
-  Registered, event day, QR active → "Escanear QR para Asistencia"
-  Attended → "Asistencia Registrada ✓"
-
-Admin flow:
-  Always show "Activar QR" (opens EventQRDialog to display QR)
-  Always show "Check-in Manual"
-```
-
-**No DB changes needed.**
+**No database changes needed.**
 
