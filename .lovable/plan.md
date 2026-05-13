@@ -1,56 +1,33 @@
+## Goal
 
-Problem found: the current QR payload is generated as raw text in the format `eventId:token`. That works with the in-app `html5-qrcode` scanner, but when users scan the QR with their phone camera or another scanner, the device treats it like a URI/external target and leaves the app. There is no app route today that receives a QR scan opened from outside the scanner dialog, so attendance is never completed in that path.
+When an admin activates the QR for an event, present the QR in a fullscreen view so that volunteers scanning the device only see the QR (and a close button) — never the admin UI behind it.
 
-Plan
+## Changes
 
-1. Change the QR payload from raw text to an app URL
-- Update `src/components/admin/EventQRDialog.tsx`.
-- Generate the QR as a first-party URL on this app domain, for example:
-  `https://.../qr-check-in?event=<eventId>&token=<token>`
-- This makes phone-camera scans open this app instead of some ambiguous external target.
+Single file: `src/components/admin/EventQRDialog.tsx`
 
-2. Add a dedicated QR check-in route/page
-- Add a new page such as `src/pages/QRCheckIn.tsx`.
-- Add a public route in `src/App.tsx` for `/qr-check-in`.
-- On load, the page will:
-  - read `event` and `token` from the URL
-  - verify auth state
-  - if logged in, call the existing `award_event_points` RPC directly
-  - show loading, success, duplicate-attendance, invalid-token, and wrong-event states clearly
+1. Replace the current `Dialog` / `DialogContent` (which renders a small centered modal) with a fullscreen overlay once a QR is active:
+   - Fixed-position container covering the entire viewport (`fixed inset-0 z-50`), solid white background so the QR has maximum contrast for scanning.
+   - Centered QR image, scaled large (e.g. `min(80vw, 80vh)`) so it fills most of the screen.
+   - Event title shown small at the top.
+   - A single, clearly visible **Close / Desactivar QR** button in a corner (top-right `X` icon button) plus the existing destructive "Desactivar QR" action at the bottom. The corner X just closes the overlay without deactivating; the bottom button deactivates server-side as today.
+   - Lock body scroll while the overlay is open.
 
-3. Preserve QR check-in across login
-- If a user opens `/qr-check-in` while logged out, store the pending QR payload in session storage and send them to `/login`.
-- Update `src/pages/Login.tsx` so successful login resumes the pending QR check-in flow instead of always going to `/dashboard`.
-- This avoids losing the token during auth redirects.
+2. Keep the **pre-activation** state (the "Activar QR" prompt) inside the existing small `Dialog` — fullscreen only kicks in once `qrDataUrl` exists. This avoids a jarring fullscreen takeover before the admin actually generates a code.
 
-4. Keep the in-app scanner working
-- Update `src/pages/EventDetail.tsx` so `handleQRScanSuccess` can parse both:
-  - the old legacy format: `eventId:token`
-  - the new URL format: `/qr-check-in?event=...&token=...`
-- This keeps the modal scanner compatible while moving admins to the safer QR format.
+3. No changes to:
+   - QR payload / URL format
+   - Supabase calls (`activateQR`, `deactivateQR`, initial fetch effect)
+   - `AdminEvents.tsx` integration (same props)
+   - `/qr-check-in` flow
 
-5. Improve admin/volunteer guidance
-- In `EventQRDialog`, add a short note that the QR can now be scanned with either:
-  - the in-app scanner, or
-  - the phone camera, which will open the app check-in page
-- Optionally add a “Copiar enlace” action for testing.
+## Technical notes
 
-Technical details
-- No new backend endpoint is required if `award_event_points` is already working after the function-overload fix.
-- The main missing piece is not the RPC itself; it is the absence of a route that handles QR scans opened outside the in-app scanner.
-- The raw `eventId:token` format is fragile for native camera apps because anything shaped like `something:...` may be interpreted as a link/URI scheme.
-- This approach keeps attendance validation server-side through the existing Supabase function and only changes how the client receives the QR data.
+- Use a plain `div` portal-like overlay (`fixed inset-0 bg-white flex flex-col`) instead of `DialogContent` for the active state, because Radix Dialog content is constrained by `sm:max-w-*` and centered sizing. Render it conditionally next to the existing `Dialog` (the `Dialog` only handles the inactive/activation prompt state).
+- Add `useEffect` to set `document.body.style.overflow = 'hidden'` while the fullscreen overlay is mounted, restoring on unmount.
+- Close button: top-right, large tap target, semantic tokens for styling. Use the already-imported `X` icon.
+- Keep the helper text ("Los voluntarios pueden escanear...") small and below the QR so it doesn't compete visually.
 
-Files to update
-- `src/components/admin/EventQRDialog.tsx`
-- `src/pages/QRCheckIn.tsx` (new)
-- `src/App.tsx`
-- `src/pages/Login.tsx`
-- `src/pages/EventDetail.tsx`
+## Expected result
 
-Expected result
-- Admin activates QR
-- Volunteer scans with phone camera or app scanner
-- The app opens its own `/qr-check-in` route
-- The route performs the attendance update through Supabase
-- Users no longer get sent to an unrelated web destination
+Admin taps "Activar QR" → screen flips to a clean white fullscreen with a giant QR centered, event title at top, X to close at top-right, and "Desactivar QR" at the bottom. Volunteers scanning can no longer see any admin data behind the code.

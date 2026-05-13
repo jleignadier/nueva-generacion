@@ -98,6 +98,63 @@ const EventQRDialog: React.FC<EventQRDialogProps> = ({ eventId, eventTitle, isOp
     })();
   }, [isOpen, eventId]);
 
+  // Lock body scroll while fullscreen overlay is open
+  useEffect(() => {
+    if (isOpen && qrDataUrl) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [isOpen, qrDataUrl]);
+
+  // Fullscreen QR display once activated
+  if (isOpen && qrDataUrl) {
+    return (
+      <div className="fixed inset-0 z-50 bg-white flex flex-col">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-200">
+          <div className="flex items-center gap-2 text-zinc-900 font-medium truncate">
+            <QrCode size={20} />
+            <span className="truncate">QR de Asistencia — {eventTitle}</span>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="p-2 rounded-md text-zinc-700 hover:bg-zinc-100"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="flex-1 flex items-center justify-center p-4">
+          <img
+            src={qrDataUrl}
+            alt="QR Code"
+            className="object-contain"
+            style={{ width: 'min(80vw, 80vh)', height: 'min(80vw, 80vh)' }}
+          />
+        </div>
+
+        <div className="px-4 pb-6 pt-2 flex flex-col items-center gap-3">
+          <p className="text-sm text-zinc-600 text-center">
+            Los voluntarios pueden escanear con la cámara del teléfono o con el escáner de la app.
+          </p>
+          <Button
+            variant="destructive"
+            onClick={deactivateQR}
+            disabled={loading}
+            className="w-full max-w-md"
+          >
+            <X size={16} className="mr-2" />
+            Desactivar QR
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Pre-activation: small modal with the activation prompt
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="bg-popover border-border sm:max-w-md">
@@ -109,39 +166,17 @@ const EventQRDialog: React.FC<EventQRDialogProps> = ({ eventId, eventTitle, isOp
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-4 py-4">
-          {qrDataUrl ? (
-            <>
-              <div className="bg-white p-4 rounded-lg">
-                <img src={qrDataUrl} alt="QR Code" className="w-64 h-64" />
-              </div>
-              <p className="text-sm text-muted-foreground text-center">
-                Los voluntarios pueden escanear con la cámara del teléfono o con el escáner de la app.
-              </p>
-              <Button
-                variant="destructive"
-                onClick={deactivateQR}
-                disabled={loading}
-                className="w-full"
-              >
-                <X size={16} className="mr-2" />
-                Desactivar QR
-              </Button>
-            </>
-          ) : (
-            <>
-              <p className="text-sm text-muted-foreground text-center">
-                Activa el código QR para permitir que los voluntarios registren su asistencia escaneándolo.
-              </p>
-              <Button
-                onClick={activateQR}
-                disabled={loading}
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
-                <QrCode size={16} className="mr-2" />
-                {loading ? 'Activando...' : 'Activar QR'}
-              </Button>
-            </>
-          )}
+          <p className="text-sm text-muted-foreground text-center">
+            Activa el código QR para permitir que los voluntarios registren su asistencia escaneándolo.
+          </p>
+          <Button
+            onClick={activateQR}
+            disabled={loading}
+            className="w-full bg-green-600 hover:bg-green-700"
+          >
+            <QrCode size={16} className="mr-2" />
+            {loading ? 'Activando...' : 'Activar QR'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
